@@ -1,7 +1,7 @@
 (function(){
   const PAGES={
     'home':{file:'index.html',label:'首页',branches:[['#quickAdd','快速新增'],['#taskBoard','操作区']]},
-    'study':{file:'study.html',label:'学习中心',branches:[['#planner','换课'],['#links','官方链接'],['#visa','485']]},
+    'study':{file:'study.html',label:'学习中心',branches:[['#planner','换课'],['#links','官方链接'],['#visa','485'],['#sync-study','同步']]},
     'career':{file:'career.html',label:'求职中心',branches:[['main .grid.three','概览'],['main .section','求职列表']]},
     'growth':{file:'growth.html',label:'成长记录',branches:[['main .grid.three','概览'],['main .section','时间轴']]},
     'resume':{file:'resume.html',label:'关于 Sage',branches:[['main .hero','摘要'],['#resume-about','关于'],['#resume-contact','联系'],['#resume-portfolio','作品'],['#resume-skills','技能']]}
