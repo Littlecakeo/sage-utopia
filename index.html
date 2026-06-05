@@ -8,7 +8,9 @@
   <link rel="stylesheet" href="progress.css">
   <link rel="stylesheet" href="edit-mode.css?v=4">
   <style>
-    .quote-meta{margin-top:18px;font-size:16px;color:#60785d;font-weight:800}
+    .quote-date{margin:0 0 18px;font-size:16px;color:#60785d;font-weight:900;letter-spacing:0}
+    .quote-source{margin:22px 0 0;font-size:15px;color:#60785d;font-weight:900;text-align:right}
+    .quote-card h1{max-width:920px}
     .quick-mini{grid-template-columns:repeat(3,1fr);margin-top:18px}
     .quick-card{appearance:none;border:1px solid rgba(222,216,201,.82);text-align:left;color:var(--text);padding:16px;min-height:88px;box-shadow:var(--shadow-soft);background:rgba(255,253,248,.86)}
     .quick-card span{display:block;color:#60785d;font-size:13px;font-weight:900;margin-bottom:8px}
@@ -20,8 +22,8 @@
     .compact-stats .stat{grid-row:1/3;font-size:22px;line-height:1;margin:0;color:#34483e;text-align:left;min-width:34px}
     .compact-stats .hint{font-size:11px;font-weight:700;color:#8a958b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .home-section-title{margin:22px 0 8px;font-size:16px;color:#60785d;font-weight:900}
-    @media(max-width:900px){.quick-mini{grid-template-columns:repeat(3,1fr)}.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.quick-card{padding:14px;min-height:78px}.quick-card strong{font-size:15px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}}
-    @media(max-width:620px){.quick-mini{grid-template-columns:1fr 1fr 1fr;gap:8px}.quick-card{padding:12px 10px;min-height:72px}.quick-card strong{font-size:14px}.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}}
+    @media(max-width:900px){.quick-mini{grid-template-columns:repeat(3,1fr)}.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.quick-card{padding:14px;min-height:78px}.quick-card strong{font-size:15px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}}
+    @media(max-width:620px){.quick-mini{grid-template-columns:1fr 1fr 1fr;gap:8px}.quick-card{padding:12px 10px;min-height:72px}.quick-card strong{font-size:14px}.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.quote-card h1{font-size:38px}.quote-source{text-align:left}}
   </style>
 </head>
 <body>
@@ -39,10 +41,10 @@
       </nav>
     </aside>
     <main>
-      <section class="hero">
-        <p class="eyebrow" id="dailyQuoteDate">今日女性主义语录</p>
+      <section class="hero quote-card">
+        <p class="quote-date" id="dailyQuoteDate">26/06/05</p>
         <h1 id="dailyQuoteText">女性不是天生的 而是被塑造成的</h1>
-        <p class="desc quote-meta" id="dailyQuoteMeta">西蒙娜·德·波伏娃 · 1949 · 26/06/05</p>
+        <p class="quote-source" id="dailyQuoteMeta">西蒙娜·德·波伏娃 · 出自《第二性》</p>
       </section>
 
       <section class="grid three quick-mini" id="quickAdd">
@@ -101,20 +103,20 @@
       const dlabel=document.getElementById('dailyQuoteDate');
       if(!t||!m)return;
       const quotes=[
-        {text:'女性不是天生的 而是被塑造成的',author:'西蒙娜·德·波伏娃',year:'1949'},
-        {text:'我不是自由的 只要还有任何女人不自由',author:'奥德丽·洛德',year:'1981'},
-        {text:'女权主义适合每一个人',author:'贝尔·胡克斯',year:'2000'},
-        {text:'每个女人都应该拥有金钱和自己的房间',author:'弗吉尼亚·伍尔夫',year:'1929'},
-        {text:'沉默不会保护你',author:'奥德丽·洛德',year:'1977'},
-        {text:'我们教女孩缩小自己',author:'奇玛曼达·恩戈兹·阿迪契',year:'2012'},
-        {text:'真相会让你自由 但首先它会惹恼你',author:'格洛丽亚·斯泰纳姆',year:'1992'}
+        {text:'女性不是天生的 而是被塑造成的',author:'西蒙娜·德·波伏娃',source:'出自《第二性》'},
+        {text:'我不是自由的 只要还有任何女人不自由',author:'奥德丽·洛德',source:'出自《愤怒的用途》'},
+        {text:'女权主义适合每一个人',author:'贝尔·胡克斯',source:'出自《女权主义是给所有人的》'},
+        {text:'每个女人都应该拥有金钱和自己的房间',author:'弗吉尼亚·伍尔夫',source:'出自《一间自己的房间》'},
+        {text:'沉默不会保护你',author:'奥德丽·洛德',source:'出自《把沉默转化为语言和行动》'},
+        {text:'我们教女孩缩小自己',author:'奇玛曼达·恩戈兹·阿迪契',source:'出自《我们都应该成为女权主义者》'},
+        {text:'真相会让你自由 但首先它会惹恼你',author:'格洛丽亚·斯泰纳姆',source:'演讲与访谈语录'}
       ];
       const d=new Date();
       const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
       const q=quotes[Number(yy+mm+dd)%quotes.length];
       t.textContent=q.text;
-      m.textContent=q.author+' · '+q.year+' · '+yy+'/'+mm+'/'+dd;
-      if(dlabel)dlabel.textContent='今日女性主义语录';
+      m.textContent=q.author+' · '+q.source;
+      if(dlabel)dlabel.textContent=yy+'/'+mm+'/'+dd;
     }
     applyQuoteNow();
   </script>
