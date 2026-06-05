@@ -20,7 +20,7 @@ function applyDailyHero(){
   if(pathKey()!=='index.html')return;
   const title=document.querySelector('main .hero h1');
   if(!title)return;
-  const messages=['今天适合轻轻推进一点','今天把重要的事放在前面','今天也在认真靠近未来','今天给学习和生活留一点光','今天适合整理一个小目标','今天慢慢做也很好','今天让计划变得更清楚'];
+  const messages=['今天适合轟轟推进一点','今天把重要的事放在前面','今天也在认真靠近未来','今天给学习和生活留一点光','今天适合整理一个小目标','今天慢慢做也很好','今天让计划变得更清楚'];
   const d=new Date();
   const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
   const seed=Number(yy+mm+dd);
@@ -44,3 +44,10 @@ document.addEventListener('focus',e=>{const el=e.target;if(el&&el.dataset&&el.da
 window.addEventListener('beforeunload',e=>{if(!dirty)return;e.preventDefault();e.returnValue=''});
 applyDailyHero();
 addSectionIndex();loadEdits();addSaveDock();
+(function loadSageSiteShell(){
+  if(document.querySelector('script[data-sage-site-shell]')) return;
+  const s=document.createElement('script');
+  s.src='site-shell.js?v=1';
+  s.dataset.sageSiteShell='true';
+  document.body.appendChild(s);
+})();
