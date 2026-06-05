@@ -44,7 +44,7 @@ initSageEditMode();
 (function loadSageSiteShell(){
   if(document.querySelector('script[data-sage-site-shell]')) return;
   const s=document.createElement('script');
-  s.src='site-shell.js?v=1';
+  s.src='site-shell.js?v=2';
   s.dataset.sageSiteShell='true';
   document.body.appendChild(s);
 })();
