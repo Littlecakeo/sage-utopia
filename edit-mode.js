@@ -15,8 +15,21 @@ const SECTION_INDEX={
 let dirty=false;
 function pathKey(){return location.pathname.split('/').pop()||'index.html'}
 function editableKey(index){return EDIT_PREFIX+pathKey()+'.'+index}
+
+function applyDailyHero(){
+  if(pathKey()!=='index.html')return;
+  const title=document.querySelector('main .hero h1');
+  if(!title)return;
+  const messages=['今天适合轻轻推进一点','今天把重要的事放在前面','今天也在认真靠近未来','今天给学习和生活留一点光','今天适合整理一个小目标','今天慢慢做也很好','今天让计划变得更清楚'];
+  const d=new Date();
+  const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+  const seed=Number(yy+mm+dd);
+  title.textContent=`${yy}/${mm}/${dd} ${messages[seed%messages.length]}`;
+}
+function personalIntroHTML(){return '<span>ENFP 天秤座</span><span>公共关系与广告方向学生</span><span>关注新媒体内容 品牌传播 数字营销 用户洞察</span><span>把学习 作品 生活 未来机会整理成柔软清晰的成长花园</span>'}
+function isPersonalIntro(el){return pathKey()==='about.html'&&el.matches('.profile-title + .desc')}
 function getEditables(){return Array.from(document.querySelectorAll(EDITABLE_SELECTOR)).filter(el=>!el.closest('.nav')&&!el.closest('.mobile')&&!el.closest('script')&&!el.closest('form')&&!el.closest('button')&&!el.closest('textarea')&&!el.closest('input')&&!el.closest('select')&&!el.closest('.edit-save-dock')&&!el.closest('.section-index')&&!el.closest('.mobile-branches')&&!el.closest('thead'))}
-function loadEdits(){getEditables().forEach((el,index)=>{el.dataset.editable='true';el.dataset.editKey=editableKey(index);el.dataset.original=el.innerHTML;el.contentEditable='true';el.spellcheck=false;const saved=localStorage.getItem(el.dataset.editKey);if(saved!==null){el.innerHTML=saved;el.dataset.original=saved}el.classList.toggle('editable-empty',!el.textContent.trim())})}
+function loadEdits(){getEditables().forEach((el,index)=>{el.dataset.editable='true';el.dataset.editKey=editableKey(index);el.dataset.original=el.innerHTML;el.contentEditable='true';el.spellcheck=false;let saved=localStorage.getItem(el.dataset.editKey);if(isPersonalIntro(el)){el.classList.add('profile-lines');if(!saved||/[。，、]/.test(saved)){saved=personalIntroHTML();localStorage.setItem(el.dataset.editKey,saved)}}if(saved!==null){el.innerHTML=saved;el.dataset.original=saved}el.classList.toggle('editable-empty',!el.textContent.trim())})}
 function markDirty(){dirty=true;document.body.classList.add('has-unsaved-edits')}
 function saveEdits(){getEditables().forEach(el=>{localStorage.setItem(el.dataset.editKey,el.innerHTML);el.dataset.original=el.innerHTML;el.classList.toggle('editable-empty',!el.textContent.trim())});dirty=false;document.body.classList.remove('has-unsaved-edits');toast('已保存更改')}
 function discardEdits(){if(!dirty)return;getEditables().forEach(el=>{el.innerHTML=el.dataset.original||'';el.classList.toggle('editable-empty',!el.textContent.trim())});dirty=false;document.body.classList.remove('has-unsaved-edits');toast('已放弃本次更改')}
@@ -29,4 +42,5 @@ function addSectionIndex(){const entries=SECTION_INDEX[pathKey()]||SECTION_INDEX
 document.addEventListener('input',e=>{const el=e.target;if(el&&el.dataset&&el.dataset.editKey)markDirty()});
 document.addEventListener('focus',e=>{const el=e.target;if(el&&el.dataset&&el.dataset.editKey&&!sessionStorage.getItem('sage.edit.hint')){sessionStorage.setItem('sage.edit.hint','1');toast('可以直接改内容，记得保存更改')}},true);
 window.addEventListener('beforeunload',e=>{if(!dirty)return;e.preventDefault();e.returnValue=''});
+applyDailyHero();
 addSectionIndex();loadEdits();addSaveDock();
