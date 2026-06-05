@@ -3,22 +3,17 @@
     'home':{file:'index.html',label:'首页',branches:[['#quickAdd','快速新增'],['#taskBoard','操作区']]},
     'study':{file:'study.html',label:'学习中心',branches:[['#planner','换课'],['#links','官方链接'],['#visa','485']]},
     'career':{file:'career.html',label:'求职中心',branches:[['main .grid.three','概览'],['main .section','求职列表']]},
-    'finance':{file:'finance.html',label:'财务中心',branches:[['main .grid.stats','预算'],['main .section','分类']]},
     'growth':{file:'growth.html',label:'成长记录',branches:[['main .grid.three','概览'],['main .section','时间轴']]},
-    'sync':{file:'sync.html',label:'同步中心',branches:[['main .hero','说明'],['main .grid.two','iCal']]},
-    'about':{file:'about.html',label:'关于我',branches:[['main .hero','介绍'],['main .profile-grid','信息']]},
-    'resume':{file:'resume.html',label:'在线简历',branches:[['main .hero','摘要'],['main .section','经历']]},
-    'portfolio':{file:'portfolio.html',label:'作品集',branches:[['main .hero','说明'],['main .grid.three','项目']]},
-    'contact':{file:'contact.html',label:'联系方式',branches:[['main .hero','说明'],['main .grid.two','联系']]}
+    'resume':{file:'resume.html',label:'关于 Sage',branches:[['main .hero','摘要'],['#resume-about','关于'],['#resume-contact','联系'],['#resume-portfolio','作品'],['#resume-skills','技能']]}
   };
-  const primary=['home','study','career','finance','growth'];
-  const more=['sync','about','resume','portfolio','contact'];
+  const primary=['home','study','career','growth','resume'];
+  const more=[];
   let loading=false;
   function keyFromPath(){let f=location.pathname.split('/').pop()||'index.html';return Object.keys(PAGES).find(k=>PAGES[k].file===f)||'home'}
   function keyFromHash(){let h=(location.hash||'').replace('#','');return PAGES[h]?h:null}
   function currentKey(){return keyFromHash()||keyFromPath()}
   function ensureId(target,label){if(!target)return null;if(!target.id)target.id='sage-'+label.replace(/[^\w\u4e00-\u9fa5]+/g,'-');return target.id}
-  function primaryHtml(active){return primary.map(k=>`<a class="${active===k?'active':''}" href="index.html#${k}" data-page="${k}">${PAGES[k].label}</a>`).join('')+`<button class="nav-more" type="button">更多</button>`}
+  function primaryHtml(active){return primary.map(k=>`<a class="${active===k?'active':''}" href="index.html#${k}" data-page="${k}">${PAGES[k].label}</a>`).join('')+(more.length?`<button class="nav-more" type="button">更多</button>`:'')}
   function moreHtml(active){return more.map(k=>`<a class="${active===k?'active':''}" href="index.html#${k}" data-page="${k}">${PAGES[k].label}</a>`).join('')}
   function branchHtml(active){let cfg=PAGES[active]||PAGES.home;return cfg.branches.map((b,i)=>`<a href="${String(b[0]).startsWith('#')?b[0]:'#'}" data-branch="${i}">${b[1]}</a>`).join('')}
   function normalizeShell(){
@@ -28,7 +23,7 @@
     document.querySelectorAll('.mobile-scroll').forEach(el=>{const moreRow=document.createElement('div');moreRow.className='mobile-more';moreRow.innerHTML=moreHtml(active);el.insertAdjacentElement('afterend',moreRow)});
     document.querySelectorAll('.mobile-branches').forEach(el=>{el.innerHTML=branchHtml(active)});
     if(!document.querySelector('.mobile-branches')){const ms=document.querySelector('.mobile-more,.mobile-scroll');if(ms){const b=document.createElement('div');b.className='mobile-branches';b.innerHTML=branchHtml(active);ms.insertAdjacentElement('afterend',b)}}
-    document.querySelectorAll('.side .nav').forEach(nav=>{nav.innerHTML=primary.map(k=>`<a class="${active===k?'active':''}" href="index.html#${k}" data-page="${k}">${PAGES[k].label}</a>`).join('')+'<div class="section-index"><p>公开页面</p>'+more.map(k=>`<a class="${active===k?'active':''}" href="index.html#${k}" data-page="${k}">${PAGES[k].label}</a>`).join('')+'</div><div class="section-index"><p>本页分支</p>'+branchHtml(active)+'</div>'});
+    document.querySelectorAll('.side .nav').forEach(nav=>{nav.innerHTML=primary.map(k=>`<a class="${active===k?'active':''}" href="index.html#${k}" data-page="${k}">${PAGES[k].label}</a>`).join('')+'<div class="section-index"><p>本页分支</p>'+branchHtml(active)+'</div>'});
     document.querySelectorAll('.nav-more').forEach(btn=>btn.onclick=()=>document.body.classList.toggle('show-mobile-more'));
     bindNav();
   }
@@ -58,7 +53,7 @@
       doc.querySelectorAll('head style').forEach(st=>{if(!st.textContent.includes('study-hero')||!document.getElementById('sage-study-style')){const copy=st.cloneNode(true); if(copy.textContent.includes('study-hero'))copy.id='sage-study-style'; document.head.appendChild(copy)}});
       if(push)history.pushState({sagePage:key},'',`index.html#${key}`);
       runScripts(doc);
-      setTimeout(()=>{normalizeShell();window.scrollTo({top:0,behavior:'smooth'})},40);
+      setTimeout(()=>{normalizeShell();if(window.initSageEditMode)window.initSageEditMode();window.scrollTo({top:0,behavior:'smooth'})},40);
     } finally {loading=false;}
   }
   function bindNav(){
