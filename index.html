@@ -44,7 +44,7 @@
       <section class="hero quote-card">
         <p class="quote-date" id="dailyQuoteDate">26/06/05</p>
         <h1 id="dailyQuoteText">女性不是天生的 而是被塑造成的</h1>
-        <p class="quote-source" id="dailyQuoteMeta">西蒙娜·德·波伏娃 · 出自《第二性》</p>
+        <p class="quote-source" id="dailyQuoteMeta">——西蒙娜·德·波伏娃《第二性》</p>
       </section>
 
       <section class="grid three quick-mini" id="quickAdd">
@@ -115,7 +115,7 @@
       const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
       const q=quotes[Number(yy+mm+dd)%quotes.length];
       t.textContent=q.text;
-      m.textContent=q.author+' · '+q.source;
+      m.textContent='——'+q.author+q.source.replace('出自','');
       if(dlabel)dlabel.textContent=yy+'/'+mm+'/'+dd;
     }
     applyQuoteNow();
