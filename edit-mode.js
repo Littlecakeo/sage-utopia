@@ -1,5 +1,5 @@
 const EDIT_PREFIX='sage.edit.';
-const EDITABLE_SELECTOR='main h1, main h2, main h3, main h4, main p, main .chip, main .tag, main .hint, main .sub, main .desc, main .task-title, main .task-meta, main .task-note, main .date-pill, main .stat, main a.card h2, main a.card p, main .link-card, main strong';
+const EDITABLE_SELECTOR='main h1, main h2, main h3, main h4, main p, main .chip, main .tag, main .hint, main .sub, main .desc, main .task-title, main .task-meta, main .task-note, main .date-pill, main .stat, main a.card h2, main a.card p, main .link-card, main strong, main td';
 const SECTION_INDEX={
   'index.html':[
     {label:'快速新增',selector:'main .grid.two'},
@@ -11,6 +11,8 @@ const SECTION_INDEX={
   ],
   'study.html':[
     {label:'学习概览',selector:'main .grid.stats'},
+    {label:'选课决策板',text:'选课决策板'},
+    {label:'课程比较表',text:'课程比较表'},
     {label:'课程管理',text:'课程管理'},
     {label:'作业管理',text:'作业管理'}
   ],
@@ -32,12 +34,17 @@ const SECTION_INDEX={
   ],
   'about.html':[
     {label:'个人介绍',selector:'main .hero'},
-    {label:'个人关键词',text:'个人关键词'}
+    {label:'个人关键词',text:'个人关键词'},
+    {label:'教育经历',text:'教育经历'},
+    {label:'能力方向',text:'能力方向'}
   ],
   'resume.html':[
     {label:'简历摘要',selector:'main .hero'},
     {label:'个人简介',text:'个人简介'},
-    {label:'联系方式',text:'联系方式'}
+    {label:'求职方向',text:'求职方向'},
+    {label:'教育经历',text:'教育经历'},
+    {label:'经历摘要',text:'经历摘要'},
+    {label:'技能证书',text:'技能与证书'}
   ],
   'portfolio.html':[
     {label:'作品集说明',selector:'main .hero'},
