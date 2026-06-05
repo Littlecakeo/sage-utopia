@@ -1,4 +1,13 @@
 (function(){
+  function loadTheme(){
+    if(document.querySelector('link[data-sage-theme]'))return;
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='theme-refresh.css?v=1';
+    link.dataset.sageTheme='true';
+    document.head.appendChild(link);
+  }
+  loadTheme();
   const PAGES={
     'home':{file:'index.html',label:'首页',branches:[['#quickAdd','快速新增'],['#taskBoard','操作区']]},
     'study':{file:'study.html',label:'学习中心',branches:[['#planner','换课'],['#links','官方链接'],['#visa','485'],['#sync-study','同步']]},
@@ -17,6 +26,7 @@
   function moreHtml(active){return more.map(k=>`<a class="${active===k?'active':''}" href="index.html#${k}" data-page="${k}">${PAGES[k].label}</a>`).join('')}
   function branchHtml(active){let cfg=PAGES[active]||PAGES.home;return cfg.branches.map((b,i)=>`<a href="${String(b[0]).startsWith('#')?b[0]:'#'}" data-branch="${i}">${b[1]}</a>`).join('')}
   function normalizeShell(){
+    loadTheme();
     const active=currentKey();
     document.querySelectorAll('.mobile-scroll').forEach(el=>{el.innerHTML=primaryHtml(active)});
     document.querySelectorAll('.mobile-more').forEach(el=>el.remove());
