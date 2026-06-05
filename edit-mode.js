@@ -2,7 +2,7 @@ const EDIT_PREFIX='sage.edit.';
 const EDITABLE_SELECTOR='main .desc, main .sub, main .hint, main .task-title, main .task-meta, main .task-note, main .date-pill, main .chip, main .link-card .tag, main .profile-list p, main .term-card p, main .decision-card p, main td:not(:first-child)';
 const SECTION_INDEX={
   'index.html':[{label:'快速新增',selector:'main .grid.two'},{label:'状态概览',selector:'main .grid.stats'},{label:'UNSW 入口',text:'UNSW 快捷入口'},{label:'进度追踪',text:'进度追踪',scope:'.work-zone'},{label:'习惯养成',text:'习惯养成',scope:'.work-zone'},{label:'任务清单',text:'任务清单',scope:'.work-zone'}],
-  'study.html':[{label:'学习概览',selector:'main .grid.stats'},{label:'485 决策框',text:'485 安全决策框'},{label:'推荐路径',text:'我的推荐路径'},{label:'全部课程库',text:'全部可选课程库'},{label:'确认清单',text:'下一步确认清单'}],
+  'study.html':[{label:'学习概览',selector:'main .grid.stats'},{label:'485 证据',text:'485 证据与判断'},{label:'UNSW 索引',text:'UNSW 官方链接索引'},{label:'推荐路径',text:'推荐路径：72 UOC 主线'},{label:'全部课程库',text:'全部可选课程库'},{label:'确认清单',text:'下一步确认清单'}],
   'career.html':[{label:'求职概览',selector:'main .grid.three'},{label:'求职列表',text:'求职列表'}],
   'finance.html':[{label:'预算概览',selector:'main .grid.stats'},{label:'分类统计',text:'分类统计'}],
   'growth.html':[{label:'成长概览',selector:'main .grid.three'},{label:'时间轴',text:'时间轴'}],
