@@ -1,0 +1,27 @@
+const KEY='sage.progress.items.v1';
+const defaults=[
+  {id:'book',title:'读完一本传播学相关书',type:'阅读',start:'2026-06-05',due:'2026-07-05',total:320,current:48,unit:'页',done:false,note:'每天记录看到第几页。'},
+  {id:'portfolio',title:'整理作品集首页',type:'作品集',start:'2026-06-05',due:'2026-06-16',total:5,current:1,unit:'步',done:false,note:'封面、项目简介、负责内容、成果展示、联系方式。'},
+  {id:'moodle',title:'检查 Moodle 作业截止日期',type:'学习',start:'2026-06-05',due:'2026-06-08',total:1,current:0,unit:'项',done:false,note:'同步中心可以辅助整理。'}
+];
+let items=[];
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function num(v,fallback=0){const n=Number(v);return Number.isFinite(n)?n:fallback}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
+function pct(item){const total=Math.max(num(item.total,1),1);return Math.round(clamp(num(item.current,0)/total,0,1)*100)}
+function loadItems(){try{items=JSON.parse(localStorage.getItem(KEY))||defaults}catch(e){items=defaults}if(!localStorage.getItem(KEY))saveItems()}
+function saveItems(){localStorage.setItem(KEY,JSON.stringify(items))}
+function quickType(type){document.getElementById('itemType').value=type;document.getElementById('itemTitle').focus();document.getElementById('taskBoard').scrollIntoView({behavior:'smooth',block:'start'})}
+function addItem(e){e.preventDefault();const title=document.getElementById('itemTitle').value.trim();if(!title)return;const total=Math.max(num(document.getElementById('itemTotal').value,1),1);const current=clamp(num(document.getElementById('itemCurrent').value,0),0,total);items.unshift({id:String(Date.now()),title,type:document.getElementById('itemType').value,start:document.getElementById('itemStart').value,due:document.getElementById('itemDue').value,total,current,unit:document.getElementById('itemUnit').value.trim()||'项',done:current>=total,note:''});document.getElementById('itemForm').reset();saveItems();renderItems();say('已经收好啦。这个目标现在有进度条了。')}
+function updateProgress(id){const input=document.getElementById('progress-'+id);items=items.map(item=>{if(item.id!==id)return item;const total=Math.max(num(item.total,1),1);const current=clamp(num(input.value,item.current),0,total);return {...item,current,done:current>=total}});saveItems();renderItems();say('进度更新好了。慢慢推进也很厉害。')}
+function completeItem(id){items=items.map(item=>item.id===id?{...item,current:Math.max(num(item.total,1),1),done:true}:item);saveItems();renderItems();say('完成啦，给今天的自己一点掌声。')}
+function restoreItem(id){items=items.map(item=>item.id===id?{...item,done:false}:item);saveItems();renderItems()}
+function deleteItem(id){items=items.filter(item=>item.id!==id);saveItems();renderItems()}
+function say(text){const el=document.getElementById('sageMessage');if(el)el.textContent=text}
+function isActive(item){return !item.done&&pct(item)<100}
+function isDueSoon(item){if(item.done||!item.due)return false;const d=new Date(item.due+'T00:00:00');const now=new Date(todayISO()+'T00:00:00');const diff=(d-now)/86400000;return diff<=7}
+function itemCard(item){const percent=pct(item);const unit=item.unit||'项';return `<div class="task-row ${item.done?'done':''}"><div class="task-card-top"><div><div class="task-title">${escapeHTML(item.title)}</div><div class="task-meta">${escapeHTML(item.type)} · ${item.current}/${item.total} ${escapeHTML(unit)} · ${percent}%</div></div><span class="task-badge">${item.done?'已完成':percent>=70?'接近完成':'进行中'}</span></div><div class="progress-track"><span class="progress-fill" style="width:${percent}%"></span></div><div class="progress-line"><span>进度 ${percent}%</span><span>${item.current}/${item.total} ${escapeHTML(unit)}</span></div><div class="date-row">${item.start?`<span class="date-pill">开始 ${item.start}</span>`:''}${item.due?`<span class="date-pill">计划截止 ${item.due}</span>`:'<span class="date-pill">无截止日期</span>'}</div>${item.note?`<div class="task-note">${escapeHTML(item.note)}</div>`:''}<div class="progress-update"><input class="field" id="progress-${item.id}" type="number" min="0" max="${item.total}" value="${item.current}" placeholder="更新当前进度"><button class="mini ghost" onclick="updateProgress('${item.id}')">记录进度</button></div><div class="task-actions"><button class="mini ghost" onclick="${item.done?`restoreItem('${item.id}')`:`completeItem('${item.id}')`}">${item.done?'恢复':'直接完成'}</button><button class="mini danger" onclick="deleteItem('${item.id}')">删除</button></div></div>`}
+function fill(id,list,empty){document.getElementById(id).innerHTML=list.length?list.map(itemCard).join(''):`<div class="empty">${empty}</div>`}
+function renderItems(){const active=items.filter(isActive);const soon=items.filter(isDueSoon);const done=items.filter(item=>item.done||pct(item)>=100);const average=items.length?Math.round(items.reduce((s,item)=>s+pct(item),0)/items.length):0;fill('activeItems',active,'还没有进行中的目标，可以添加一个任务或习惯。');fill('soonItems',soon,'未来 7 天暂时没有紧迫截止。');fill('doneItems',done,'完成后的项目会出现在这里。');document.getElementById('openCount').textContent=active.length;document.getElementById('todayCount').textContent=soon.length;document.getElementById('weekCount').textContent=average+'%';document.getElementById('doneCount').textContent=done.length}
+function escapeHTML(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+document.getElementById('itemForm').addEventListener('submit',addItem);loadItems();renderItems();
