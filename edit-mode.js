@@ -1,20 +1,15 @@
 const EDIT_PREFIX='sage.edit.';
-const EDITABLE_SELECTOR='main .desc, main .sub, main .hint, main .task-title, main .task-meta, main .task-note, main .date-pill, main .chip, main .link-card .tag, main .profile-list p, main .term-card p, main .decision-card p, main td:not(:first-child)';
+const EDITABLE_SELECTOR='.brand .tag, main .desc, main .sub, main .hint, main .task-title, main .task-meta, main .task-note, main .date-pill, main .chip, main .link-card .tag, main .profile-list p, main .term-card p, main .decision-card p, main td:not(:first-child)';
 const SECTION_INDEX={
   'index.html':[{label:'快速新增',selector:'main .grid.two'},{label:'状态概览',selector:'main .grid.stats'},{label:'UNSW 入口',text:'UNSW 快捷入口'},{label:'进度追踪',text:'进度追踪',scope:'.work-zone'},{label:'习惯养成',text:'习惯养成',scope:'.work-zone'},{label:'任务清单',text:'任务清单',scope:'.work-zone'}],
   'study.html':[{label:'学习概览',selector:'main .grid.stats'},{label:'485 证据',text:'485 证据与判断'},{label:'UNSW 索引',text:'UNSW 官方链接索引'},{label:'推荐路径',text:'推荐路径：72 UOC 主线'},{label:'全部课程库',text:'全部可选课程库'},{label:'确认清单',text:'下一步确认清单'}],
   'career.html':[{label:'求职概览',selector:'main .grid.three'},{label:'求职列表',text:'求职列表'}],
-  'finance.html':[{label:'预算概览',selector:'main .grid.stats'},{label:'分类统计',text:'分类统计'}],
   'growth.html':[{label:'成长概览',selector:'main .grid.three'},{label:'时间轴',text:'时间轴'}],
-  'sync.html':[{label:'使用说明',text:'怎么使用'},{label:'iCal 同步',text:'粘贴 iCal 内容'}],
-  'about.html':[{label:'个人介绍',selector:'main .hero'},{label:'个人关键词',text:'个人关键词'},{label:'教育经历',text:'教育经历'},{label:'能力方向',text:'能力方向'}],
-  'resume.html':[{label:'简历摘要',selector:'main .hero'},{label:'个人简介',text:'个人简介'},{label:'求职方向',text:'求职方向'},{label:'教育经历',text:'教育经历'},{label:'经历摘要',text:'经历摘要'},{label:'技能证书',text:'技能与证书'}],
-  'portfolio.html':[{label:'作品集说明',selector:'main .hero'},{label:'项目展示',selector:'main .grid.three'}],
-  'contact.html':[{label:'联系说明',selector:'main .hero'},{label:'联系方式',selector:'main .grid.two'}]
+  'resume.html':[{label:'摘要',selector:'main .hero'},{label:'关于',text:'个人简介'},{label:'联系',text:'联系方式'},{label:'作品',text:'作品集'},{label:'技能',text:'技能与证书'}]
 };
 let dirty=false;
 function pathKey(){return location.pathname.split('/').pop()||'index.html'}
-function editableKey(index){return EDIT_PREFIX+pathKey()+'.'+index}
+function editableKey(index,el){return el&&el.matches&&el.matches('.brand .tag')?EDIT_PREFIX+'brand.tag':EDIT_PREFIX+pathKey()+'.'+index}
 
 function applyDailyHero(){
   if(pathKey()!=='index.html')return;
@@ -28,8 +23,8 @@ function applyDailyHero(){
 }
 function personalIntroHTML(){return '<span>ENFP 天秤座</span><span>公共关系与广告方向学生</span><span>关注新媒体内容 品牌传播 数字营销 用户洞察</span><span>把学习 作品 生活 未来机会整理成柔软清晰的成长花园</span>'}
 function isPersonalIntro(el){return pathKey()==='about.html'&&el.matches('.profile-title + .desc')}
-function getEditables(){return Array.from(document.querySelectorAll(EDITABLE_SELECTOR)).filter(el=>!el.closest('.nav')&&!el.closest('.mobile')&&!el.closest('script')&&!el.closest('form')&&!el.closest('button')&&!el.closest('textarea')&&!el.closest('input')&&!el.closest('select')&&!el.closest('.edit-save-dock')&&!el.closest('.section-index')&&!el.closest('.mobile-branches')&&!el.closest('thead'))}
-function loadEdits(){getEditables().forEach((el,index)=>{el.dataset.editable='true';el.dataset.editKey=editableKey(index);el.dataset.original=el.innerHTML;el.contentEditable='true';el.spellcheck=false;let saved=localStorage.getItem(el.dataset.editKey);if(isPersonalIntro(el)){el.classList.add('profile-lines');if(!saved||/[。，、]/.test(saved)){saved=personalIntroHTML();localStorage.setItem(el.dataset.editKey,saved)}}if(saved!==null){el.innerHTML=saved;el.dataset.original=saved}el.classList.toggle('editable-empty',!el.textContent.trim())})}
+function getEditables(){return Array.from(document.querySelectorAll(EDITABLE_SELECTOR)).filter(el=>{if(el.matches('.brand .tag'))return true;return !el.closest('.nav')&&!el.closest('.mobile')&&!el.closest('script')&&!el.closest('form')&&!el.closest('button')&&!el.closest('textarea')&&!el.closest('input')&&!el.closest('select')&&!el.closest('.edit-save-dock')&&!el.closest('.section-index')&&!el.closest('.mobile-branches')&&!el.closest('thead')})}
+function loadEdits(){getEditables().forEach((el,index)=>{el.dataset.editable='true';el.dataset.editKey=editableKey(index,el);el.dataset.original=el.innerHTML;el.contentEditable='true';el.spellcheck=false;let saved=localStorage.getItem(el.dataset.editKey);if(isPersonalIntro(el)){el.classList.add('profile-lines');if(!saved||/[。，、]/.test(saved)){saved=personalIntroHTML();localStorage.setItem(el.dataset.editKey,saved)}}if(saved!==null){el.innerHTML=saved;el.dataset.original=saved}el.classList.toggle('editable-empty',!el.textContent.trim())})}
 function markDirty(){dirty=true;document.body.classList.add('has-unsaved-edits')}
 function saveEdits(){getEditables().forEach(el=>{localStorage.setItem(el.dataset.editKey,el.innerHTML);el.dataset.original=el.innerHTML;el.classList.toggle('editable-empty',!el.textContent.trim())});dirty=false;document.body.classList.remove('has-unsaved-edits');toast('已保存更改')}
 function discardEdits(){if(!dirty)return;getEditables().forEach(el=>{el.innerHTML=el.dataset.original||'';el.classList.toggle('editable-empty',!el.textContent.trim())});dirty=false;document.body.classList.remove('has-unsaved-edits');toast('已放弃本次更改')}
@@ -43,7 +38,9 @@ document.addEventListener('input',e=>{const el=e.target;if(el&&el.dataset&&el.da
 document.addEventListener('focus',e=>{const el=e.target;if(el&&el.dataset&&el.dataset.editKey&&!sessionStorage.getItem('sage.edit.hint')){sessionStorage.setItem('sage.edit.hint','1');toast('可以直接改内容，记得保存更改')}},true);
 window.addEventListener('beforeunload',e=>{if(!dirty)return;e.preventDefault();e.returnValue=''});
 applyDailyHero();
-addSectionIndex();loadEdits();addSaveDock();
+function initSageEditMode(){addSectionIndex();loadEdits();if(!document.querySelector('.edit-save-dock'))addSaveDock()}
+window.initSageEditMode=initSageEditMode;
+initSageEditMode();
 (function loadSageSiteShell(){
   if(document.querySelector('script[data-sage-site-shell]')) return;
   const s=document.createElement('script');
