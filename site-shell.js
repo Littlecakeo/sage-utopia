@@ -1,9 +1,10 @@
 (function(){
   function loadTheme(){
-    if(document.querySelector('link[data-sage-theme]'))return;
+    const existing=document.querySelector('link[data-sage-theme]');
+    if(existing){existing.href='theme-refresh.css?v=2';return;}
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='theme-refresh.css?v=1';
+    link.href='theme-refresh.css?v=2';
     link.dataset.sageTheme='true';
     document.head.appendChild(link);
   }
