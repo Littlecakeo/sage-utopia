@@ -1,0 +1,94 @@
+/* Sage Utopia visual refresh: softer matcha, stronger readable text. */
+:root{
+  --primary:#B9CBB5;
+  --secondary:#5F745B;
+  --sage:#EAF1E7;
+  --sage-2:#DCE8D8;
+  --bg:#F7F4EC;
+  --panel:#FCFAF4;
+  --card:#FFFDF8;
+  --text:#2F3A35;
+  --muted:rgba(47,58,53,.68);
+  --line:#DCD5C6;
+  --soft:#EEF4EA;
+  --blue:#EAF2EF;
+  --peach:#F4EEE2;
+  --shadow:0 18px 44px rgba(47,58,53,.075);
+  --shadow-soft:0 8px 22px rgba(47,58,53,.055);
+  --focus:rgba(95,116,91,.18);
+}
+body{
+  background:
+    radial-gradient(circle at 10% 4%,rgba(184,203,181,.28),transparent 330px),
+    radial-gradient(circle at 92% 16%,rgba(158,196,177,.18),transparent 300px),
+    linear-gradient(180deg,#F8F5EE 0%,#F3F5EE 52%,#F7F4EC 100%) !important;
+  color:var(--text) !important;
+}
+.hero,.card,.work-zone,.term-group,.course-slot,.link-card,.task-row,.quick-group,.zone-col,.profile-list p,.decision-card,.term-card{
+  border-color:rgba(178,169,149,.54) !important;
+  box-shadow:var(--shadow-soft) !important;
+}
+.hero{
+  background:
+    linear-gradient(135deg,rgba(255,253,248,.94),rgba(238,244,234,.82)),
+    radial-gradient(circle at 92% 14%,rgba(185,203,181,.28),transparent 210px) !important;
+}
+.card,.course-slot,.link-card,.task-row,.term-card{
+  background:rgba(255,253,248,.9) !important;
+}
+.soft,.blue,.peach,.task,.zone-col,.decision-card,.work-zone{
+  background:linear-gradient(180deg,rgba(238,244,234,.74),rgba(255,253,248,.82)) !important;
+}
+h1,h2,h3,h4,strong,.stat,.course-title,.task-title,.brand{color:var(--text) !important;}
+.desc,.sub,.hint,.task-meta,.task-note,.date-row,.unit-hint{color:var(--muted) !important;}
+.eyebrow,.zone-col h4,.work-zone h3,.term-head span,.stats .card p{color:var(--secondary) !important;}
+button,.button{
+  background:var(--text) !important;
+  color:#FFFDF8 !important;
+  border:1px solid rgba(47,58,53,.88) !important;
+  box-shadow:0 8px 20px rgba(47,58,53,.14) !important;
+}
+button:hover,.button:hover{
+  background:#243029 !important;
+  color:#FFFDF8 !important;
+}
+.ghost,.mini.ghost,.mobile-scroll a,.mobile-scroll button,.mobile-more a,.mobile-branches a,.chip,.task-badge,.metric-pill,.date-pill,.tiny-link,.status{
+  background:rgba(245,249,242,.92) !important;
+  color:var(--text) !important;
+  border:1px solid rgba(95,116,91,.34) !important;
+  box-shadow:0 5px 14px rgba(47,58,53,.045) !important;
+}
+.mobile-scroll a.active,.mobile-scroll a:hover,.mobile-branches a:hover,.mobile-more a:hover,.nav a.active,.nav a:hover,.side .section-index a:hover,.side .section-index a:focus{
+  background:var(--text) !important;
+  color:#FFFDF8 !important;
+  border-color:var(--text) !important;
+}
+.nav a,.side .section-index a{color:rgba(47,58,53,.78) !important;}
+.field,textarea,select,input{
+  background:rgba(255,253,248,.96) !important;
+  color:var(--text) !important;
+  border-color:rgba(95,116,91,.30) !important;
+}
+.field::placeholder,textarea::placeholder,input::placeholder{color:rgba(47,58,53,.48) !important;}
+.field:focus,textarea:focus,input:focus,select:focus,[contenteditable="true"]:focus{
+  border-color:var(--secondary) !important;
+  box-shadow:0 0 0 4px var(--focus) !important;
+  outline:none !important;
+}
+.link-card:hover,.course-slot:hover,.swap-option:hover,.task-row:hover{
+  transform:translateY(-1px) !important;
+  border-color:rgba(95,116,91,.52) !important;
+  box-shadow:0 12px 28px rgba(47,58,53,.08) !important;
+}
+.progress-track,.bar{background:#DCE6D7 !important;}
+.progress-fill,.bar span{background:linear-gradient(90deg,#7F9678,#2F3A35) !important;}
+.leaf{border-color:rgba(95,116,91,.28) !important;box-shadow:0 8px 20px rgba(47,58,53,.08) !important;}
+.tag{color:rgba(47,58,53,.62) !important;}
+.edit-save-dock button{color:#FFFDF8 !important;}
+@media(max-width:900px){
+  .mobile{
+    background:rgba(248,245,238,.94) !important;
+    border-bottom-color:rgba(178,169,149,.42) !important;
+  }
+  .mobile-scroll a,.mobile-scroll button,.mobile-branches a{font-weight:900 !important;}
+}
