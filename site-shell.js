@@ -8,7 +8,15 @@
     link.dataset.sageTheme='true';
     document.head.appendChild(link);
   }
+  function loadBrandEditFix(){
+    if(document.querySelector('script[data-brand-edit-fix]'))return;
+    const script=document.createElement('script');
+    script.src='brand-edit-fix.js?v=1';
+    script.dataset.brandEditFix='true';
+    document.body.appendChild(script);
+  }
   loadTheme();
+  loadBrandEditFix();
   const PAGES={
     'home':{file:'index.html',label:'首页',branches:[['#quickAdd','快速新增'],['#taskBoard','操作区']]},
     'study':{file:'study.html',label:'学习中心',branches:[['#planner','换课'],['#links','官方链接'],['#visa','485'],['#sync-study','同步']]},
@@ -28,6 +36,7 @@
   function branchHtml(active){let cfg=PAGES[active]||PAGES.home;return cfg.branches.map((b,i)=>`<a href="${String(b[0]).startsWith('#')?b[0]:'#'}" data-branch="${i}">${b[1]}</a>`).join('')}
   function normalizeShell(){
     loadTheme();
+    loadBrandEditFix();
     const active=currentKey();
     document.querySelectorAll('.mobile-scroll').forEach(el=>{el.innerHTML=primaryHtml(active)});
     document.querySelectorAll('.mobile-more').forEach(el=>el.remove());
@@ -45,6 +54,7 @@
       if(src.includes('site-shell.js'))return;
       if(src.includes('edit-mode.js')&&window.__sageEditLoaded)return;
       if(src.includes('tasks.js')&&window.__sageTasksLoaded)return;
+      if(src.includes('brand-edit-fix.js'))return;
       const s=document.createElement('script');
       if(src){s.src=src;if(src.includes('edit-mode.js'))window.__sageEditLoaded=true;if(src.includes('tasks.js'))window.__sageTasksLoaded=true}else{s.type='module';s.textContent=old.textContent}
       document.body.appendChild(s);
