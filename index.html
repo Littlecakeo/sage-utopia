@@ -1,1 +1,122 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sage Utopia｜首页</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="progress.css"><link rel="stylesheet" href="edit-mode.css?v=4"><style>.quote-meta{margin-top:18px;font-size:16px;color:#60785d;font-weight:800}.quick-mini{grid-template-columns:repeat(3,1fr);margin-top:18px}.quick-card{appearance:none;border:1px solid rgba(222,216,201,.82);text-align:left;color:var(--text);padding:18px;min-height:104px;box-shadow:var(--shadow-soft);background:rgba(255,253,248,.86)}.quick-card span{display:block;color:#60785d;font-size:13px;font-weight:900;margin-bottom:8px}.quick-card strong{display:block;font-size:18px;line-height:1.35}.quick-card:hover{background:#fff;transform:translateY(-2px)}.compact-stats{grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.compact-stats .card{padding:14px 16px;border-radius:18px;box-shadow:var(--shadow-soft);display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px;min-height:auto}.compact-stats .card p{margin:0;font-size:13px;font-weight:800;color:#60785d}.compact-stats .stat{font-size:28px;margin:0;text-align:right}.compact-stats .hint{grid-column:1/-1;margin:0;font-size:12px;line-height:1.3}.home-section-title{margin:22px 0 8px;font-size:16px;color:#60785d;font-weight:900}@media(max-width:900px){.quick-mini,.compact-stats{grid-template-columns:1fr 1fr}.quick-card{padding:14px;min-height:86px}.quick-card strong{font-size:16px}.compact-stats .card{padding:12px 14px}.compact-stats .stat{font-size:24px}}@media(max-width:520px){.quick-mini,.compact-stats{grid-template-columns:1fr}}</style></head><body><div class="mobile"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><div class="mobile-scroll"><a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="portfolio.html">作品集</a></div></div><div class="shell"><aside class="side"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><nav class="nav"><a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="resume.html">在线简历</a><a href="portfolio.html">作品集</a><a href="contact.html">联系方式</a></nav></aside><main><section class="hero"><p class="eyebrow" id="dailyQuoteDate">今日女性主义语录</p><h1 id="dailyQuoteText">女性不是天生的 而是被塑造成的</h1><p class="desc quote-meta" id="dailyQuoteMeta">西蒙娜·德·波伏娃 · 1949 · 26/06/05</p></section><section class="grid three quick-mini" id="quickAdd"><button class="card soft quick-card" type="button" onclick="quickType('progress','进度追踪')"><span>进度</span><strong>记录页数或阶段</strong></button><button class="card soft quick-card" type="button" onclick="quickType('habit','习惯养成')"><span>习惯</span><strong>记录天数或次数</strong></button><button class="card soft quick-card" type="button" onclick="quickType('task','任务清单')"><span>任务</span><strong>记录待办和截止</strong></button></section><section class="grid stats compact-stats section"><div class="card soft"><p>进行中</p><div class="stat" id="openCount">0</div><p class="hint">未完成目标</p></div><div class="card blue"><p>近期截止</p><div class="stat" id="todayCount">0</div><p class="hint">未来 7 天</p></div><div class="card peach"><p>平均进度</p><div class="stat" id="weekCount">0%</div><p class="hint">所有目标</p></div><div class="card soft"><p>已完成</p><div class="stat" id="doneCount">0</div><p class="hint">完成记录</p></div></section><section class="card section"><h2>UNSW 快捷入口</h2><p class="sub">学校官网 Moodle 学习中心和 myUNSW</p><div class="links"><a class="link-card" href="https://www.unsw.edu.au/" target="_blank">UNSW 官网 ↗<span class="tag">学校官网与最新信息</span></a><a class="link-card" href="https://moodle.telt.unsw.edu.au/login/index.php" target="_blank">Moodle 学习中心 ↗<span class="tag">课程材料 作业与课堂资源</span></a><a class="link-card" href="https://my.unsw.edu.au/student/myunswNotice.html" target="_blank">myUNSW ↗<span class="tag">选课 学籍与学生服务</span></a></div></section><section class="card section" id="taskBoard"><h2>我的操作区</h2><p class="sub">进度 习惯 任务分开管理 比如一本书用页数 习惯用天数 普通待办用项目数</p><form class="task-form progress-form" id="itemForm"><input class="field" id="itemTitle" placeholder="名称 例如 读完一本书" required><select class="field" id="itemSection"><option value="progress">进度追踪</option><option value="habit">习惯养成</option><option value="task">任务清单</option></select><input class="field" id="itemType" placeholder="类型"><input class="field" id="itemStart" type="date" title="开始日期"><input class="field" id="itemDue" type="date" title="计划截止日期"><input class="field" id="itemTotal" type="number" min="1" placeholder="总额度"><input class="field" id="itemCurrent" type="number" min="0" placeholder="当前"><input class="field" id="itemUnit" placeholder="单位"><input class="field note-field" id="itemNote" placeholder="备注 可不填"><button type="submit">添加</button></form><p class="unit-hint">例子 阅读用页 习惯用天 作品集用步 普通任务用项</p><div class="section-split"><div class="work-zone"><div class="work-zone-head"><div><h3>进度追踪</h3><p class="hint">适合长期目标 阅读 作品集 课程项目 申请准备</p></div><div class="zone-metrics"><span class="metric-pill">进行中 <b id="progressCount">0</b></span><span class="metric-pill">平均 <b id="progressAvg">0%</b></span></div></div><div class="zone-grid"><div class="zone-col"><h4>正在推进</h4><div id="progressList"></div></div><div class="zone-col"><h4>已完成</h4><div id="progressDone"></div></div></div></div><div class="work-zone"><div class="work-zone-head"><div><h3>习惯养成</h3><p class="hint">适合重复记录 每天读书 每周复盘 定期更新作品集</p></div><div class="zone-metrics"><span class="metric-pill">进行中 <b id="habitCount">0</b></span><span class="metric-pill">平均 <b id="habitAvg">0%</b></span></div></div><div class="zone-grid"><div class="zone-col"><h4>正在坚持</h4><div id="habitList"></div></div><div class="zone-col"><h4>已完成</h4><div id="habitDone"></div></div></div></div><div class="work-zone"><div class="work-zone-head"><div><h3>任务清单</h3><p class="hint">适合一次性待办 交作业 投申请 买东西 预约</p></div><div class="zone-metrics"><span class="metric-pill">进行中 <b id="taskCount">0</b></span><span class="metric-pill">平均 <b id="taskAvg">0%</b></span></div></div><div class="zone-grid"><div class="zone-col"><h4>待处理</h4><div id="taskList"></div></div><div class="zone-col"><h4>已完成</h4><div id="taskDone"></div></div></div></div></div></section></main></div><script src="tasks.js"></script><script src="edit-mode.js?v=4"></script><script>function applyQuoteNow(){const t=document.getElementById('dailyQuoteText');const m=document.getElementById('dailyQuoteMeta');const dlabel=document.getElementById('dailyQuoteDate');if(!t||!m)return;const quotes=[{text:'女性不是天生的 而是被塑造成的',author:'西蒙娜·德·波伏娃',year:'1949'},{text:'我不是自由的 只要还有任何女人不自由',author:'奥德丽·洛德',year:'1981'},{text:'女权主义适合每一个人',author:'贝尔·胡克斯',year:'2000'},{text:'每个女人都应该拥有金钱和自己的房间',author:'弗吉尼亚·伍尔夫',year:'1929'},{text:'沉默不会保护你',author:'奥德丽·洛德',year:'1977'},{text:'我们教女孩缩小自己',author:'奇玛曼达·恩戈兹·阿迪契',year:'2012'},{text:'真相会让你自由 但首先它会惹恼你',author:'格洛丽亚·斯泰纳姆',year:'1992'}];const d=new Date();const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');const q=quotes[Number(yy+mm+dd)%quotes.length];t.textContent=q.text;m.textContent=q.author+' · '+q.year+' · '+yy+'/'+mm+'/'+dd;if(dlabel)dlabel.textContent='今日女性主义语录'}applyQuoteNow();</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sage Utopia｜首页</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="progress.css">
+  <link rel="stylesheet" href="edit-mode.css?v=4">
+  <style>
+    .quote-meta{margin-top:18px;font-size:16px;color:#60785d;font-weight:800}
+    .quick-mini{grid-template-columns:repeat(3,1fr);margin-top:18px}
+    .quick-card{appearance:none;border:1px solid rgba(222,216,201,.82);text-align:left;color:var(--text);padding:16px;min-height:88px;box-shadow:var(--shadow-soft);background:rgba(255,253,248,.86)}
+    .quick-card span{display:block;color:#60785d;font-size:13px;font-weight:900;margin-bottom:8px}
+    .quick-card strong{display:block;font-size:17px;line-height:1.35}
+    .quick-card:hover{background:#fff;transform:translateY(-2px)}
+    .compact-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+    .compact-stats .card{padding:10px 12px;border-radius:16px;box-shadow:0 8px 22px rgba(74,93,78,.08);display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;row-gap:2px;min-height:58px;background:rgba(255,253,248,.76)}
+    .compact-stats .card p{margin:0;font-size:12px;font-weight:900;color:#60785d;line-height:1.15;white-space:nowrap}
+    .compact-stats .stat{grid-row:1/3;font-size:22px;line-height:1;margin:0;color:#34483e;text-align:left;min-width:34px}
+    .compact-stats .hint{font-size:11px;font-weight:700;color:#8a958b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .home-section-title{margin:22px 0 8px;font-size:16px;color:#60785d;font-weight:900}
+    @media(max-width:900px){.quick-mini{grid-template-columns:repeat(3,1fr)}.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.quick-card{padding:14px;min-height:78px}.quick-card strong{font-size:15px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}}
+    @media(max-width:620px){.quick-mini{grid-template-columns:1fr 1fr 1fr;gap:8px}.quick-card{padding:12px 10px;min-height:72px}.quick-card strong{font-size:14px}.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}}
+  </style>
+</head>
+<body>
+  <div class="mobile">
+    <a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a>
+    <div class="mobile-scroll">
+      <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="portfolio.html">作品集</a>
+    </div>
+  </div>
+  <div class="shell">
+    <aside class="side">
+      <a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a>
+      <nav class="nav">
+        <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="resume.html">在线简历</a><a href="portfolio.html">作品集</a><a href="contact.html">联系方式</a>
+      </nav>
+    </aside>
+    <main>
+      <section class="hero">
+        <p class="eyebrow" id="dailyQuoteDate">今日女性主义语录</p>
+        <h1 id="dailyQuoteText">女性不是天生的 而是被塑造成的</h1>
+        <p class="desc quote-meta" id="dailyQuoteMeta">西蒙娜·德·波伏娃 · 1949 · 26/06/05</p>
+      </section>
+
+      <section class="grid three quick-mini" id="quickAdd">
+        <button class="card soft quick-card" type="button" onclick="quickType('progress','进度追踪')"><span>进度</span><strong>记录页数或阶段</strong></button>
+        <button class="card soft quick-card" type="button" onclick="quickType('habit','习惯养成')"><span>习惯</span><strong>记录天数或次数</strong></button>
+        <button class="card soft quick-card" type="button" onclick="quickType('task','任务清单')"><span>任务</span><strong>记录待办和截止</strong></button>
+      </section>
+
+      <section class="compact-stats section" aria-label="状态概览">
+        <div class="card soft"><div class="stat" id="openCount">0</div><p>进行中</p><p class="hint">未完成目标</p></div>
+        <div class="card blue"><div class="stat" id="todayCount">0</div><p>近期截止</p><p class="hint">未来 7 天</p></div>
+        <div class="card peach"><div class="stat" id="weekCount">0%</div><p>平均进度</p><p class="hint">所有目标</p></div>
+        <div class="card soft"><div class="stat" id="doneCount">0</div><p>已完成</p><p class="hint">完成记录</p></div>
+      </section>
+
+      <section class="card section">
+        <h2>UNSW 快捷入口</h2>
+        <p class="sub">学校官网 Moodle 学习中心和 myUNSW</p>
+        <div class="links">
+          <a class="link-card" href="https://www.unsw.edu.au/" target="_blank">UNSW 官网 ↗<span class="tag">学校官网与最新信息</span></a>
+          <a class="link-card" href="https://moodle.telt.unsw.edu.au/login/index.php" target="_blank">Moodle 学习中心 ↗<span class="tag">课程材料 作业与课堂资源</span></a>
+          <a class="link-card" href="https://my.unsw.edu.au/student/myunswNotice.html" target="_blank">myUNSW ↗<span class="tag">选课 学籍与学生服务</span></a>
+        </div>
+      </section>
+
+      <section class="card section" id="taskBoard">
+        <h2>我的操作区</h2>
+        <p class="sub">进度 习惯 任务分开管理 比如一本书用页数 习惯用天数 普通待办用项目数</p>
+        <form class="task-form progress-form" id="itemForm">
+          <input class="field" id="itemTitle" placeholder="名称 例如 读完一本书" required>
+          <select class="field" id="itemSection"><option value="progress">进度追踪</option><option value="habit">习惯养成</option><option value="task">任务清单</option></select>
+          <input class="field" id="itemType" placeholder="类型">
+          <input class="field" id="itemStart" type="date" title="开始日期">
+          <input class="field" id="itemDue" type="date" title="计划截止日期">
+          <input class="field" id="itemTotal" type="number" min="1" placeholder="总额度">
+          <input class="field" id="itemCurrent" type="number" min="0" placeholder="当前">
+          <input class="field" id="itemUnit" placeholder="单位">
+          <input class="field note-field" id="itemNote" placeholder="备注 可不填">
+          <button type="submit">添加</button>
+        </form>
+        <p class="unit-hint">例子 阅读用页 习惯用天 作品集用步 普通任务用项</p>
+        <div class="section-split">
+          <div class="work-zone"><div class="work-zone-head"><div><h3>进度追踪</h3><p class="hint">适合长期目标 阅读 作品集 课程项目 申请准备</p></div><div class="zone-metrics"><span class="metric-pill">进行中 <b id="progressCount">0</b></span><span class="metric-pill">平均 <b id="progressAvg">0%</b></span></div></div><div class="zone-grid"><div class="zone-col"><h4>正在推进</h4><div id="progressList"></div></div><div class="zone-col"><h4>已完成</h4><div id="progressDone"></div></div></div></div>
+          <div class="work-zone"><div class="work-zone-head"><div><h3>习惯养成</h3><p class="hint">适合重复记录 每天读书 每周复盘 定期更新作品集</p></div><div class="zone-metrics"><span class="metric-pill">进行中 <b id="habitCount">0</b></span><span class="metric-pill">平均 <b id="habitAvg">0%</b></span></div></div><div class="zone-grid"><div class="zone-col"><h4>正在坚持</h4><div id="habitList"></div></div><div class="zone-col"><h4>已完成</h4><div id="habitDone"></div></div></div></div>
+          <div class="work-zone"><div class="work-zone-head"><div><h3>任务清单</h3><p class="hint">适合一次性待办 交作业 投申请 买东西 预约</p></div><div class="zone-metrics"><span class="metric-pill">进行中 <b id="taskCount">0</b></span><span class="metric-pill">平均 <b id="taskAvg">0%</b></span></div></div><div class="zone-grid"><div class="zone-col"><h4>待处理</h4><div id="taskList"></div></div><div class="zone-col"><h4>已完成</h4><div id="taskDone"></div></div></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="tasks.js"></script>
+  <script src="edit-mode.js?v=4"></script>
+  <script>
+    function applyQuoteNow(){
+      const t=document.getElementById('dailyQuoteText');
+      const m=document.getElementById('dailyQuoteMeta');
+      const dlabel=document.getElementById('dailyQuoteDate');
+      if(!t||!m)return;
+      const quotes=[
+        {text:'女性不是天生的 而是被塑造成的',author:'西蒙娜·德·波伏娃',year:'1949'},
+        {text:'我不是自由的 只要还有任何女人不自由',author:'奥德丽·洛德',year:'1981'},
+        {text:'女权主义适合每一个人',author:'贝尔·胡克斯',year:'2000'},
+        {text:'每个女人都应该拥有金钱和自己的房间',author:'弗吉尼亚·伍尔夫',year:'1929'},
+        {text:'沉默不会保护你',author:'奥德丽·洛德',year:'1977'},
+        {text:'我们教女孩缩小自己',author:'奇玛曼达·恩戈兹·阿迪契',year:'2012'},
+        {text:'真相会让你自由 但首先它会惹恼你',author:'格洛丽亚·斯泰纳姆',year:'1992'}
+      ];
+      const d=new Date();
+      const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+      const q=quotes[Number(yy+mm+dd)%quotes.length];
+      t.textContent=q.text;
+      m.textContent=q.author+' · '+q.year+' · '+yy+'/'+mm+'/'+dd;
+      if(dlabel)dlabel.textContent='今日女性主义语录';
+    }
+    applyQuoteNow();
+  </script>
+</body>
+</html>
