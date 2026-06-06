@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800;900&family=Noto+Serif+SC:wght@500;600;700;900&display=swap');
 /* Sage Utopia brand identity: mint matcha digital greenhouse. */
 :root{
   --primary:#A8D5BA;
@@ -135,4 +136,40 @@ button:hover,.button:hover{
 }
 .progress-fill,.bar span{
   background:linear-gradient(90deg,#BFE6D2,#8FBE9C) !important;
+}
+
+/* Save dock contrast guardrail. */
+.edit-save-dock button,.edit-save-dock #saveEditsBtn{background:#DDF3E8!important;color:#2F3A35!important;border-color:rgba(143,190,156,.72)!important;}
+.edit-save-dock button:hover,.edit-save-dock #saveEditsBtn:hover{background:#CDEBD9!important;color:#2F3A35!important;}
+.edit-save-dock .quiet,.edit-save-dock #discardEditsBtn{background:#FFFDF8!important;color:#2F3A35!important;border-color:rgba(245,230,168,.95)!important;}
+.edit-save-dock span{color:#496B50!important;}
+
+/* Soft Editorial typography system. */
+:root{
+  --font-editorial:'EB Garamond','Noto Serif SC',serif;
+  --font-serif-cn:'Noto Serif SC','Source Han Serif SC','Songti SC','SimSun',serif;
+  --font-sans-cn:'Noto Sans SC','Source Han Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+}
+body,.desc,.sub,.hint,.task-meta,.task-note,.date-row,.unit-hint,.nav a,.mobile-scroll a,.mobile-branches a,button,.button,input,textarea,select,.field,.chip,.tiny-link,.metric-pill,.status{
+  font-family:var(--font-sans-cn)!important;
+}
+.brand{
+  font-family:var(--font-editorial)!important;
+  font-weight:800!important;
+}
+.brand .tag{
+  font-family:var(--font-sans-cn)!important;
+  font-weight:650!important;
+}
+h1,h2,h3,h4,.hero h1,.quote-card h1,.profile-title{
+  font-family:var(--font-serif-cn)!important;
+  font-weight:800!important;
+}
+.stat,#dailyQuoteDate,.quote-date,.metric-pill b,.zone-metrics b,.study-top-stats .stat,.compact-stats .stat{
+  font-family:var(--font-editorial)!important;
+  font-weight:800!important;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.course-title,.task-title,.link-card strong,.quick-card strong{
+  font-family:var(--font-sans-cn)!important;
 }
