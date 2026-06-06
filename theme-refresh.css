@@ -80,3 +80,59 @@ button:hover,.button:hover{background:#243029 !important;color:#FFFDF8 !importan
 .swap-summary,.course-meta{font-weight:650 !important;}
 @media(max-width:900px){*{scroll-margin-top:160px;}.mobile-scroll a,.mobile-scroll button,.mobile-branches a{font-weight:900 !important;}.hero:after{width:42px;height:30px;right:18px;top:18px;}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none !important;transition:none !important;}}
+
+/* Softer mint accent and editorial title font. */
+:root{
+  --primary:#BFE6D2;
+  --secondary:#8FBE9C;
+  --accent:#BDE8E5;
+  --highlight:#F0FAF4;
+  --success:#C9EBD4;
+  --focus:rgba(143,190,156,.22);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Microsoft YaHei",sans-serif !important;
+}
+h1,.hero h1,.quote-card h1{
+  font-family:Georgia,"Times New Roman","Songti SC","Noto Serif SC",serif !important;
+  font-weight:760 !important;
+  letter-spacing:0 !important;
+}
+h2,h3,.term-head strong{
+  font-family:Georgia,"Times New Roman","Songti SC","Noto Serif SC",serif !important;
+}
+button,.button{
+  background:#DDF3E8 !important;
+  color:#2F3A35 !important;
+  border-color:rgba(143,190,156,.62) !important;
+  box-shadow:0 8px 18px rgba(47,58,53,.07) !important;
+}
+button:hover,.button:hover{
+  background:#CDEBD9 !important;
+  color:#2F3A35 !important;
+  border-color:rgba(127,183,126,.72) !important;
+  box-shadow:0 12px 24px rgba(47,58,53,.09) !important;
+}
+.mobile-scroll a.active,.mobile-scroll a:hover,.mobile-branches a:hover,.mobile-more a:hover,.nav a.active,.nav a:hover,.side .section-index a:hover,.side .section-index a:focus,.tiny-link:hover,.chip:hover{
+  background:#DDF3E8 !important;
+  color:#2F3A35 !important;
+  border-color:rgba(143,190,156,.72) !important;
+}
+.course-slot.active,.course-slot:focus,.course-slot:hover{
+  background:linear-gradient(180deg,#F3FCF7,#FFFFFF) !important;
+  color:#2F3A35 !important;
+  border-color:rgba(143,190,156,.78) !important;
+  box-shadow:0 12px 26px rgba(47,58,53,.08) !important;
+}
+.course-slot.active .course-title,.course-slot.active .course-meta,.course-slot:hover .course-title,.course-slot:hover .course-meta{
+  color:#2F3A35 !important;
+  opacity:1 !important;
+}
+.tiny-link,.ghost,.mini.ghost,.mobile-scroll a,.mobile-scroll button,.mobile-more a,.mobile-branches a,.chip,.task-badge,.metric-pill,.date-pill,.status{
+  background:#F0FAF4 !important;
+  color:#2F3A35 !important;
+  border-color:rgba(143,190,156,.46) !important;
+}
+.progress-fill,.bar span{
+  background:linear-gradient(90deg,#BFE6D2,#8FBE9C) !important;
+}
