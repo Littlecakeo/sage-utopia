@@ -1,0 +1,42 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quality:
+    name: Lint, test, build, Lighthouse
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: ESLint and Stylelint
+        run: npm run lint
+
+      - name: Prettier check
+        run: npm run format:check
+
+      - name: TypeScript check
+        run: npm run typecheck
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npm run test
+
+      - name: Static build check
+        run: npm run build
+
+      - name: Lighthouse CI
+        run: npm run lighthouse
