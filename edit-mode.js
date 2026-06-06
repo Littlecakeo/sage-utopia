@@ -26,4 +26,4 @@ window.addEventListener('beforeunload',e=>{if(!dirty)return;e.preventDefault();e
 function initSageEditMode(){addSectionIndex();loadEdits();addSaveDock()}
 window.initSageEditMode=initSageEditMode;
 initSageEditMode();
-(function loadSageSiteShell(){if(document.querySelector('script[data-sage-site-shell]'))return;const s=document.createElement('script');s.src='site-shell.js?v=6';s.dataset.sageSiteShell='true';document.body.appendChild(s)})();
+(function loadSageSiteShell(){if(document.querySelector('script[data-sage-site-shell]'))return;const s=document.createElement('script');s.src='site-shell.js?v=8';s.dataset.sageSiteShell='true';document.body.appendChild(s)})();
