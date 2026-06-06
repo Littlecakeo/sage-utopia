@@ -1,0 +1,29 @@
+{
+  "name": "sage-utopia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sage Utopia GitHub Pages static site.",
+  "scripts": {
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "eslint .",
+    "lint:css": "stylelint \"**/*.css\" --allow-empty-input",
+    "format:check": "prettier --check \"*.{json,md,cjs,mjs,ts}\" \".github/**/*.yml\" \"tests/**/*.ts\" \"scripts/**/*.mjs\"",
+    "format": "prettier --write \"*.{json,md,cjs,mjs,ts}\" \".github/**/*.yml\" \"tests/**/*.ts\" \"scripts/**/*.mjs\"",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test",
+    "build": "node scripts/validate-static-site.mjs",
+    "serve": "http-server . -p 4173 -c-1",
+    "lighthouse": "lhci autorun"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.52.0",
+    "eslint": "^9.29.0",
+    "globals": "^15.15.0",
+    "http-server": "^14.1.1",
+    "prettier": "^3.5.3",
+    "stylelint": "^16.20.0",
+    "typescript": "^5.8.3"
+  }
+}
