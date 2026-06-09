@@ -16,14 +16,14 @@
     "lighthouse": "lhci autorun"
   },
   "devDependencies": {
-    "@eslint/js": "^9.29.0",
+    "@eslint/js": "^10.0.1",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.52.0",
-    "eslint": "^9.29.0",
-    "globals": "^15.15.0",
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0",
     "http-server": "^14.1.1",
     "prettier": "^3.5.3",
-    "stylelint": "^16.20.0",
-    "typescript": "^5.8.3"
+    "stylelint": "^17.13.0",
+    "typescript": "^6.0.3"
   }
 }
