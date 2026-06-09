@@ -67,12 +67,7 @@
   }
 
   function toast(t) {
-    const e = document.getElementById('toast');
-    if (!e) return;
-    e.textContent = t;
-    e.classList.add('show');
-    clearTimeout(window.tt);
-    window.tt = setTimeout(() => e.classList.remove('show'), 1600);
+    if (window.SageUI && window.SageUI.toast) { window.SageUI.toast(t); }
   }
 
   // ── 计划数据 ───────────────────────────────────────

@@ -10,10 +10,7 @@
   function esc(s) { return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 
   function say(text) {
-    let el = document.getElementById('sageMessage');
-    if (!el) { el = document.createElement('div'); el.id = 'sageMessage'; el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#334139;color:#fff;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:800;z-index:10000;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease'; document.body.appendChild(el); }
-    el.textContent = text; el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)';
-    clearTimeout(window.__sageMsgTimer); window.__sageMsgTimer = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(8px)'; }, 2000);
+    if (window.SageUI && window.SageUI.toast) { window.SageUI.toast(text); }
   }
 
   function renderPortfolio() {
