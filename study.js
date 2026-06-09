@@ -90,7 +90,14 @@
     ['T1 2028', 's11', 'MARK5828']
   ].map(([term, slot, code]) => ({ term, slot, code }));
 
-  let plan = JSON.parse(localStorage.getItem('sage.study.planV3') || 'null') || defaultPlan;
+  let plan = (function loadPlan() {
+    try {
+      var data = window.SageData ? window.SageData.getAll('study') : null;
+      return (data && data.length) ? data : defaultPlan;
+    } catch (e) {
+      return defaultPlan;
+    }
+  })();
 
   // ── 重构的状态变量 ─────────────────────────────────
   let openSlot = null;
@@ -99,7 +106,11 @@
 
   // ── 计划操作函数 ───────────────────────────────────
   function save() {
-    localStorage.setItem('sage.study.planV3', JSON.stringify(plan));
+    if (window.SageData) {
+      window.SageData.save('study', plan);
+    } else {
+      localStorage.setItem('sage.study.planV3', JSON.stringify(plan));
+    }
   }
 
   function grouped() {
@@ -416,8 +427,8 @@
 
     const event = events[idx];
 
-    // 导入到 tasks 模块
-    const taskItems = JSON.parse(localStorage.getItem('sage.progress.items.v2') || '[]');
+    // 导入到 tasks 模块（通过 SageData）
+    var taskItems = window.SageData ? window.SageData.getAll('tasks') : JSON.parse(localStorage.getItem('sage.progress.items.v2') || '[]');
     taskItems.unshift({
       id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
       section: 'task',
@@ -431,7 +442,11 @@
       done: false,
       note: '从同步中心导入（' + event.source + '）',
     });
-    localStorage.setItem('sage.progress.items.v2', JSON.stringify(taskItems));
+    if (window.SageData) {
+      window.SageData.save('tasks', taskItems);
+    } else {
+      localStorage.setItem('sage.progress.items.v2', JSON.stringify(taskItems));
+    }
 
     // 标记已导入
     events[idx].imported = true;
@@ -447,8 +462,8 @@
     const unimported = events.filter(e => !e.imported);
     if (!unimported.length) return;
 
-    const taskItems = JSON.parse(localStorage.getItem('sage.progress.items.v2') || '[]');
-    unimported.forEach(event => {
+    var taskItems = window.SageData ? window.SageData.getAll('tasks') : JSON.parse(localStorage.getItem('sage.progress.items.v2') || '[]');
+    unimported.forEach(function (event) {
       taskItems.unshift({
         id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
         section: 'task',
@@ -464,7 +479,11 @@
       });
       event.imported = true;
     });
-    localStorage.setItem('sage.progress.items.v2', JSON.stringify(taskItems));
+    if (window.SageData) {
+      window.SageData.save('tasks', taskItems);
+    } else {
+      localStorage.setItem('sage.progress.items.v2', JSON.stringify(taskItems));
+    }
     syncSave(events);
 
     renderSyncEvents(events);
