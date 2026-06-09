@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Sage Utopia｜关于 Sage</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="cloud-sync.css">
   <link rel="stylesheet" href="edit-mode.css">
   <style>
     .about-hero{display:grid;grid-template-columns:180px 1fr;gap:24px;align-items:center}
@@ -150,12 +151,14 @@
         <label class="mini" style="cursor:pointer;display:inline-flex;align-items:center">导入数据 <input type="file" accept=".json" onchange="importAllData(this)" style="display:none"></label>
       </div>
       <div id="importPreview" style="margin-top:12px;display:none"></div>
+      <div id="cloudSyncUI"></div>
     </section>
   </main>
 </div>
 <script src="sage-data.js"></script>
 <script src="resume.js"></script>
 <script src="cloud-sync.js"></script>
+<script src="sage-cloud-sync.js?v=1"></script>
 <script src="edit-mode.js"></script>
 <script src="site-shell.js"></script>
 </body>
