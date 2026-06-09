@@ -81,11 +81,12 @@
         console.warn('[sage-data] save blocked:', module, v.reason);
         return;
       }
-      if (module === 'study') {
-        localStorage.setItem('sage.study.planV3', JSON.stringify(data));
-      } else {
-        localStorage.setItem(KEYS[module], JSON.stringify(data));
+      const key = module === 'study' ? 'sage.study.planV3' : KEYS[module];
+      if (!key) {
+        console.error('[sage-data] unknown module:', module, '— no storage key');
+        return;
       }
+      localStorage.setItem(key, JSON.stringify(data));
       window.dispatchEvent(
         new CustomEvent('sage-data-changed', { detail: { module } })
       );

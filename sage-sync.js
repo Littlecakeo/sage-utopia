@@ -66,11 +66,11 @@
 
     if (sorted.length) {
       resultEl.innerHTML = sorted.map(function(e) {
-        return '<div class="task" data-id="' + e.id + '">' +
+        return '<div class="task" data-id="' + esc(e.id) + '">' +
           '<strong>' + esc(e.summary) + '</strong>' +
           '<p class="hint">' + esc(e.date) + ' · ' + esc(e.source) + (e.imported ? ' · 已导入任务' : '') + '</p>' +
-          (!e.imported ? '<button class="mini" data-action="sync-import" data-id="' + e.id + '" style="margin-top:4px">导入到任务</button>' : '') +
-          '<button class="mini danger" data-action="sync-delete" data-id="' + e.id + '" style="margin-top:4px;margin-left:4px">删除</button>' +
+          (!e.imported ? '<button class="mini" data-action="sync-import" data-id="' + esc(e.id) + '" style="margin-top:4px">导入到任务</button>' : '') +
+          '<button class="mini danger" data-action="sync-delete" data-id="' + esc(e.id) + '" style="margin-top:4px;margin-left:4px">删除</button>' +
           '</div>';
       }).join('');
     } else {
