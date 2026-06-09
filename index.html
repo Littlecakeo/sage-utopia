@@ -30,14 +30,14 @@
   <div class="mobile">
     <a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a>
     <div class="mobile-scroll">
-      <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="portfolio.html">作品集</a>
+      <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="growth.html">成长记录</a><a href="resume.html">关于 Sage</a>
     </div>
   </div>
   <div class="shell">
     <aside class="side">
       <a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a>
       <nav class="nav">
-        <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="resume.html">在线简历</a><a href="portfolio.html">作品集</a><a href="contact.html">联系方式</a>
+        <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="growth.html">成长记录</a><a href="resume.html">关于 Sage</a>
       </nav>
     </aside>
     <main>
@@ -62,9 +62,8 @@
 
       <section class="compact-stats section" aria-label="全站概览">
         <h2 class="home-section-title">全站概览</h2>
-        <div class="compact-stats">
+        <div class="compact-stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">
           <div class="card peach"><div class="stat" id="dashCareer">0</div><p>求职中</p><p class="hint">面试+申请</p></div>
-          <div class="card blue"><div class="stat" id="dashFinance">$0</div><p>本月支出</p><p class="hint">财务记录</p></div>
           <div class="card soft"><div class="stat" id="dashGrowth">0</div><p>成长记录</p><p class="hint">总条数</p></div>
           <div class="card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集</p><p class="hint">项目数</p></div>
         </div>
@@ -142,13 +141,6 @@
       const careerActive = jobs.filter(j => ['面试中','已申请'].includes(j.status)).length;
       const el1 = document.getElementById('dashCareer');
       if(el1) el1.textContent = careerActive;
-
-      // 财务：本月支出
-      const records = SD.getAll('finance');
-      const month = new Date().toISOString().slice(0,7);
-      const monthTotal = records.filter(r => r.date && r.date.startsWith(month)).reduce((s,r) => s + Number(r.amount||0), 0);
-      const el2 = document.getElementById('dashFinance');
-      if(el2) el2.textContent = '$' + monthTotal.toLocaleString();
 
       // 成长记录数
       const entries = SD.getAll('growth');

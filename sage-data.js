@@ -12,15 +12,20 @@
   const KEYS = {
     tasks:     'sage.progress.items.v2',
     career:    'sage.career.jobs.v1',
-    finance:   'sage.finance.records.v1',
+    // finance:   'sage.finance.records.v1',  // 已移除
     growth:    'sage.growth.entries.v1',
     portfolio: 'sage.portfolio.projects.v1',
     sync:      'sage.sync.ical.v1',
+    study:     'sage.study.planV3',
   };
 
   /* ── 读取（返回数组，失败返回 []）──────────────────── */
   function load(module) {
     try {
+      if (module === 'study') {
+        const raw = localStorage.getItem('sage.study.planV3');
+        return raw ? JSON.parse(raw) : [];
+      }
       const raw = localStorage.getItem(KEYS[module]);
       return raw ? JSON.parse(raw) : [];
     } catch (e) {
@@ -32,7 +37,11 @@
   /* ── 写入（自动触发跨模块通知）────────────────────── */
   function save(module, data) {
     try {
-      localStorage.setItem(KEYS[module], JSON.stringify(data));
+      if (module === 'study') {
+        localStorage.setItem('sage.study.planV3', JSON.stringify(data));
+      } else {
+        localStorage.setItem(KEYS[module], JSON.stringify(data));
+      }
       window.dispatchEvent(
         new CustomEvent('sage-data-changed', { detail: { module } })
       );
