@@ -1,0 +1,133 @@
+/* ═══════════════════════════════════════════════════
+ *  Sage Cloud Sync — UI 样式
+ * ═══════════════════════════════════════════════════ */
+
+/* 同步状态圆点 */
+.sync-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted, #888);
+  cursor: pointer;
+}
+.sync-indicator:hover .sync-dot { transform: scale(1.2); }
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c4c4c4;
+  flex-shrink: 0;
+  transition: background 0.3s, transform 0.2s;
+}
+.sync-dot.connected { background: #789372; }
+.sync-dot.syncing { background: #d4a85a; animation: sync-pulse 1.5s infinite; }
+.sync-dot.error { background: #d4785a; }
+@keyframes sync-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* 同步卡片 */
+.sync-card {
+  border: 1px solid rgba(222, 216, 201, 0.82);
+  border-radius: 16px;
+  padding: 16px;
+  background: rgba(255, 253, 248, 0.86);
+  margin-top: 12px;
+}
+.sync-card h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: #34483e;
+}
+.sync-card .sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 14px;
+  color: #34483e;
+}
+.sync-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.sync-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  align-items: center;
+}
+.sync-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted, #888);
+  cursor: pointer;
+}
+.sync-toggle input[type="checkbox"] {
+  accent-color: #789372;
+}
+
+/* 连接弹窗 */
+.sync-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+}
+.sync-modal {
+  background: #FFFDF8;
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.sync-modal h3 { margin: 0 0 8px; font-size: 16px; }
+.sync-steps {
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 2;
+  color: #555;
+}
+.sync-steps a {
+  color: #5a8f7a;
+  text-decoration: underline;
+}
+.sync-steps code {
+  background: #EEF3EA;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+}
+.sync-modal .field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(222, 216, 201, 0.82);
+  border-radius: 12px;
+  font-size: 13px;
+  margin-top: 12px;
+  box-sizing: border-box;
+  outline: none;
+  font-family: inherit;
+}
+.sync-modal .field:focus {
+  border-color: #789372;
+}
+.sync-modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}

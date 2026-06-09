@@ -66,6 +66,7 @@
     const form = document.getElementById('portfolioForm');
     if (form) form.addEventListener('submit', window.portfolioAdd);
     renderPortfolio();
+    if (window.SageCloudSync) window.SageCloudSync.renderSyncUI();
   }
 
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
