@@ -1,1 +1,55 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sage Utopia｜财务中心</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="edit-mode.css"></head><body><div class="mobile"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><div class="mobile-scroll"><a href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a class="active" href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="resume.html">在线简历</a><a href="portfolio.html">作品集</a><a href="contact.html">联系方式</a></div></div><div class="shell"><aside class="side"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><nav class="nav"><a href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a class="active" href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="resume.html">在线简历</a><a href="portfolio.html">作品集</a><a href="contact.html">联系方式</a></nav></aside><main><section class="hero"><p class="eyebrow">财务中心</p><h1>让预算变得温柔清楚</h1><p class="desc">只记录关键分类和金额，用月度视角看见留学生活的消费节奏。金额、分类和比例都可以直接点开修改。</p></section><section class="grid stats"><div class="card soft"><p>本月支出</p><div class="stat">$1441</div></div><div class="card blue"><p>月度预算</p><div class="stat">$2200</div></div><div class="card peach"><p>预算使用</p><div class="stat">65%</div></div><div class="card soft"><p>记录数量</p><div class="stat">5</div></div></section><section class="card section"><h2>分类统计</h2><p>房租</p><div class="bar"><span style="width:88%"></span></div><p>餐饮</p><div class="bar"><span style="width:12%"></span></div><p>交通</p><div class="bar"><span style="width:8%"></span></div></section></main></div><script src="edit-mode.js"></script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sage Utopia｜财务中心</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="edit-mode.css">
+</head>
+<body>
+<div class="mobile"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><div class="mobile-scroll"><a href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a class="active" href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="resume.html">在线简历</a><a href="portfolio.html">作品集</a><a href="contact.html">联系方式</a></div></div>
+<div class="shell">
+  <aside class="side"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><nav class="nav"><a href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a class="active" href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="sync.html">同步中心</a><a href="about.html">关于我</a><a href="resume.html">在线简历</a><a href="portfolio.html">作品集</a><a href="contact.html">联系方式</a></nav></aside>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">财务中心</p>
+      <h1>让预算变得温柔清楚</h1>
+      <p class="desc">只记录关键分类和金额，用月度视角看见留学生活的消费节奏。</p>
+    </section>
+    <section class="grid stats">
+      <div class="card soft"><p>本月支出</p><div class="stat" id="financeTotal">$0</div></div>
+      <div class="card blue"><p>月度预算</p><div class="stat" id="financeBudget">$2200</div><form id="financeBudgetForm" style="margin-top:6px"><input class="field mini" id="financeBudgetInput" type="number" placeholder="修改预算" style="width:100px;display:inline-block"><button class="mini" type="submit" style="margin-left:4px">更新</button></form></div>
+      <div class="card peach"><p>预算使用</p><div class="stat" id="financePct">0%</div></div>
+      <div class="card soft"><p>本月记录</p><div class="stat" id="financeCount">0</div></div>
+    </section>
+    <section class="card section">
+      <h2>新增记录</h2>
+      <form id="financeForm" class="task-form">
+        <div class="form-row">
+          <select class="field" id="financeCategory"><option value="房租">房租</option><option value="餐饮">餐饮</option><option value="交通">交通</option><option value="购物">购物</option><option value="学费">学费</option><option value="其他">其他</option></select>
+          <input class="field" id="financeAmount" type="number" min="0.01" step="0.01" placeholder="金额（必填）" required>
+        </div>
+        <div class="form-row">
+          <input class="field" id="financeDate" type="date">
+          <input class="field" id="financeNote" type="text" placeholder="备注（可选）">
+        </div>
+        <button type="submit" class="mini">保存</button>
+      </form>
+    </section>
+    <section class="card section">
+      <h2>本月分类统计</h2>
+      <div id="financeBars"></div>
+    </section>
+    <section class="card section">
+      <h2>所有记录</h2>
+      <div id="financeList"></div>
+    </section>
+  </main>
+</div>
+<script src="sage-data.js"></script>
+<script src="finance.js"></script>
+<script src="edit-mode.js"></script>
+<script src="site-shell.js"></script>
+</body>
+</html>

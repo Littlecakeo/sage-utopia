@@ -60,6 +60,16 @@
         <div class="card soft"><div class="stat" id="doneCount">0</div><p>已完成</p><p class="hint">完成记录</p></div>
       </section>
 
+      <section class="compact-stats section" aria-label="全站概览">
+        <h2 class="home-section-title">全站概览</h2>
+        <div class="compact-stats">
+          <div class="card peach"><div class="stat" id="dashCareer">0</div><p>求职中</p><p class="hint">面试+申请</p></div>
+          <div class="card blue"><div class="stat" id="dashFinance">$0</div><p>本月支出</p><p class="hint">财务记录</p></div>
+          <div class="card soft"><div class="stat" id="dashGrowth">0</div><p>成长记录</p><p class="hint">总条数</p></div>
+          <div class="card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集</p><p class="hint">项目数</p></div>
+        </div>
+      </section>
+
       <section class="card section">
         <h2>UNSW 快捷入口</h2>
         <p class="sub">学校官网 Moodle 学习中心和 myUNSW</p>
@@ -94,9 +104,11 @@
       </section>
     </main>
   </div>
+  <script src="sage-data.js"></script>
   <script src="tasks.js"></script>
   <script src="edit-mode.js?v=8"></script>
   <script>
+    /* ── 每日名言 ──────────────────────────────────── */
     function applyQuoteNow(){
       const t=document.getElementById('dailyQuoteText');
       const m=document.getElementById('dailyQuoteMeta');
@@ -119,6 +131,35 @@
       if(dlabel)dlabel.textContent=yy+'/'+mm+'/'+dd;
     }
     applyQuoteNow();
+
+    /* ── 跨模块 Dashboard ────────────────────────── */
+    (function refreshDash(){
+      const SD = window.SageData;
+      if(!SD) return;
+
+      // 求职：面试中 + 已申请
+      const jobs = SD.getAll('career');
+      const careerActive = jobs.filter(j => ['面试中','已申请'].includes(j.status)).length;
+      const el1 = document.getElementById('dashCareer');
+      if(el1) el1.textContent = careerActive;
+
+      // 财务：本月支出
+      const records = SD.getAll('finance');
+      const month = new Date().toISOString().slice(0,7);
+      const monthTotal = records.filter(r => r.date && r.date.startsWith(month)).reduce((s,r) => s + Number(r.amount||0), 0);
+      const el2 = document.getElementById('dashFinance');
+      if(el2) el2.textContent = '$' + monthTotal.toLocaleString();
+
+      // 成长记录数
+      const entries = SD.getAll('growth');
+      const el3 = document.getElementById('dashGrowth');
+      if(el3) el3.textContent = entries.length;
+
+      // 作品集项目数
+      const projects = SD.getAll('portfolio');
+      const el4 = document.getElementById('dashPortfolio');
+      if(el4) el4.textContent = projects.length;
+    })();
   </script>
 </body>
 </html>
