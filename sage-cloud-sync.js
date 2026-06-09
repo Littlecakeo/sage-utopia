@@ -1,98 +1,53 @@
-/* ═══════════════════════════════════════════════════════════════
- *  Sage Cloud Sync v1.0 — GitHub Gist 云同步引擎
- *  通过私有 Gist 实现跨设备数据同步，零后端部署
- * ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  // ── 常量 ────────────────────────────────────────────────
-  var GIST_DESC = 'Sage Utopia Cloud Sync Data';
-  var GIST_FILE = 'sage-utopia-data.json';
-  var STORAGE_PREFIX = 'sage.cloud.';
-  var SYNC_VERSION = 1;
-  var DEBOUNCE_MS = 3000;        // 数据变更后等待 3 秒再推送
-  var PULL_INTERVAL_MS = 300000; // 每 5 分钟自动拉取一次
-  var API_BASE = 'https://api.github.com';
-
-  // ── 6 个数据模块 ──────────────────────────────────────
+  var SUPABASE_URL = 'https://gsfxrikjqukiurcprggk.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZnhyaWtqcXVraXVyY3ByZ2drIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTc4NTgsImV4cCI6MjA5NjU3Mzg1OH0.PYiLRLh9PtWJ6pOs_sL_QEF3kwkHJQ3tZurHJ7tY298';
+  var TABLE = 'sync_data';
   var MODULES = ['tasks', 'study', 'career', 'growth', 'portfolio', 'sync'];
+  var DEBOUNCE_MS = 3000;
+  var PULL_INTERVAL_MS = 300000;
 
-  // ── 状态 ────────────────────────────────────────────────
-  var _token = null;
-  var _gistId = null;
-  var _status = 'disconnected'; // disconnected | connecting | connected | syncing | error
-  var _lastSyncAt = null;
-  var _autoSyncEnabled = false;
-  var _debounceTimer = null;
+  var _client = null;
+  var _syncKey = '';
+  var _status = 'disconnected';
+  var _pending = {};
+  var _pushTimer = null;
   var _pullTimer = null;
-  var _pendingModules = []; // 待推送的模块数组
+  var _autoSync = false;
+  var _lastSync = null;
   var _isPushing = false;
   var _isPulling = false;
-  var _statusMessage = '';
+  var _statusMsg = '';
 
-  // ── Token 存储 ─────────────────────────────────────────
-  function loadToken() {
-    _token = localStorage.getItem(STORAGE_PREFIX + 'token') || null;
-    _gistId = localStorage.getItem(STORAGE_PREFIX + 'gistId') || null;
-    _autoSyncEnabled = localStorage.getItem(STORAGE_PREFIX + 'auto') === 'true';
+  function store() { return 'sage.cloud.syncKey'; }
+  function autoStore() { return 'sage.cloud.auto'; }
+  function modStore(m) { return 'sage.cloud.mod.' + m + '.time'; }
+  function now() { return new Date().toISOString(); }
+
+  function esc(s) {
+    return String(s).replace(/[&<>'"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c];
+    });
   }
 
-  function saveToken(token, gistId) {
-    _token = token;
-    _gistId = gistId;
-    localStorage.setItem(STORAGE_PREFIX + 'token', token);
-    if (gistId) localStorage.setItem(STORAGE_PREFIX + 'gistId', gistId);
+  function say(text) {
+    if (window.SageUI && window.SageUI.toast) window.SageUI.toast(text);
   }
 
-  function clearToken() {
-    _token = null;
-    _gistId = null;
-    localStorage.removeItem(STORAGE_PREFIX + 'token');
-    localStorage.removeItem(STORAGE_PREFIX + 'gistId');
-    _status = 'disconnected';
-    _statusMessage = '未连接';
-    stopAutoSync();
-    dispatchStatus();
+  function fmtTime(date) {
+    if (!date) return '从未';
+    var d = new Date(date);
+    var diff = Date.now() - d.getTime();
+    if (diff < 60000) return '刚刚';
+    if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   }
 
-  // ── GitHub API 封装 ──────────────────────────────────────
-  async function apiRequest(path, options) {
-    if (!_token) throw new Error('Not authenticated');
-    var headers = {
-      'Authorization': 'Bearer ' + _token,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    };
-    if (options && options.headers) {
-      var keys = Object.keys(options.headers);
-      for (var i = 0; i < keys.length; i++) headers[keys[i]] = options.headers[keys[i]];
-    }
-    var resp = await fetch(API_BASE + path, Object.assign({}, options || {}, { headers: headers }));
-    if (resp.status === 401) {
-      clearToken();
-      throw new Error('Token 已失效，请重新连接');
-    }
-    if (resp.status === 403) {
-      var err = await resp.json().catch(function() { return {}; });
-      throw new Error('权限不足: ' + (err.message || 'Token 可能缺少 Gist 读写权限'));
-    }
-    if (resp.status === 429) {
-      var retryAfter = resp.headers.get('Retry-After');
-      var waitSec = retryAfter ? parseInt(retryAfter, 10) : 60;
-      throw new Error('API 请求过于频繁，' + waitSec + ' 秒后重试');
-    }
-    if (!resp.ok) {
-      var errData = await resp.json().catch(function() { return {}; });
-      throw new Error(errData.message || ('API error ' + resp.status));
-    }
-    return resp.json();
-  }
-
-  // ── 哈希计算（Cyrb53 轻量哈希）──────────────────────
   function hashData(data) {
-    var h1 = 0xdeadbeef;
-    var h2 = 0x41c6ce57;
     var str = JSON.stringify(data);
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
     for (var i = 0; i < str.length; i++) {
       var ch = str.charCodeAt(i);
       h1 = Math.imul(h1 ^ ch, 2654435761);
@@ -105,354 +60,244 @@
     return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
   }
 
-  // ── 创建空数据载体 ───────────────────────────────────
-  function createEmptyPayload() {
-    var modules = {};
-    for (var i = 0; i < MODULES.length; i++) {
-      modules[MODULES[i]] = { hash: '', updatedAt: '', data: [] };
-    }
-    return {
-      version: SYNC_VERSION,
-      updatedAt: new Date().toISOString(),
-      syncedBy: 'sage-utopia',
-      modules: modules
-    };
+  function getLocalModTime(m) {
+    return new Date(localStorage.getItem(modStore(m)) || 0).getTime();
+  }
+  function setLocalModTime(m, iso) {
+    localStorage.setItem(modStore(m), iso);
   }
 
-  // ── Gist 查找或创建 ──────────────────────────────────
-  async function findOrCreateGist() {
-    var page = 1;
-    var found = null;
-    // 搜索用户 Gist（最多 3 页）
-    while (!found && page <= 3) {
-      var gists = await apiRequest('/gists?per_page=100&page=' + page);
-      for (var i = 0; i < gists.length; i++) {
-        if (gists[i].description === GIST_DESC) { found = gists[i]; break; }
-      }
-      if (gists.length < 100) break;
-      page++;
-    }
-    if (found) return found;
+  function getClient() {
+    if (_client) return _client;
+    if (!window.supabase || !window.supabase.createClient) return null;
+    _client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return _client;
+  }
 
-    // 未找到则创建
-    var payload = {
-      description: GIST_DESC,
-      public: false,
-      files: {}
-    };
-    payload.files[GIST_FILE] = { content: JSON.stringify(createEmptyPayload(), null, 2) };
-    var gist = await apiRequest('/gists', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+  function setStatus(s, msg) {
+    _status = s;
+    _statusMsg = msg || s;
+    document.querySelectorAll('.sync-dot').forEach(function (d) {
+      d.className = 'sync-dot' + (s === 'connected' ? ' connected' : s === 'syncing' ? ' syncing' : s === 'error' ? ' error' : '');
     });
-    return gist;
+    document.querySelectorAll('.sync-status-text').forEach(function (el) { el.textContent = _statusMsg; });
+    window.dispatchEvent(new CustomEvent('sage-cloud-sync-status', {
+      detail: { status: _status, message: _statusMsg, lastSyncAt: _lastSync, connected: !!_syncKey, autoSync: _autoSync }
+    }));
   }
 
-  // ── 构建模块数据快照 ────────────────────────────────
-  function buildModuleSnapshot(mod) {
-    var data = window.SageData ? window.SageData.getAll(mod) : [];
-    return {
-      hash: hashData(data),
-      updatedAt: new Date().toISOString(),
-      data: data
-    };
-  }
-
-  // ── Push（推送本地 → Gist）─────────────────────────
-  async function push(moduleNames) {
-    if (!_token || !_gistId || _isPushing) return;
+  async function push(modules) {
+    if (!_syncKey || _isPushing) return;
+    var client = getClient();
+    if (!client) return;
     _isPushing = true;
-    setStatus('syncing', '正在同步...');
+    setStatus('syncing', '正在推送...');
 
     try {
-      var gist = await apiRequest('/gists/' + _gistId);
-      var file = gist.files[GIST_FILE];
-      var remote = file ? JSON.parse(file.content) : createEmptyPayload();
-
-      // 更新指定模块
-      var mods = moduleNames || MODULES;
-      for (var i = 0; i < mods.length; i++) {
-        remote.modules[mods[i]] = buildModuleSnapshot(mods[i]);
+      var rows = [];
+      for (var i = 0; i < modules.length; i++) {
+        var m = modules[i];
+        var data = window.SageData ? window.SageData.getAll(m) : [];
+        rows.push({
+          sync_key: _syncKey,
+          module: m,
+          data: data,
+          hash: hashData(data),
+          updated_at: localStorage.getItem(modStore(m)) || now()
+        });
       }
-      remote.updatedAt = new Date().toISOString();
-
-      // 写回 Gist
-      var updatePayload = { description: GIST_DESC, files: {} };
-      updatePayload.files[GIST_FILE] = { content: JSON.stringify(remote, null, 2) };
-      await apiRequest('/gists/' + _gistId, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatePayload)
-      });
-
-      _lastSyncAt = new Date();
-      _pendingModules = [];
+      var res = await client.from(TABLE).upsert(rows, { onConflict: 'sync_key,module' });
+      if (res.error) throw res.error;
+      for (var j = 0; j < modules.length; j++) delete _pending[modules[j]];
+      _lastSync = new Date();
       setStatus('connected', '已同步');
-    } catch (err) {
-      console.error('[sage-cloud-sync] push error:', err);
-      setStatus('error', '推送失败: ' + err.message);
+    } catch (e) {
+      console.error('[sage-cloud-sync] push:', e);
+      setStatus('error', '推送失败: ' + (e.message || e));
     } finally {
       _isPushing = false;
-      dispatchStatus();
     }
   }
 
-  // ── Pull（拉取 Gist → 本地）─────────────────────────
   async function pull() {
-    if (!_token || !_gistId || _isPulling) return;
+    if (!_syncKey || _isPulling) return;
+    var client = getClient();
+    if (!client) return;
     _isPulling = true;
     setStatus('syncing', '正在拉取...');
 
     try {
-      var gist = await apiRequest('/gists/' + _gistId);
-      var file = gist.files[GIST_FILE];
-      if (!file) throw new Error('Gist 数据文件缺失');
-      var remote = JSON.parse(file.content);
+      var res = await client.from(TABLE).select('*').eq('sync_key', _syncKey);
+      if (res.error) throw res.error;
 
+      var remote = res.data || [];
       var pulled = 0;
+
       for (var i = 0; i < MODULES.length; i++) {
-        var mod = MODULES[i];
-        if (!remote.modules[mod]) continue;
-        var remoteMod = remote.modules[mod];
-        var localData = window.SageData ? window.SageData.getAll(mod) : [];
-        var localHash = hashData(localData);
+        var m = MODULES[i];
+        var row = null;
+        for (var j = 0; j < remote.length; j++) {
+          if (remote[j].module === m) { row = remote[j]; break; }
+        }
+        if (!row) continue;
 
-        // LWW: 比较 updatedAt
-        var remoteTime = new Date(remoteMod.updatedAt).getTime();
-        var localTime = getLocalModuleTime(mod);
-        var remoteIsNewer = remoteTime > localTime;
+        var remoteTime = new Date(row.updated_at).getTime();
+        var localTime = getLocalModTime(m);
 
-        if (remoteIsNewer && remoteMod.hash !== localHash) {
-          if (window.SageData && Array.isArray(remoteMod.data)) {
-            window.SageData.save(mod, remoteMod.data);
-            setLocalModuleTime(mod, remoteMod.updatedAt);
+        if (remoteTime > localTime) {
+          var localData = window.SageData ? window.SageData.getAll(m) : [];
+          var localHash = hashData(localData);
+          if (row.hash !== localHash && Array.isArray(row.data)) {
+            window.SageData.save(m, row.data);
+            setLocalModTime(m, row.updated_at);
             pulled++;
           }
         }
       }
 
-      _lastSyncAt = new Date();
+      _lastSync = new Date();
       setStatus('connected', pulled > 0 ? '已拉取 ' + pulled + ' 个模块更新' : '已是最新');
-    } catch (err) {
-      console.error('[sage-cloud-sync] pull error:', err);
-      setStatus('error', '拉取失败: ' + err.message);
+      return pulled;
+    } catch (e) {
+      console.error('[sage-cloud-sync] pull:', e);
+      setStatus('error', '拉取失败: ' + (e.message || e));
     } finally {
       _isPulling = false;
-      dispatchStatus();
     }
   }
 
-  // ── 本地模块时间戳（LWW 判断依据）────────────────────
-  function getLocalModuleTime(mod) {
-    return new Date(localStorage.getItem(STORAGE_PREFIX + 'mod.' + mod + '.time') || 0).getTime();
-  }
-  function setLocalModuleTime(mod, iso) {
-    localStorage.setItem(STORAGE_PREFIX + 'mod.' + mod + '.time', iso);
-  }
-
-  // ── SageData 集成：监听 sage-data-changed 事件 ──────
   function hookSageData() {
     window.addEventListener('sage-data-changed', function (e) {
-      if (!_token || !_gistId) return;
+      if (!_syncKey) return;
       var mod = e.detail && e.detail.module;
       if (!mod || MODULES.indexOf(mod) === -1) return;
-
-      setLocalModuleTime(mod, new Date().toISOString());
-
-      // 添加到待推送队列（去重）
-      if (_pendingModules.indexOf(mod) === -1) {
-        _pendingModules.push(mod);
-      }
-      schedulePush();
+      setLocalModTime(mod, now());
+      _pending[mod] = true;
+      clearTimeout(_pushTimer);
+      _pushTimer = setTimeout(function () {
+        var mods = Object.keys(_pending);
+        if (mods.length > 0) push(mods);
+      }, DEBOUNCE_MS);
     });
   }
 
-  function schedulePush() {
-    clearTimeout(_debounceTimer);
-    _debounceTimer = setTimeout(function () {
-      if (_pendingModules.length > 0) {
-        push(_pendingModules.slice());
-      }
-    }, DEBOUNCE_MS);
-  }
-
-  // ── 自动同步 ──────────────────────────────────────────
   function startAutoSync() {
-    if (_autoSyncEnabled) return; // 防止重复启动
-    _autoSyncEnabled = true;
-    localStorage.setItem(STORAGE_PREFIX + 'auto', 'true');
-
-    // 立即拉取一次
+    if (_autoSync) return;
+    _autoSync = true;
+    localStorage.setItem(autoStore(), 'true');
     pull().catch(function () {});
-    // 定时拉取
     _pullTimer = setInterval(function () {
-      if (_token && _gistId && !_isPulling && !_isPushing) {
-        pull().catch(function () {});
-      }
+      if (_syncKey && !_isPulling && !_isPushing) pull().catch(function () {});
     }, PULL_INTERVAL_MS);
-    // 监听网络恢复
     window.addEventListener('online', onOnline);
   }
 
   function stopAutoSync() {
-    _autoSyncEnabled = false;
-    localStorage.setItem(STORAGE_PREFIX + 'auto', 'false');
+    _autoSync = false;
+    localStorage.setItem(autoStore(), 'false');
     if (_pullTimer) { clearInterval(_pullTimer); _pullTimer = null; }
     window.removeEventListener('online', onOnline);
   }
 
   function onOnline() {
-    if (!_token || !_gistId) return;
-    setStatus('connected', '网络已恢复，正在同步...');
-    pull().then(function () {
-      if (_pendingModules.length > 0) {
-        push(_pendingModules.slice());
-      }
-    }).catch(function () {});
+    if (!_syncKey) return;
+    setStatus('connected', '网络恢复，同步中...');
+    pull().catch(function () {});
   }
 
-  // ── 状态管理 ──────────────────────────────────────────
-  function setStatus(status, message) {
-    _status = status;
-    _statusMessage = message || getStatusMessage(status);
-    dispatchStatus();
-  }
+  async function connect(syncKey) {
+    syncKey = (syncKey || '').trim();
+    if (!syncKey) throw new Error('请输入同步码');
+    if (syncKey.length < 4) throw new Error('同步码至少 4 位');
 
-  function getStatusMessage(s) {
-    switch (s || _status) {
-      case 'disconnected': return '未连接';
-      case 'connecting': return '正在连接...';
-      case 'connected': return '已连接';
-      case 'syncing': return '正在同步...';
-      case 'error': return '同步出错';
-      default: return '未知';
-    }
-  }
+    setStatus('syncing', '正在连接...');
+    var client = getClient();
+    if (!client) throw new Error('Supabase SDK 未加载');
 
-  function dispatchStatus() {
-    window.dispatchEvent(new CustomEvent('sage-cloud-sync-status', {
-      detail: {
-        status: _status,
-        message: _statusMessage,
-        lastSyncAt: _lastSyncAt,
-        connected: !!_token && !!_gistId,
-        autoSync: _autoSyncEnabled,
-        gistId: _gistId
-      }
-    }));
-  }
-
-  // ── 连接 GitHub ────────────────────────────────────────
-  async function connect(token) {
-    token = (token || '').trim();
-    if (!token) throw new Error('请输入 GitHub Token');
-
-    setStatus('connecting', '正在验证 Token...');
     try {
-      var user = await apiRequest('/user');
-      if (!user.login) throw new Error('Token 验证失败');
-
-      var gist = await findOrCreateGist();
-      saveToken(token, gist.id);
-
-      setStatus('connected', '已连接 (' + user.login + ')');
+      var res = await client.from(TABLE).select('sync_key').eq('sync_key', syncKey).limit(1);
+      if (res.error) throw res.error;
+      _syncKey = syncKey;
+      localStorage.setItem(store(), syncKey);
+      setStatus('connected', '已连接');
       startAutoSync();
-      return user;
-    } catch (err) {
-      setStatus('error', '连接失败: ' + err.message);
-      throw err;
+      renderSyncUI();
+      say('云同步已连接');
+    } catch (e) {
+      setStatus('error', '连接失败: ' + (e.message || e));
+      throw e;
     }
   }
 
-  // ── 初始化 ──────────────────────────────────────────────
+  function disconnect() {
+    _syncKey = '';
+    localStorage.removeItem(store());
+    stopAutoSync();
+    setStatus('disconnected', '未连接');
+    renderSyncUI();
+  }
+
   function init() {
-    loadToken();
-    if (_token && _gistId) {
-      setStatus('connecting', '正在恢复连接...');
-      apiRequest('/user').then(function (user) {
-        setStatus('connected', '已连接 (' + user.login + ')');
-        if (_autoSyncEnabled) startAutoSync();
-      }).catch(function () {
-        clearToken();
-      });
+    _syncKey = localStorage.getItem(store()) || '';
+    _autoSync = localStorage.getItem(autoStore()) === 'true';
+    if (_syncKey) {
+      setStatus('connected', '已连接');
+      if (_autoSync) startAutoSync();
     }
     hookSageData();
-    dispatchStatus();
   }
 
-  // ── 时间格式化 ────────────────────────────────────────
-  function formatTime(date) {
-    if (!date) return '从未';
-    var d = new Date(date);
-    var now = new Date();
-    var diff = now - d;
-    if (diff < 60000) return '刚刚';
-    if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
-    if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
-    return d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
-      String(d.getDate()).padStart(2, '0') + ' ' +
-      String(d.getHours()).padStart(2, '0') + ':' +
-      String(d.getMinutes()).padStart(2, '0');
+  async function syncNow() {
+    try {
+      await pull();
+      var mods = Object.keys(_pending);
+      if (mods.length > 0) await push(mods);
+      renderSyncUI();
+      say('同步完成');
+    } catch (e) {
+      console.error('[sage-cloud-sync] syncNow:', e);
+    }
   }
 
-  // ── HTML 转义 ──────────────────────────────────────────
-  function esc(s) {
-    return String(s).replace(/[&<>'"]/g, function (c) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c];
-    });
-  }
-
-  // ── 同步 UI 渲染 ──────────────────────────────────────
   function getSyncUI() {
-    var connected = !!_token && !!_gistId;
-    if (connected) {
+    if (_syncKey) {
       return '<div class="sync-card connected">' +
         '<div class="sync-status">' +
           '<span class="sync-dot ' + _status + '"></span>' +
-          '<span>' + esc(_statusMessage) + '</span>' +
+          '<span class="sync-status-text">' + esc(_statusMsg) + '</span>' +
         '</div>' +
         '<div class="sync-meta">' +
-          '<span class="hint">Gist: ' + esc(_gistId.slice(0, 8)) + '...</span>' +
-          '<span class="hint">上次同步: ' + esc(formatTime(_lastSyncAt)) + '</span>' +
+          '<span class="hint">同步码: ' + esc(_syncKey.slice(0, 2)) + '***</span>' +
+          '<span class="hint">上次同步: ' + esc(fmtTime(_lastSync)) + '</span>' +
         '</div>' +
         '<div class="sync-actions">' +
           '<button class="mini" data-action="sync-now">立即同步</button>' +
           '<label class="sync-toggle"><input type="checkbox" ' +
-            (_autoSyncEnabled ? 'checked ' : '') +
+            (_autoSync ? 'checked ' : '') +
             'data-action="sync-auto"> 自动同步</label>' +
           '<button class="mini danger" data-action="sync-disconnect">断开连接</button>' +
         '</div>' +
       '</div>';
     }
     return '<div class="sync-card disconnected">' +
-      '<h3>GitHub 云同步</h3>' +
-      '<p class="hint">通过私有 Gist 在设备间同步你的所有数据。数据仅存储在你的 GitHub 中，安全可控。</p>' +
-      '<button class="mini" data-action="sync-connect">连接 GitHub</button>' +
+      '<h3>Supabase 云同步</h3>' +
+      '<p class="hint">在设备间同步所有数据。设置一个同步码，其他设备输入相同同步码即可共享。</p>' +
+      '<button class="mini" data-action="sync-connect">连接云同步</button>' +
     '</div>';
   }
 
-  // ── 连接弹窗渲染 ──────────────────────────────────────
   function showConnectModal() {
     var overlay = document.getElementById('syncModal');
-    if (overlay) { overlay.style.display = 'flex'; overlay.querySelector('#syncTokenInput').focus(); return; }
+    if (overlay) { overlay.style.display = 'flex'; overlay.querySelector('#syncKeyInput').focus(); return; }
     var div = document.createElement('div');
     div.id = 'syncModal';
     div.className = 'sync-modal-overlay';
     div.innerHTML = '<div class="sync-modal">' +
-      '<h3>连接 GitHub 云同步</h3>' +
-      '<p class="hint" style="margin-bottom:12px">使用私有 Gist 存储数据，实现跨设备同步。</p>' +
-      '<ol class="sync-steps">' +
-        '<li>打开 <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">创建 Fine-grained Token</a></li>' +
-        '<li>Token name 填写：<code>Sage Utopia Sync</code></li>' +
-        '<li>权限选择：<code>Account permissions → Gists → Read and write</code></li>' +
-        '<li>Expiration 建议：<code>No expiration</code></li>' +
-        '<li>复制 Token，粘贴到下方</li>' +
-      '</ol>' +
-      '<input class="field" id="syncTokenInput" type="password" placeholder="github_pat_...">' +
+      '<h3>连接云同步</h3>' +
+      '<p class="hint" style="margin-bottom:12px">设置一个同步码（至少 4 位），其他设备输入相同同步码即可同步数据。</p>' +
+      '<input class="field" id="syncKeyInput" type="text" placeholder="输入同步码，如 my-sage-2026" autocomplete="off">' +
       '<div class="sync-modal-actions">' +
-        '<button class="mini" id="syncConnectBtn">验证并连接</button>' +
+        '<button class="mini" id="syncConnectBtn">连接</button>' +
         '<button class="mini ghost" id="syncCancelBtn">取消</button>' +
       '</div>' +
       '<p id="syncError" class="hint" style="color:#d4785a;display:none"></p>' +
@@ -460,85 +305,55 @@
     document.body.appendChild(div);
     div.style.display = 'flex';
 
-    // 事件绑定
     div.querySelector('#syncCancelBtn').addEventListener('click', function () { div.style.display = 'none'; });
     div.addEventListener('click', function (e) { if (e.target === div) div.style.display = 'none'; });
+    div.querySelector('#syncKeyInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') div.querySelector('#syncConnectBtn').click();
+    });
     div.querySelector('#syncConnectBtn').addEventListener('click', async function () {
-      var input = div.querySelector('#syncTokenInput');
+      var input = div.querySelector('#syncKeyInput');
       var errEl = div.querySelector('#syncError');
       var btn = div.querySelector('#syncConnectBtn');
       errEl.style.display = 'none';
-      btn.textContent = '验证中...';
+      btn.textContent = '连接中...';
       btn.disabled = true;
       try {
-        var user = await connect(input.value);
+        await connect(input.value);
         div.style.display = 'none';
-        renderSyncUI();
-        if (window.SageUI) window.SageUI.toast('已连接 GitHub (' + user.login + ')');
       } catch (err) {
-        errEl.textContent = err.message;
+        errEl.textContent = err.message || '连接失败';
         errEl.style.display = 'block';
-        btn.textContent = '验证并连接';
+        btn.textContent = '连接';
         btn.disabled = false;
       }
     });
   }
 
-  // ── 渲染同步 UI 到容器 ────────────────────────────────
   function renderSyncUI() {
     var container = document.getElementById('cloudSyncUI');
     if (!container) return;
     container.innerHTML = getSyncUI();
-    bindSyncActions(container);
-  }
-
-  // ── 绑定同步 UI 事件 ──────────────────────────────────
-  function bindSyncActions(container) {
     container.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-action]');
       if (!btn) return;
-      var action = btn.getAttribute('data-action');
-      switch (action) {
-        case 'sync-now':
-          syncNow().then(function () { renderSyncUI(); });
-          break;
+      switch (btn.getAttribute('data-action')) {
+        case 'sync-now': syncNow(); break;
         case 'sync-auto':
-          _autoSyncEnabled = btn.checked;
-          if (_autoSyncEnabled) startAutoSync(); else stopAutoSync();
+          if (btn.checked) startAutoSync(); else stopAutoSync();
           break;
         case 'sync-disconnect':
-          if (confirm('确定断开云同步？本地数据不会删除。')) {
-            clearToken();
-            renderSyncUI();
-          }
+          if (confirm('确定断开云同步？本地数据不会删除。')) disconnect();
           break;
-        case 'sync-connect':
-          showConnectModal();
-          break;
+        case 'sync-connect': showConnectModal(); break;
       }
     });
   }
 
-  // ── 手动全量同步 ──────────────────────────────────────
-  async function syncNow() {
-    try {
-      await pull();
-      if (_pendingModules.length > 0) {
-        await push(_pendingModules.slice());
-      }
-    } catch (err) {
-      console.error('[sage-cloud-sync] syncNow error:', err);
-    }
-  }
-
-  // ── 导出公共 API ──────────────────────────────────────
   window.SageCloudSync = {
     init: init,
     connect: connect,
-    disconnect: clearToken,
-    getStatus: function () {
-      return { status: _status, message: _statusMessage, lastSyncAt: _lastSyncAt, connected: !!_token && !!_gistId, autoSync: _autoSyncEnabled, gistId: _gistId };
-    },
+    disconnect: disconnect,
+    getStatus: function () { return { status: _status, message: _statusMsg, lastSyncAt: _lastSync, connected: !!_syncKey, autoSync: _autoSync, syncKey: _syncKey }; },
     pull: pull,
     push: push,
     syncNow: syncNow,
@@ -549,5 +364,5 @@
   };
 
   window.__sageCloudSyncInited = true;
-  console.log('[sage-cloud-sync] v1.0 loaded');
+  console.log('[sage-cloud-sync] Supabase edition loaded');
 })();

@@ -61,12 +61,12 @@
         <div class="card soft"><div class="stat" id="doneCount">0</div><p>已完成</p><p class="hint">完成记录</p></div>
       </section>
 
-      <section class="compact-stats section" aria-label="全站概览">
+      <section class="section" aria-label="全站概览">
         <h2 class="home-section-title">全站概览</h2>
         <div class="compact-stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-          <div class="card peach"><div class="stat" id="dashCareer">0</div><p>求职中</p><p class="hint">面试+申请</p></div>
-          <div class="card soft"><div class="stat" id="dashGrowth">0</div><p>成长记录</p><p class="hint">总条数</p></div>
-          <div class="card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集</p><p class="hint">项目数</p></div>
+          <div class="card peach"><div class="stat" id="dashCareer">0</div><p>求职面试</p><p class="hint">面试+申请</p></div>
+          <div class="card soft"><div class="stat" id="dashGrowth">0</div><p>成长总条</p><p class="hint">总条数</p></div>
+          <div class="card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集项目数</p><p class="hint">项目数</p></div>
         </div>
       </section>
 
@@ -107,7 +107,8 @@
   <script src="sage-data.js"></script>
   <script src="tasks.js"></script>
   <script src="edit-mode.js?v=8"></script>
-  <script src="sage-cloud-sync.js?v=1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="sage-cloud-sync.js?v=2"></script>
   <script>
     /* ── 每日名言 ──────────────────────────────────── */
     function applyQuoteNow(){
