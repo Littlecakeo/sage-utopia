@@ -24,9 +24,18 @@
           ${p.role ? `<p class="hint" style="margin-top:4px"><strong>负责：</strong>${esc(p.role)}</p>` : ''}
           ${p.result ? `<p class="hint"><strong>成果：</strong>${esc(p.result)}</p>` : ''}
           ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener" class="mini" style="margin-top:6px;display:inline-block">查看项目</a>` : ''}
-          <div style="margin-top:8px"><button class="mini danger" onclick="portfolioDelete('${p.id}')">删除</button></div>
+          <div style="margin-top:8px"><button class="mini danger" data-action="portfolio-delete" data-id="${p.id}">删除</button></div>
         </div>`).join('')
       : '<div class="empty">还没有项目，点击上方「新增项目」添加。</div>';
+    /* ── 事件委托 ── */
+    if (!container.dataset._sagePortfolioBound) {
+      container.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action="portfolio-delete"]');
+        if (!btn) return;
+        window.portfolioDelete(btn.getAttribute('data-id'));
+      });
+      container.dataset._sagePortfolioBound = '1';
+    }
   }
 
   window.portfolioAdd = function (e) {

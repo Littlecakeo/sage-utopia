@@ -401,8 +401,8 @@
           <div class="task" data-id="${e.id}">
             <strong>${esc(e.summary)}</strong>
             <p class="hint">${esc(e.date)} · ${esc(e.source)}${e.imported ? ' · 已导入任务' : ''}</p>
-            ${!e.imported ? `<button class="mini" onclick="importSyncOne('${e.id}')" style="margin-top:4px">导入到任务</button>` : ''}
-            <button class="mini danger" onclick="syncDelete('${e.id}')" style="margin-top:4px;margin-left:4px">删除</button>
+            ${!e.imported ? `<button class="mini" data-action="sync-import" data-id="${e.id}" style="margin-top:4px">导入到任务</button>` : ''}
+            <button class="mini danger" data-action="sync-delete" data-id="${e.id}" style="margin-top:4px;margin-left:4px">删除</button>
           </div>`).join('')
       : '<p class="task">还没有同步过的事件。粘贴 iCal 内容开始。</p>';
 
@@ -506,7 +506,19 @@
 
   // ── 初始化同步功能 ──────────────────────────────────
   function initSync() {
-    const all = syncLoad();
+    var resultEl = document.getElementById('syncResult');
+    if (resultEl && !resultEl.dataset._sageSyncBound) {
+      resultEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var id = btn.getAttribute('data-id');
+        if (action === 'sync-import' && window.importSyncOne) { window.importSyncOne(id); }
+        if (action === 'sync-delete' && window.syncDelete) { window.syncDelete(id); }
+      });
+      resultEl.dataset._sageSyncBound = '1';
+    }
+    var all = syncLoad();
     if (all.length) {
       renderSyncEvents(all);
     }

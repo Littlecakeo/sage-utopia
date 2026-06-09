@@ -55,10 +55,10 @@
         ${j.date ? `<div class="date-row"><span class="date-pill">${esc(j.status === '面试中' ? '面试 ' : '申请 ') + j.date}</span></div>` : ''}
         ${j.note ? `<div class="task-note">${esc(j.note)}</div>` : ''}
         <div class="task-actions">
-          <select class="field mini" onchange="careerSetStatus('${j.id}', this.value)">
+          <select class="field mini" data-action="status" data-id="${j.id}">
             ${STATUS.map(s => `<option value="${s}" ${s === j.status ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
-          <button class="mini danger" onclick="careerDelete('${j.id}')">删除</button>
+          <button class="mini danger" data-action="career-delete" data-id="${j.id}">删除</button>
         </div>
       </div>`;
   }
@@ -92,11 +92,32 @@
     save(load().filter(j => j.id !== id)); refresh();
   };
 
-  function refresh() { renderStats(); renderList(); }
+  function refresh() { renderStats(); renderList(); bindCareerActions(); }
   function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
   function esc(s) { return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function say(text) {
     if (window.SageUI && window.SageUI.toast) { window.SageUI.toast(text); }
+  }
+
+  /* ── 事件委托（替代 onclick/onchange，消除 XSS 风险） ── */
+  function bindCareerActions() {
+    ['careerList', 'careerDone'].forEach(function (cid) {
+      var el = document.getElementById(cid);
+      if (!el || el.dataset._sageCareerBound) return;
+      el.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var id = btn.getAttribute('data-id');
+        if (action === 'career-delete' && id) { window.careerDelete(id); }
+      });
+      el.addEventListener('change', function (e) {
+        var sel = e.target.closest('[data-action="status"]');
+        if (!sel) return;
+        window.careerSetStatus(sel.getAttribute('data-id'), sel.value);
+      });
+      el.dataset._sageCareerBound = '1';
+    });
   }
 
   function init() {

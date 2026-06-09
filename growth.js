@@ -43,7 +43,7 @@
         </div>
         ${tagsHtml ? `<div class="chips">${tagsHtml}</div>` : ''}
         <div class="task-actions">
-          <button class="mini danger" onclick="growthDelete('${e.id}')">删除</button>
+          <button class="mini danger" data-action="growth-delete" data-id="${e.id}">删除</button>
         </div>
       </div>`;
   }
@@ -76,11 +76,23 @@
     return str.split(/[\s,，;；]+/).map(s => s.trim()).filter(Boolean).map(s => s.startsWith('#') ? s : '#' + s);
   }
 
-  function refresh() { renderStats(); renderTimeline(); }
+  function refresh() { renderStats(); renderTimeline(); bindGrowthActions(); }
   function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
   function esc(s) { return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function say(text) {
     if (window.SageUI && window.SageUI.toast) { window.SageUI.toast(text); }
+  }
+
+  /* ── 事件委托（替代 onclick，消除 XSS 风险） ── */
+  function bindGrowthActions() {
+    var el = document.getElementById('growthTimeline');
+    if (!el || el.dataset._sageGrowthBound) return;
+    el.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-action="growth-delete"]');
+      if (!btn) return;
+      window.growthDelete(btn.getAttribute('data-id'));
+    });
+    el.dataset._sageGrowthBound = '1';
   }
 
   function init() {
