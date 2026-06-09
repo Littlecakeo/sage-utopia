@@ -10,7 +10,7 @@ const SECTION_INDEX={
 };
 let dirty=false;
 function pathKey(){const h=(location.hash||'').replace('#','');return PAGE_BY_HASH[h]||location.pathname.split('/').pop()||'index.html'}
-function editableKey(index,el){return el&&el.matches&&el.matches('.brand .tag')?EDIT_PREFIX+'brand.tag':EDIT_PREFIX+pathKey()+'.'+index}
+function editableKey(index,el){if(el&&el.matches&&el.matches('.brand .tag'))return EDIT_PREFIX+(el.closest('.mobile')?'mobile.brand.tag':'side.brand.tag');return EDIT_PREFIX+pathKey()+'.'+index}
 function getEditables(){return Array.from(document.querySelectorAll(EDITABLE_SELECTOR)).filter(el=>{if(el.matches('.brand .tag'))return true;return !el.closest('.nav')&&!el.closest('.mobile')&&!el.closest('script')&&!el.closest('form')&&!el.closest('button')&&!el.closest('textarea')&&!el.closest('input')&&!el.closest('select')&&!el.closest('.edit-save-dock')&&!el.closest('.section-index')&&!el.closest('.mobile-branches')&&!el.closest('thead')&&!el.closest('.study-top-stats')})}
 function loadEdits(){getEditables().forEach((el,index)=>{const key=editableKey(index,el);el.dataset.editable='true';el.dataset.editKey=key;el.dataset.original=el.innerHTML;el.contentEditable='true';el.spellcheck=false;const saved=localStorage.getItem(key);if(saved!==null){el.innerHTML=saved;el.dataset.original=saved}el.classList.toggle('editable-empty',!el.textContent.trim())})}
 function markDirty(){dirty=true;document.body.classList.add('has-unsaved-edits')}
