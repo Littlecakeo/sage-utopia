@@ -67,12 +67,7 @@
   }
 
   function toast(t) {
-    const e = document.getElementById('toast');
-    if (!e) return;
-    e.textContent = t;
-    e.classList.add('show');
-    clearTimeout(window.tt);
-    window.tt = setTimeout(() => e.classList.remove('show'), 1600);
+    if (window.SageUI && window.SageUI.toast) { window.SageUI.toast(t); }
   }
 
   // ── 计划数据 ───────────────────────────────────────
@@ -90,7 +85,14 @@
     ['T1 2028', 's11', 'MARK5828']
   ].map(([term, slot, code]) => ({ term, slot, code }));
 
-  let plan = JSON.parse(localStorage.getItem('sage.study.planV3') || 'null') || defaultPlan;
+  let plan = (function loadPlan() {
+    try {
+      var data = window.SageData ? window.SageData.getAll('study') : null;
+      return (data && data.length) ? data : defaultPlan;
+    } catch (e) {
+      return defaultPlan;
+    }
+  })();
 
   // ── 重构的状态变量 ─────────────────────────────────
   let openSlot = null;
@@ -99,7 +101,11 @@
 
   // ── 计划操作函数 ───────────────────────────────────
   function save() {
-    localStorage.setItem('sage.study.planV3', JSON.stringify(plan));
+    if (window.SageData) {
+      window.SageData.save('study', plan);
+    } else {
+      localStorage.setItem('sage.study.planV3', JSON.stringify(plan));
+    }
   }
 
   function grouped() {
@@ -395,8 +401,8 @@
           <div class="task" data-id="${e.id}">
             <strong>${esc(e.summary)}</strong>
             <p class="hint">${esc(e.date)} · ${esc(e.source)}${e.imported ? ' · 已导入任务' : ''}</p>
-            ${!e.imported ? `<button class="mini" onclick="importSyncOne('${e.id}')" style="margin-top:4px">导入到任务</button>` : ''}
-            <button class="mini danger" onclick="syncDelete('${e.id}')" style="margin-top:4px;margin-left:4px">删除</button>
+            ${!e.imported ? `<button class="mini" data-action="sync-import" data-id="${e.id}" style="margin-top:4px">导入到任务</button>` : ''}
+            <button class="mini danger" data-action="sync-delete" data-id="${e.id}" style="margin-top:4px;margin-left:4px">删除</button>
           </div>`).join('')
       : '<p class="task">还没有同步过的事件。粘贴 iCal 内容开始。</p>';
 
@@ -416,8 +422,8 @@
 
     const event = events[idx];
 
-    // 导入到 tasks 模块
-    const taskItems = JSON.parse(localStorage.getItem('sage.progress.items.v2') || '[]');
+    // 导入到 tasks 模块（通过 SageData）
+    var taskItems = window.SageData ? window.SageData.getAll('tasks') : JSON.parse(localStorage.getItem('sage.progress.items.v2') || '[]');
     taskItems.unshift({
       id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
       section: 'task',
@@ -431,7 +437,11 @@
       done: false,
       note: '从同步中心导入（' + event.source + '）',
     });
-    localStorage.setItem('sage.progress.items.v2', JSON.stringify(taskItems));
+    if (window.SageData) {
+      window.SageData.save('tasks', taskItems);
+    } else {
+      localStorage.setItem('sage.progress.items.v2', JSON.stringify(taskItems));
+    }
 
     // 标记已导入
     events[idx].imported = true;
@@ -447,8 +457,8 @@
     const unimported = events.filter(e => !e.imported);
     if (!unimported.length) return;
 
-    const taskItems = JSON.parse(localStorage.getItem('sage.progress.items.v2') || '[]');
-    unimported.forEach(event => {
+    var taskItems = window.SageData ? window.SageData.getAll('tasks') : JSON.parse(localStorage.getItem('sage.progress.items.v2') || '[]');
+    unimported.forEach(function (event) {
       taskItems.unshift({
         id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
         section: 'task',
@@ -464,7 +474,11 @@
       });
       event.imported = true;
     });
-    localStorage.setItem('sage.progress.items.v2', JSON.stringify(taskItems));
+    if (window.SageData) {
+      window.SageData.save('tasks', taskItems);
+    } else {
+      localStorage.setItem('sage.progress.items.v2', JSON.stringify(taskItems));
+    }
     syncSave(events);
 
     renderSyncEvents(events);
@@ -492,7 +506,19 @@
 
   // ── 初始化同步功能 ──────────────────────────────────
   function initSync() {
-    const all = syncLoad();
+    var resultEl = document.getElementById('syncResult');
+    if (resultEl && !resultEl.dataset._sageSyncBound) {
+      resultEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var id = btn.getAttribute('data-id');
+        if (action === 'sync-import' && window.importSyncOne) { window.importSyncOne(id); }
+        if (action === 'sync-delete' && window.syncDelete) { window.syncDelete(id); }
+      });
+      resultEl.dataset._sageSyncBound = '1';
+    }
+    var all = syncLoad();
     if (all.length) {
       renderSyncEvents(all);
     }

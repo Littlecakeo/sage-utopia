@@ -43,7 +43,7 @@
         </div>
         ${tagsHtml ? `<div class="chips">${tagsHtml}</div>` : ''}
         <div class="task-actions">
-          <button class="mini danger" onclick="growthDelete('${e.id}')">删除</button>
+          <button class="mini danger" data-action="growth-delete" data-id="${e.id}">删除</button>
         </div>
       </div>`;
   }
@@ -76,14 +76,23 @@
     return str.split(/[\s,，;；]+/).map(s => s.trim()).filter(Boolean).map(s => s.startsWith('#') ? s : '#' + s);
   }
 
-  function refresh() { renderStats(); renderTimeline(); }
+  function refresh() { renderStats(); renderTimeline(); bindGrowthActions(); }
   function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
   function esc(s) { return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function say(text) {
-    let el = document.getElementById('sageMessage');
-    if (!el) { el = document.createElement('div'); el.id = 'sageMessage'; el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#334139;color:#fff;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:800;z-index:10000;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease'; document.body.appendChild(el); }
-    el.textContent = text; el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)';
-    clearTimeout(window.__sageMsgTimer); window.__sageMsgTimer = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(8px)'; }, 2000);
+    if (window.SageUI && window.SageUI.toast) { window.SageUI.toast(text); }
+  }
+
+  /* ── 事件委托（替代 onclick，消除 XSS 风险） ── */
+  function bindGrowthActions() {
+    var el = document.getElementById('growthTimeline');
+    if (!el || el.dataset._sageGrowthBound) return;
+    el.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-action="growth-delete"]');
+      if (!btn) return;
+      window.growthDelete(btn.getAttribute('data-id'));
+    });
+    el.dataset._sageGrowthBound = '1';
   }
 
   function init() {

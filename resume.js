@@ -10,10 +10,7 @@
   function esc(s) { return String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 
   function say(text) {
-    let el = document.getElementById('sageMessage');
-    if (!el) { el = document.createElement('div'); el.id = 'sageMessage'; el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#334139;color:#fff;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:800;z-index:10000;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease'; document.body.appendChild(el); }
-    el.textContent = text; el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)';
-    clearTimeout(window.__sageMsgTimer); window.__sageMsgTimer = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(8px)'; }, 2000);
+    if (window.SageUI && window.SageUI.toast) { window.SageUI.toast(text); }
   }
 
   function renderPortfolio() {
@@ -27,9 +24,18 @@
           ${p.role ? `<p class="hint" style="margin-top:4px"><strong>负责：</strong>${esc(p.role)}</p>` : ''}
           ${p.result ? `<p class="hint"><strong>成果：</strong>${esc(p.result)}</p>` : ''}
           ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener" class="mini" style="margin-top:6px;display:inline-block">查看项目</a>` : ''}
-          <div style="margin-top:8px"><button class="mini danger" onclick="portfolioDelete('${p.id}')">删除</button></div>
+          <div style="margin-top:8px"><button class="mini danger" data-action="portfolio-delete" data-id="${p.id}">删除</button></div>
         </div>`).join('')
       : '<div class="empty">还没有项目，点击上方「新增项目」添加。</div>';
+    /* ── 事件委托 ── */
+    if (!container.dataset._sagePortfolioBound) {
+      container.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action="portfolio-delete"]');
+        if (!btn) return;
+        window.portfolioDelete(btn.getAttribute('data-id'));
+      });
+      container.dataset._sagePortfolioBound = '1';
+    }
   }
 
   window.portfolioAdd = function (e) {
