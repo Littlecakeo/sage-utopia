@@ -34,8 +34,8 @@
         }
       });
       tag.addEventListener('input',()=>{
-        tag.dispatchEvent(new Event('input',{bubbles:true}));
-      },{once:true});
+        if(!tag.dataset.editable)tag.dispatchEvent(new Event('input',{bubbles:true}));
+      });
       const brand=tag.closest('a.brand');
       if(brand&&!brand.dataset.brandEditGuard){
         brand.dataset.brandEditGuard='true';

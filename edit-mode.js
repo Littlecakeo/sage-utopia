@@ -1,16 +1,21 @@
 const EDIT_PREFIX='sage.edit.v2.';
 const EDITABLE_SELECTOR='.brand .tag, main .desc, main .sub, main .hint, main .task-title, main .task-meta, main .task-note, main .date-pill, main .chip, main .link-card .tag, main .profile-list p, main .term-card p, main .decision-card p, main td:not(:first-child)';
-const PAGE_BY_HASH={home:'index.html',study:'study.html',career:'career.html',growth:'growth.html',resume:'resume.html'};
+const PAGE_BY_HASH={home:'index.html',study:'study.html',career:'career.html',finance:'finance.html',growth:'growth.html',resume:'resume.html',sync:'sync.html',about:'about.html',portfolio:'portfolio.html',contact:'contact.html'};
 const SECTION_INDEX={
   'index.html':[{label:'快速新增',selector:'#quickAdd'},{label:'操作区',selector:'#taskBoard'}],
   'study.html':[{label:'换课',selector:'#planner'},{label:'官方链接',selector:'#links'},{label:'485',selector:'#visa'},{label:'同步',selector:'#sync-study'}],
   'career.html':[{label:'概览',selector:'main .grid.three'},{label:'求职列表',selector:'main .section'}],
+  'finance.html':[{label:'概览',selector:'main .grid.stats'},{label:'分类统计',selector:'main .section'}],
   'growth.html':[{label:'概览',selector:'main .grid.three'},{label:'时间轴',selector:'main .section'}],
-  'resume.html':[{label:'摘要',selector:'main .hero'},{label:'关于',selector:'#resume-about'},{label:'联系',selector:'#resume-contact'},{label:'作品',selector:'#resume-portfolio'},{label:'技能',selector:'#resume-skills'}]
+  'resume.html':[{label:'摘要',selector:'main .hero'},{label:'关于',selector:'#resume-about'},{label:'联系',selector:'#resume-contact'},{label:'作品',selector:'#resume-portfolio'},{label:'技能',selector:'#resume-skills'}],
+  'sync.html':[{label:'使用说明',selector:'main .grid.two'},{label:'同步结果',selector:'#result'}],
+  'about.html':[{label:'摘要',selector:'main .hero'},{label:'个人信息',selector:'main .profile-grid'}],
+  'portfolio.html':[{label:'项目列表',selector:'main .grid.three'}],
+  'contact.html':[{label:'联系卡片',selector:'main .grid.two'}]
 };
 let dirty=false;
 function pathKey(){const h=(location.hash||'').replace('#','');return PAGE_BY_HASH[h]||location.pathname.split('/').pop()||'index.html'}
-function editableKey(index,el){if(el&&el.matches&&el.matches('.brand .tag'))return EDIT_PREFIX+(el.closest('.mobile')?'mobile.brand.tag':'side.brand.tag');return EDIT_PREFIX+pathKey()+'.'+index}
+function editableKey(index,el){if(el&&el.matches&&el.matches('.brand .tag'))return EDIT_PREFIX+(el.closest('.mobile')?'mobile.brand.tag':'side.brand.tag');const tag=el?el.tagName.toLowerCase():'';const text=(el?el.textContent:'').trim().slice(0,24).replace(/[^\w\u4e00-\u9fa5]/g,'');const cls=el&&el.className?String(el.className).replace(/[^a-zA-Z0-9]/g,'').slice(0,12):'';return EDIT_PREFIX+pathKey()+'.'+index+'.'+tag+cls+text}
 function getEditables(){return Array.from(document.querySelectorAll(EDITABLE_SELECTOR)).filter(el=>{if(el.matches('.brand .tag'))return true;return !el.closest('.nav')&&!el.closest('.mobile')&&!el.closest('script')&&!el.closest('form')&&!el.closest('button')&&!el.closest('textarea')&&!el.closest('input')&&!el.closest('select')&&!el.closest('.edit-save-dock')&&!el.closest('.section-index')&&!el.closest('.mobile-branches')&&!el.closest('thead')&&!el.closest('.study-top-stats')})}
 function loadEdits(){getEditables().forEach((el,index)=>{const key=editableKey(index,el);el.dataset.editable='true';el.dataset.editKey=key;el.dataset.original=el.innerHTML;el.contentEditable='true';el.spellcheck=false;const saved=localStorage.getItem(key);if(saved!==null){el.innerHTML=saved;el.dataset.original=saved}el.classList.toggle('editable-empty',!el.textContent.trim())})}
 function markDirty(){dirty=true;document.body.classList.add('has-unsaved-edits')}
