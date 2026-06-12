@@ -19,7 +19,7 @@ test('导航按钮可以点击并进入学习中心', async ({ page }) => {
 test('#study 学习中心区域和主要按钮渲染正常', async ({ page }) => {
   await page.goto('/index.html#study');
 
-  await expect(page).toHaveURL(/#study$/);
+  await expect(page).toHaveURL(/study\.html$/);
   await expect(page.getByRole('heading', { name: /学习中心/ }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: /加课|新增课程|＋/ }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: /减课|删除课程|－/ }).first()).toBeVisible();
@@ -27,6 +27,18 @@ test('#study 学习中心区域和主要按钮渲染正常', async ({ page }) =>
   const visibleCards = page.locator('.card:visible, .course-slot:visible');
   await expect(visibleCards.first()).toBeVisible();
   await expect(visibleCards).not.toHaveCount(0);
+});
+
+test('侧边栏分支不会把子页面跳回首页', async ({ page }) => {
+  await page.goto('/index.html');
+
+  await page.getByRole('link', { name: '求职中心' }).first().click();
+  await expect(page).toHaveURL(/career\.html$/);
+  await expect(page.getByRole('heading', { name: /把机会整理成清晰的下一步/ }).first()).toBeVisible();
+
+  await page.getByRole('link', { name: '求职列表' }).first().click();
+  await expect(page).toHaveURL(/career\.html#careerListSection$/);
+  await expect(page.getByRole('heading', { name: /把机会整理成清晰的下一步/ }).first()).toBeVisible();
 });
 
 test('财务中心页面可以打开并显示支出记录入口', async ({ page }) => {

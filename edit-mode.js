@@ -12,21 +12,27 @@
   const EDIT_PREFIX = 'sage.edit.v2.';
   const EDITABLE_SELECTOR = '.brand .tag, main .desc, main .sub, main .hint, main .task-title, main .task-meta, main .task-note, main .date-pill, main .chip, main .link-card .tag, main .profile-list p, main .term-card p, main .decision-card p, main td:not(:first-child)';
 
-  /* ── 当前 5 个有效页面 ── */
+  /* ── 页面与分支索引 ── */
   const PAGE_BY_HASH = {
     home: 'index.html',
     study: 'study.html',
     career: 'career.html',
+    finance: 'finance.html',
     growth: 'growth.html',
-    resume: 'resume.html'
+    portfolio: 'portfolio.html',
+    resume: 'resume.html',
+    about: 'about.html'
   };
 
   const SECTION_INDEX = {
     'index.html': [{ label: '快速新增', selector: '#quickAdd' }, { label: '操作区', selector: '#taskBoard' }],
-    'study.html': [{ label: '换课', selector: '#planner' }, { label: '官方链接', selector: '#links' }, { label: '485', selector: '#visa' }, { label: '同步', selector: '#sync-study' }],
-    'career.html': [{ label: '概览', selector: 'main .grid.three' }, { label: '求职列表', selector: 'main .section' }],
+    'study.html': [{ label: '课程', selector: '#planner' }, { label: '作业', selector: '#assignments' }, { label: '官方链接', selector: '#links' }, { label: '同步', selector: '#sync' }],
+    'career.html': [{ label: '概览', selector: '#careerOverview' }, { label: '新增机会', selector: '#careerFormSection' }, { label: '求职列表', selector: '#careerListSection' }],
+    'finance.html': [{ label: '概览', selector: 'main .grid.three' }, { label: '记支出', selector: '#expenseFormSection' }, { label: '支出列表', selector: '#expenseListSection' }],
     'growth.html': [{ label: '概览', selector: 'main .grid.three' }, { label: '时间轴', selector: 'main .section' }],
-    'resume.html': [{ label: '摘要', selector: 'main .hero' }, { label: '关于', selector: '#resume-about' }, { label: '联系', selector: '#resume-contact' }, { label: '作品', selector: '#resume-portfolio' }, { label: '技能', selector: '#resume-skills' }]
+    'portfolio.html': [{ label: '项目', selector: '#portfolio-public' }, { label: '联系', selector: '#portfolio-contact' }],
+    'resume.html': [{ label: '摘要', selector: 'main .hero' }, { label: '关于', selector: '#resume-about' }, { label: '作品', selector: '#resume-portfolio' }, { label: '联系', selector: '#resume-contact' }, { label: '数据', selector: '#data-management' }],
+    'about.html': [{ label: '关于', selector: '#resume-about' }, { label: '联系', selector: '#resume-contact' }]
   };
 
   let dirty = false;

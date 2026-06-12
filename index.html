@@ -127,19 +127,56 @@
       const dlabel=document.getElementById('dailyQuoteDate');
       if(!t||!m)return;
       const quotes=[
-        {text:'女性不是天生的 而是被塑造成的',author:'西蒙娜·德·波伏娃',source:'出自《第二性》'},
-        {text:'我不是自由的 只要还有任何女人不自由',author:'奥德丽·洛德',source:'出自《愤怒的用途》'},
-        {text:'女权主义适合每一个人',author:'贝尔·胡克斯',source:'出自《女权主义是给所有人的》'},
-        {text:'每个女人都应该拥有金钱和自己的房间',author:'弗吉尼亚·伍尔夫',source:'出自《一间自己的房间》'},
-        {text:'沉默不会保护你',author:'奥德丽·洛德',source:'出自《把沉默转化为语言和行动》'},
-        {text:'我们教女孩缩小自己',author:'奇玛曼达·恩戈兹·阿迪契',source:'出自《我们都应该成为女权主义者》'},
-        {text:'真相会让你自由 但首先它会惹恼你',author:'格洛丽亚·斯泰纳姆',source:'演讲与访谈语录'}
+        {text:'女性不是天生的 而是被塑造成的',author:'西蒙娜·德·波伏娃',source:'《第二性》'},
+        {text:'每个女人都应该拥有金钱和自己的房间',author:'弗吉尼亚·伍尔夫',source:'《一间自己的房间》'},
+        {text:'沉默不会保护你',author:'奥德丽·洛德',source:'《把沉默转化为语言和行动》'},
+        {text:'我不是自由的 只要还有任何女人不自由',author:'奥德丽·洛德',source:'《愤怒的用途》'},
+        {text:'我们教女孩缩小自己',author:'奇玛曼达·恩戈兹·阿迪契',source:'《我们都应该成为女权主义者》'},
+        {text:'女权主义适合每一个人',author:'贝尔·胡克斯',source:'《女权主义是给所有人的》'},
+        {text:'没有斗争 就没有进步',author:'弗雷德里克·道格拉斯',source:'演讲'},
+        {text:'我提高声音 不是为了喊叫 而是为了让没有声音的人被听见',author:'马拉拉·优素福扎伊',source:'演讲'},
+        {text:'教育是女性改变世界最温柔也最坚定的力量',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'勇敢不是没有害怕 而是带着害怕继续向前',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'把生活整理好 也是一种很安静的反抗',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'你可以柔软 也可以有边界',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'成为自己 不是一瞬间的决定 是每天的小练习',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'不要把自己的野心缩小到别人舒服的尺寸',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'你不需要先完美 才配开始',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'温柔不是退让 清醒也不是冷漠',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'把名字写在自己的作品上 把选择握在自己手里',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'你可以慢慢来 但不要把自己弄丢',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'一个女孩认真规划未来的样子 本身就很有力量',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'知识让人看见结构 也让人重新选择路径',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'当你开始记录自己 你就在认真看见自己',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'请把精力还给自己 把标准交还给生活',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'自信不是一直确定 而是允许自己试错',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'在异乡照顾好自己 是一种真实的能力',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'好的作品集不是证明完美 而是展示成长',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'你有权利拥有清楚的计划 也有权利随时调整它',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'把钱、时间、学习和机会放进系统里 然后把焦虑放下来一点',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'女性的生活不只是被观看 也可以被自己设计',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'不要因为世界嘈杂 就怀疑自己的节奏',author:'Sage Utopia',source:'女性成长札记'},
+        {text:'你值得拥有一个支持自己成长的小宇宙',author:'Sage Utopia',source:'女性成长札记'}
       ];
       const d=new Date();
       const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
-      const q=quotes[Number(yy+mm+dd)%quotes.length];
+      const dayKey=yy+mm+dd;
+      const storageKey='sage.daily.quote.rotation.v2';
+      let state={day:'',used:[]};
+      try{state=JSON.parse(localStorage.getItem(storageKey)||'{}')||state}catch{}
+      if(state.day!==dayKey){
+        let used=Array.isArray(state.used)?state.used.filter(i=>Number.isInteger(i)&&i>=0&&i<quotes.length):[];
+        if(used.length>=quotes.length)used=[];
+        const available=quotes.map((_,i)=>i).filter(i=>!used.includes(i));
+        const seed=Number(dayKey);
+        const picked=available[seed%available.length];
+        used.push(picked);
+        state={day:dayKey,used:used,picked:picked};
+        try{localStorage.setItem(storageKey,JSON.stringify(state))}catch{}
+      }
+      const q=quotes[state.picked]||quotes[0];
       t.textContent=q.text;
-      m.textContent='——'+q.author+q.source.replace('出自','');
+      m.textContent='——'+q.author+'《'+q.source.replace(/^《|》$/g,'')+'》';
       if(dlabel)dlabel.textContent=yy+'/'+mm+'/'+dd;
     }
     applyQuoteNow();
