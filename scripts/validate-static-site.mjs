@@ -26,7 +26,6 @@ const requiredAnchors = [
   'career.html',
   'finance.html',
   'growth.html',
-  'portfolio.html',
   'resume.html',
 ];
 

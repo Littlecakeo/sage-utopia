@@ -9,11 +9,10 @@
     career:{file:'career.html',label:'求职中心',branches:[['#careerOverview','概览'],['#careerFormSection','新增机会'],['#careerListSection','求职列表']]},
     finance:{file:'finance.html',label:'财务中心',branches:[['main .grid.three','概览'],['#expenseFormSection','记支出'],['#expenseListSection','支出列表']]},
     growth:{file:'growth.html',label:'成长记录',branches:[['main .grid.three','概览'],['main .section','时间轴']]},
-    portfolio:{file:'portfolio.html',label:'作品集',branches:[['#portfolio-public','项目'],['#portfolio-contact','联系']]},
     resume:{file:'resume.html',label:'关于 Sage',branches:[['#resume-about','关于'],['#resume-portfolio','作品集'],['#resume-contact','联系'],['#data-management','数据']]},
     about:{file:'about.html',label:'关于 Sage',branches:[['#resume-about','关于'],['#resume-portfolio','作品集'],['#resume-contact','联系']]},
   };
-  const primary=['home','study','career','finance','growth','portfolio','resume'];let loading=false;
+  const primary=['home','study','career','finance','growth','resume'];let loading=false;
   let shellInited=false;
   let openPageId=0;
   function keyFromPath(){let f=location.pathname.split('/').pop()||'index.html';return Object.keys(PAGES).find(k=>PAGES[k].file===f)||'home'}

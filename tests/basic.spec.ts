@@ -140,14 +140,18 @@ test('顶部导航在窄屏滚动时固定不跟随页面内容滑走', async ({
   expect(after?.y ?? 999).toBeLessThan(1);
 });
 
-test('移动端顶部导航直接显示作品集和关于 Sage', async ({ page }) => {
+test('移动端顶部导航把作品集合并进关于 Sage', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 714 });
   await page.goto('/index.html');
 
   const mobileNav = page.locator('.mobile');
-  await expect(mobileNav.getByRole('link', { name: '作品集' })).toBeVisible();
+  await expect(mobileNav.getByRole('link', { name: '作品集' })).toHaveCount(0);
   await expect(mobileNav.getByRole('link', { name: '关于 Sage' })).toBeVisible();
   await expect(mobileNav).not.toContainText('更多');
+
+  await mobileNav.getByRole('link', { name: '关于 Sage' }).click();
+  await expect(page).toHaveURL(/resume\.html$/);
+  await expect(page.locator('.mobile-branches').getByRole('link', { name: '作品集' })).toBeVisible();
 });
 
 test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
@@ -193,7 +197,6 @@ test('各分支页面顶部只保留简洁标题', async ({ page }) => {
     { url: '/career.html', title: '求职中心' },
     { url: '/finance.html', title: '财务中心' },
     { url: '/growth.html', title: '成长记录' },
-    { url: '/portfolio.html', title: '作品集' },
     { url: '/resume.html', title: '关于 Sage' },
   ];
 
@@ -279,14 +282,14 @@ test('求职表单按钮保持正常尺寸', async ({ page }) => {
   expect(box?.height ?? 999).toBeLessThan(70);
 });
 
-test('关于和作品集公开页面可以单独访问', async ({ page }) => {
+test('关于页可以访问且旧作品集链接跳到关于页作品集板块', async ({ page }) => {
   await page.goto('/about.html');
   await expect(page).toHaveURL(/about\.html$/);
   await expect(page.getByRole('heading', { name: /Sage|桂维桢/ }).first()).toBeVisible();
 
   await page.goto('/portfolio.html');
-  await expect(page).toHaveURL(/portfolio\.html$/);
-  await expect(page.getByRole('heading', { name: /作品集/ }).first()).toBeVisible();
+  await expect(page).toHaveURL(/resume\.html#resume-portfolio$/);
+  await expect(page.locator('#resume-portfolio').getByRole('heading', { name: '作品集' })).toBeVisible();
 });
 
 test('关于页资料板块可以直接编辑并保存', async ({ page }) => {

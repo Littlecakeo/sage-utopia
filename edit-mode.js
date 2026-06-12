@@ -21,7 +21,7 @@
     career: 'career.html',
     finance: 'finance.html',
     growth: 'growth.html',
-    portfolio: 'portfolio.html',
+    portfolio: 'resume.html',
     resume: 'resume.html',
     about: 'about.html'
   };
@@ -32,7 +32,6 @@
     'career.html': [{ label: '概览', selector: '#careerOverview' }, { label: '新增机会', selector: '#careerFormSection' }, { label: '求职列表', selector: '#careerListSection' }],
     'finance.html': [{ label: '概览', selector: 'main .grid.three' }, { label: '记支出', selector: '#expenseFormSection' }, { label: '支出列表', selector: '#expenseListSection' }],
     'growth.html': [{ label: '概览', selector: 'main .grid.three' }, { label: '时间轴', selector: 'main .section' }],
-    'portfolio.html': [{ label: '项目', selector: '#portfolio-public' }, { label: '联系', selector: '#portfolio-contact' }],
     'resume.html': [{ label: '摘要', selector: 'main .hero' }, { label: '关于', selector: '#resume-about' }, { label: '作品', selector: '#resume-portfolio' }, { label: '联系', selector: '#resume-contact' }, { label: '数据', selector: '#data-management' }],
     'about.html': [{ label: '关于', selector: '#resume-about' }, { label: '联系', selector: '#resume-contact' }]
   };
@@ -207,7 +206,7 @@
   (function loadSageSiteShell() {
     if (document.querySelector('script[data-sage-site-shell]')) return;
     var s = document.createElement('script');
-    s.src = 'site-shell.js?v=9';
+    s.src = 'site-shell.js?v=10';
     s.dataset.sageSiteShell = 'true';
     document.body.appendChild(s);
   })();
