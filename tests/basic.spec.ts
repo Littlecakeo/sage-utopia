@@ -41,6 +41,44 @@ test('侧边栏分支不会把子页面跳回首页', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /把机会整理成清晰的下一步/ }).first()).toBeVisible();
 });
 
+test('各页面本页分支会停在对应板块而不是回到顶部', async ({ page }) => {
+  const cases = [
+    { url: '/index.html', label: '操作区', hash: 'taskBoard' },
+    { url: '/study.html', label: '作业', hash: 'assignments' },
+    { url: '/career.html', label: '求职列表', hash: 'careerListSection' },
+    { url: '/finance.html', label: '支出列表', hash: 'expenseListSection' },
+    { url: '/resume.html', label: '数据', hash: 'data-management' },
+  ];
+
+  for (const item of cases) {
+    await page.goto(item.url);
+    await page.getByRole('link', { name: item.label, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`${item.url.replace('/', '')}#${item.hash}$`));
+    await page.waitForFunction(
+      (id) => {
+        const target = document.getElementById(id);
+        if (!target) return false;
+        const rect = target.getBoundingClientRect();
+        return window.scrollY > 40 && rect.bottom > 0 && rect.top < window.innerHeight;
+      },
+      item.hash,
+      { timeout: 3000 },
+    );
+    const position = await page.evaluate(
+      (id) => {
+        const target = document.getElementById(id);
+        return {
+          scrollY: window.scrollY,
+          targetTop: target ? target.getBoundingClientRect().top : null,
+        };
+      },
+      item.hash,
+    );
+    expect(position.scrollY).toBeGreaterThan(40);
+    expect(position.targetTop ?? 9999).toBeLessThan(714);
+  }
+});
+
 test('财务中心页面可以打开并显示支出记录入口', async ({ page }) => {
   await page.goto('/finance.html');
 
