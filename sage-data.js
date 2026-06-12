@@ -1,9 +1,9 @@
 /**
- * sage-data.js v1.0
+ * sage-data.js v2.0
  * ─────────────────────────────────────
  * Sage Utopia · 统一数据层
- * 所有模块（tasks / career / finance / growth / portfolio / sync）
- * 都通过本模块读写 localStorage，保持数据格式一致。
+ * 所有模块通过本模块读写。Supabase 配置存在时优先云端，
+ * 未配置时保留 localStorage 本地模式，方便本地预览和迁移。
  */
 (function () {
   'use strict';
@@ -12,9 +12,10 @@
   const KEYS = {
     tasks:     'sage.progress.items.v2',
     career:    'sage.career.jobs.v1',
-    // finance:   'sage.finance.records.v1',  // 已移除
+    expenses:  'sage.finance.expenses.v1',
     growth:    'sage.growth.entries.v1',
     portfolio: 'sage.portfolio.projects.v1',
+    profile:   'sage.profile.v1',
     sync:      'sage.sync.ical.v1',
     study:     'sage.study.planV3',
   };
@@ -24,7 +25,9 @@
     tasks:     { type: 'array', desc: '任务列表' },
     career:    { type: 'array', desc: '求职列表' },
     growth:    { type: 'array', desc: '成长记录' },
+    expenses:  { type: 'array', desc: '财务支出' },
     portfolio: { type: 'array', desc: '作品集' },
+    profile:   { type: 'array', desc: '个人资料' },
     sync:      { type: 'array', desc: '同步事件' },
     study:     { type: 'array', desc: '学习计划' },
   };
@@ -73,6 +76,21 @@
     }
   }
 
+  async function loadAsync(module) {
+    if (window.SageCloudData && window.SageCloudData.hasConfig) {
+      try {
+        const cloud = await window.SageCloudData.list(module);
+        if (Array.isArray(cloud)) {
+          saveLocalOnly(module, cloud);
+          return cloud;
+        }
+      } catch (e) {
+        console.warn('[sage-data] cloud load fallback:', module, e);
+      }
+    }
+    return load(module);
+  }
+
   /* ── 写入（自动触发跨模块通知）────────────────────── */
   function save(module, data) {
     try {
@@ -92,6 +110,17 @@
       );
     } catch (e) {
       console.error('[sage-data] save error:', module, e);
+    }
+  }
+
+  function saveLocalOnly(module, data) {
+    try {
+      const v = validateData(module, data);
+      if (!v.ok) return;
+      const key = module === 'study' ? 'sage.study.planV3' : KEYS[module];
+      if (key) localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+      console.warn('[sage-data] local cache save error:', module, e);
     }
   }
 
@@ -128,7 +157,46 @@
     return load(module).filter(filterFn);
   }
 
+  async function cloudAdd(module, item) {
+    if (window.SageCloudData && window.SageCloudData.hasConfig) {
+      try {
+        const saved = await window.SageCloudData.create(module, item);
+        if (saved) return saved;
+      } catch (e) {
+        console.warn('[sage-data] cloud add fallback:', module, e);
+      }
+    }
+    return add(module, item);
+  }
+
+  async function cloudUpdate(module, id, updates) {
+    if (window.SageCloudData && window.SageCloudData.hasConfig) {
+      try {
+        const saved = await window.SageCloudData.update(module, id, updates);
+        if (saved) return saved;
+      } catch (e) {
+        console.warn('[sage-data] cloud update fallback:', module, e);
+      }
+    }
+    return update(module, id, updates);
+  }
+
+  async function cloudRemove(module, id) {
+    if (window.SageCloudData && window.SageCloudData.hasConfig) {
+      try {
+        await window.SageCloudData.remove(module, id);
+        return;
+      } catch (e) {
+        console.warn('[sage-data] cloud remove fallback:', module, e);
+      }
+    }
+    remove(module, id);
+  }
+
   /* ── 导出 ──────────────────────────────────────────── */
-  window.SageData = { load, save, uid, getAll, getById, add, update, remove, query, KEYS, SCHEMAS, validate: validateData };
+  window.SageData = {
+    load, loadAsync, save, saveLocalOnly, uid, getAll, getById, add, update, remove, query,
+    cloudAdd, cloudUpdate, cloudRemove, KEYS, SCHEMAS, validate: validateData
+  };
   console.log('[sage-data] v1.1 loaded — modules:', Object.keys(KEYS).join(', '), '(+schema validation)');
 })();

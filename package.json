@@ -2,7 +2,7 @@
   "name": "sage-utopia",
   "version": "1.0.0",
   "private": true,
-  "description": "Sage Utopia GitHub Pages static site.",
+  "description": "Sage Utopia Chinese personal study, life, portfolio, and cloud data site.",
   "scripts": {
     "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "eslint .",
@@ -11,19 +11,23 @@
     "format": "prettier --write \"*.{json,md,cjs,mjs,ts}\" \".github/**/*.yml\" \"tests/**/*.ts\" \"scripts/**/*.mjs\"",
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
-    "build": "node scripts/validate-static-site.mjs",
-    "serve": "http-server . -p 4173 -c-1",
-    "lighthouse": "lhci autorun"
+    "build": "vite build && node scripts/copy-static-assets.mjs && node scripts/validate-static-site.mjs",
+    "serve": "vite --host 127.0.0.1 --port 4173",
+    "preview": "vite preview --host 127.0.0.1 --port 4173"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.52.0",
+    "@types/node": "^25.9.3",
     "eslint": "^10.4.1",
     "globals": "^17.6.0",
     "http-server": "^14.1.1",
     "prettier": "^3.5.3",
     "stylelint": "^17.13.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.1"
   }
 }

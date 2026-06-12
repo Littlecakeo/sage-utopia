@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Sage Utopia｜关于 Sage</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mobile-fix.css">
   <link rel="stylesheet" href="cloud-sync.css">
   <link rel="stylesheet" href="edit-mode.css">
   <style>
@@ -28,7 +29,9 @@
     <a href="index.html">首页</a>
     <a href="study.html">学习中心</a>
     <a href="career.html">求职中心</a>
+    <a href="finance.html">财务中心</a>
     <a href="growth.html">成长记录</a>
+    <a href="portfolio.html">作品集</a>
     <a class="active" href="resume.html">关于 Sage</a>
   </div>
 </div>
@@ -39,7 +42,9 @@
       <a href="index.html">首页</a>
       <a href="study.html">学习中心</a>
       <a href="career.html">求职中心</a>
+      <a href="finance.html">财务中心</a>
       <a href="growth.html">成长记录</a>
+      <a href="portfolio.html">作品集</a>
       <a class="active" href="resume.html">关于 Sage</a>
     </nav>
     <div class="section-index">
@@ -60,8 +65,8 @@
     <section class="grid two" id="resume-about">
       <div class="card">
         <h2>关于我</h2>
-        <p class="hint">ENFP 天秤座。关注新媒体内容、品牌传播、数字营销和用户洞察。</p>
-        <p class="hint" style="margin-top:8px">我喜欢把创意、表达和数据放在一起思考：一边做内容，一边观察用户为什么被吸引、为什么停留、为什么行动。未来希望在 PR、Advertising、Content Marketing 或 Social Media 相关方向继续成长。</p>
+        <p class="hint" id="profileHeadline">ENFP 天秤座。关注新媒体内容、品牌传播、数字营销和用户洞察。</p>
+        <p class="hint" id="profileBio" style="margin-top:8px">我喜欢把创意、表达和数据放在一起思考：一边做内容，一边观察用户为什么被吸引、为什么停留、为什么行动。未来希望在 PR、Advertising、Content Marketing 或 Social Media 相关方向继续成长。</p>
       </div>
       <div class="card">
         <h2>关键词</h2>
@@ -74,6 +79,21 @@
           <span class="chip">小红书博主</span>
         </div>
       </div>
+    </section>
+
+    <section class="card section">
+      <h2>编辑公开资料</h2>
+      <p class="sub">这些内容会用于关于页和未来的公开展示。配置 Supabase 后会保存到云端。</p>
+      <form id="profileForm" class="task-form">
+        <input type="hidden" id="profileId">
+        <input class="field" id="profileName" placeholder="显示名称">
+        <input class="field" id="profileHeadlineInput" placeholder="一句话介绍">
+        <input class="field" id="profileEmail" type="email" placeholder="邮箱">
+        <input class="field" id="profileInstagram" type="url" placeholder="Instagram 链接">
+        <textarea class="field note-field" id="profileBioInput" placeholder="个人介绍" rows="2"></textarea>
+        <button type="submit" class="mini">保存资料</button>
+      </form>
+      <p class="unit-hint" id="profileSyncHint">正在检查云端连接...</p>
     </section>
 
     <section class="card section">
@@ -111,13 +131,16 @@
         <summary class="mini" style="cursor:pointer;display:inline-block">新增项目</summary>
         <form id="portfolioForm" class="task-form" style="margin-top:10px">
           <input class="field" id="portfolioTitle" type="text" placeholder="项目名称（必填）" required>
+          <input type="hidden" id="portfolioId">
           <textarea class="field" id="portfolioSummary" placeholder="项目简介" rows="2"></textarea>
           <div class="form-row">
             <input class="field" id="portfolioRole" type="text" placeholder="负责内容">
             <input class="field" id="portfolioResult" type="text" placeholder="项目成果">
           </div>
           <input class="field" id="portfolioLink" type="url" placeholder="项目链接（可选）">
+          <label class="hint" style="display:flex;gap:8px;align-items:center"><input id="portfolioPublic" type="checkbox" checked> 公开展示在作品集页面</label>
           <button type="submit" class="mini">保存</button>
+          <button type="button" class="mini ghost" id="portfolioCancelEdit">取消编辑</button>
         </form>
       </details>
       <div class="grid three" id="portfolioGrid"></div>
@@ -155,6 +178,7 @@
     </section>
   </main>
 </div>
+<script type="module" src="sage-cloud-data.js"></script>
 <script src="sage-data.js"></script>
 <script src="resume.js"></script>
 <script src="cloud-sync.js"></script>

@@ -53,7 +53,7 @@
       }
       items = list.map(normalize);
       saveItems();
-    } catch (e) {
+    } catch {
       items = defaults;
       saveItems();
     }

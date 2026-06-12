@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Sage Utopia｜求职中心</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mobile-fix.css">
   <link rel="stylesheet" href="edit-mode.css">
 </head>
 <body>
-<div class="mobile"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><div class="mobile-scroll"><a href="index.html">首页</a><a href="study.html">学习中心</a><a class="active" href="career.html">求职中心</a><a href="growth.html">成长记录</a><a href="resume.html">关于 Sage</a></div></div>
+<div class="mobile"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><div class="mobile-scroll"><a href="index.html">首页</a><a href="study.html">学习中心</a><a class="active" href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="portfolio.html">作品集</a><a href="resume.html">关于 Sage</a></div></div>
 <div class="shell">
-  <aside class="side"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><nav class="nav"><a href="index.html">首页</a><a href="study.html">学习中心</a><a class="active" href="career.html">求职中心</a><a href="growth.html">成长记录</a><a href="resume.html">关于 Sage</a></nav></aside>
+  <aside class="side"><a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a><nav class="nav"><a href="index.html">首页</a><a href="study.html">学习中心</a><a class="active" href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="portfolio.html">作品集</a><a href="resume.html">关于 Sage</a></nav></aside>
   <main>
     <section class="hero">
       <p class="eyebrow">求职中心</p>
@@ -23,8 +24,10 @@
       <div class="card soft"><h2>已录取</h2><div class="stat" id="careerOffer">0</div></div>
     </section>
     <section class="card section" id="careerFormSection">
-      <h2>新增机会</h2>
+      <h2 id="careerFormTitle">新增机会</h2>
+      <p class="sub" id="careerMode">当前准备新增一条申请记录。</p>
       <form id="careerForm" class="task-form">
+        <input type="hidden" id="careerId">
         <div class="form-row">
           <input class="field" id="careerCompany" type="text" placeholder="公司名称（必填）" required>
           <input class="field" id="careerPosition" type="text" placeholder="岗位名称">
@@ -40,10 +43,12 @@
             <option value="面试中">面试中</option>
             <option value="已录取">已录取</option>
             <option value="已拒绝">已拒绝</option>
-          </select>
+        </select>
         </div>
+        <input class="field" id="careerLink" type="url" placeholder="职位链接（可选）">
         <textarea class="field" id="careerNote" placeholder="备注（可选）" rows="2"></textarea>
         <button type="submit" class="mini">保存</button>
+        <button type="button" class="mini ghost" id="careerCancelEdit">取消编辑</button>
       </form>
     </section>
     <section class="card section">
@@ -56,6 +61,7 @@
     </section>
   </main>
 </div>
+<script type="module" src="sage-cloud-data.js"></script>
 <script src="sage-data.js"></script>
 <script src="career.js"></script>
 <script src="edit-mode.js"></script>

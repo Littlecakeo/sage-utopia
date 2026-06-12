@@ -7,6 +7,7 @@ export default [
       'node_modules/**',
       'playwright-report/**',
       'test-results/**',
+      'dist/**',
       '.lighthouseci/**',
       'sage-utopia-vercel-source.zip',
     ],
@@ -20,6 +21,8 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
+        __SAGE_SUPABASE_URL__: 'readonly',
+        __SAGE_SUPABASE_ANON_KEY__: 'readonly',
       },
     },
     rules: {

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Sage Utopia｜学习中心</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mobile-fix.css">
   <link rel="stylesheet" href="compact.css?v=1">
   <style>
     .study-hero{padding:16px 20px;margin-bottom:12px}
@@ -84,11 +85,14 @@
       <a href="index.html">首页</a>
       <a class="active" href="study.html">学习中心</a>
       <a href="career.html">求职中心</a>
+      <a href="finance.html">财务中心</a>
       <a href="growth.html">成长记录</a>
+      <a href="portfolio.html">作品集</a>
       <a href="resume.html">关于 Sage</a>
     </div>
     <div class="mobile-branches">
       <a href="#planner">换课</a>
+      <a href="#assignments">作业</a>
       <a href="#links">链接</a>
       <a href="#visa">485</a>
       <a href="#sync">同步</a>
@@ -107,12 +111,15 @@
         <div class="section-index">
           <p>本页分支</p>
           <a href="#planner">换课</a>
+          <a href="#assignments">作业</a>
           <a href="#links">链接</a>
           <a href="#visa">485</a>
           <a href="#sync">同步</a>
         </div>
         <a href="career.html">求职中心</a>
+        <a href="finance.html">财务中心</a>
         <a href="growth.html">成长记录</a>
+        <a href="portfolio.html">作品集</a>
         <a href="resume.html">关于 Sage</a>
       </nav>
     </aside>
@@ -121,7 +128,7 @@
       <!-- 英雄区域 -->
       <section class="hero study-hero">
         <p class="eyebrow">学习中心</p>
-        <h1>点开课程，直接换</h1>
+        <h1>学习中心：点开课程，直接换</h1>
         <p class="desc">右上角可以加课、减课；系统会阻止重复课程。默认推荐保持 72 UOC，并把必修课提前。</p>
       </section>
 
@@ -155,7 +162,36 @@
         <div class="toolbar">
           <p>点开课程可以直接替换；每个学期右上角的＋和－用于加课、减课，系统会阻止重复课程。</p>
         </div>
+        <details class="add-toggle" style="margin-bottom:12px">
+          <summary class="mini" style="cursor:pointer;display:inline-block">新增自定义课程</summary>
+          <form id="courseForm" class="task-form" style="margin-top:10px">
+            <input class="field" id="courseCode" placeholder="课程代码（如 MDIA5003）" required>
+            <input class="field" id="courseName" placeholder="课程名称" required>
+            <input class="field" id="courseTerm" placeholder="学期（如 T3 2026）">
+            <input class="field" id="courseCategory" placeholder="分类">
+            <input class="field" id="courseUoc" type="number" min="1" value="6" placeholder="UOC">
+            <button type="submit" class="mini">保存课程</button>
+          </form>
+        </details>
         <div class="simple-board" id="planBoard"></div>
+      </section>
+
+      <section class="card section" id="assignments">
+        <h2>作业管理</h2>
+        <p class="sub">记录每门课的作业、截止日期和完成进度。配置 Supabase 后，作业会保存到云端。</p>
+        <form id="assignmentForm" class="task-form">
+          <input type="hidden" id="assignmentId">
+          <input class="field" id="assignmentTitle" placeholder="作业名称（必填）" required>
+          <select class="field" id="assignmentCourse"></select>
+          <input class="field" id="assignmentDue" type="date">
+          <select class="field" id="assignmentStatus"><option value="未开始">未开始</option><option value="进行中">进行中</option><option value="已完成">已完成</option></select>
+          <input class="field" id="assignmentProgress" type="number" min="0" max="100" placeholder="进度 %">
+          <input class="field note-field" id="assignmentNotes" placeholder="备注">
+          <button type="submit" class="mini">保存作业</button>
+          <button type="button" class="mini ghost" id="assignmentCancelEdit">取消编辑</button>
+        </form>
+        <p class="unit-hint" id="studySyncHint">正在检查云端连接...</p>
+        <div id="assignmentList"></div>
       </section>
 
       <!-- 官方链接 -->
@@ -236,6 +272,7 @@
   <div class="toast" id="toast"></div>
 
   <!-- 脚本加载（sage-data → sage-sync → study → site-shell） -->
+  <script type="module" src="sage-cloud-data.js"></script>
   <script src="sage-data.js"></script>
   <script src="sage-sync.js?v=1"></script>
   <script src="study.js"></script>

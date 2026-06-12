@@ -55,7 +55,19 @@
   }
 
   function c(code) {
+    const fromPlan = plan.find(item => item.code === code && item.name);
+    if (fromPlan) {
+      return {
+        code,
+        name: fromPlan.name,
+        uoc: Number(fromPlan.uoc || 6),
+        tag: fromPlan.category || '自定义',
+        summary: fromPlan.notes || '自定义课程',
+        time: fromPlan.timetable_url || ''
+      };
+    }
     const x = courses[code];
+    if (!x) return { code, name: code, uoc: 6, tag: '自定义', summary: '自定义课程', time: '' };
     return {
       code,
       name: x[0],
@@ -89,10 +101,11 @@
     try {
       var data = window.SageData ? window.SageData.getAll('study') : null;
       return (data && data.length) ? data : defaultPlan;
-    } catch (e) {
+    } catch {
       return defaultPlan;
     }
   })();
+  let assignments = [];
 
   // ── 重构的状态变量 ─────────────────────────────────
   let openSlot = null;
@@ -106,6 +119,26 @@
     } else {
       localStorage.setItem('sage.study.planV3', JSON.stringify(plan));
     }
+  }
+
+  async function loadCloudStudyData() {
+    if (!window.SageData || !window.SageData.loadAsync) return;
+    const cloudCourses = await window.SageData.loadAsync('study');
+    if (cloudCourses && cloudCourses.length) {
+      plan = cloudCourses.map(item => ({
+        id: item.id,
+        term: item.term || '未分配学期',
+        slot: item.slot || item.id || ('s' + Date.now()),
+        code: item.code,
+        name: item.name,
+        category: item.category,
+        uoc: item.uoc || 6,
+        notes: item.notes,
+        handbook_url: item.handbook_url,
+        timetable_url: item.timetable_url,
+      }));
+    }
+    assignments = await window.SageData.loadAsync('assignments');
   }
 
   function grouped() {
@@ -133,8 +166,13 @@
     </button>`;
   }
 
-  function activeTerm() {
-    return openAddTerm || plan.find(i => i.slot === openSlot)?.term || plan.at(-1)?.term || 'T1 2028';
+  function hydrateCourseSelect() {
+    const select = document.getElementById('assignmentCourse');
+    if (!select) return;
+    select.innerHTML = plan.map(item => {
+      const info = c(item.code);
+      return `<option value="${item.id || item.code}">${item.code} ${info.name}</option>`;
+    }).join('') || '<option value="">未关联课程</option>';
   }
 
   // ── 主渲染函数（重构版）───────────────────────────
@@ -271,6 +309,132 @@
     });
   }
 
+  async function addCustomCourse(e) {
+    e.preventDefault();
+    const code = document.getElementById('courseCode')?.value.trim().toUpperCase();
+    const name = document.getElementById('courseName')?.value.trim();
+    if (!code || !name) return;
+    if (has(code)) return toast('这门课已经在计划里啦');
+    const item = {
+      id: window.SageData.uid('course'),
+      code,
+      name,
+      term: document.getElementById('courseTerm')?.value.trim() || '未分配学期',
+      slot: 's' + Date.now(),
+      category: document.getElementById('courseCategory')?.value.trim() || '自定义',
+      uoc: Number(document.getElementById('courseUoc')?.value || 6),
+      status: '计划中',
+      notes: '手动新增课程',
+    };
+    const saved = await window.SageData.cloudAdd('study', item);
+    plan.push(saved || item);
+    save();
+    document.getElementById('courseForm')?.reset();
+    toast('课程已保存');
+    render();
+    renderAssignments();
+  }
+
+  function assignmentCard(a) {
+    const course = plan.find(item => (item.id || item.code) === a.course_id);
+    const courseText = course ? `${course.code} ${c(course.code).name}` : '未关联课程';
+    return `<div class="task-row" data-id="${a.id}">
+      <div class="task-card-top">
+        <div>
+          <div class="task-title">${escapeHTML(a.title || '')}</div>
+          <div class="task-meta">${escapeHTML(courseText)} · ${escapeHTML(a.status || '未开始')} · ${escapeHTML(a.due_date || '未设置截止')}</div>
+        </div>
+        <span class="task-badge soft">${Number(a.progress || 0)}%</span>
+      </div>
+      ${a.notes ? `<div class="task-note">${escapeHTML(a.notes)}</div>` : ''}
+      <div class="task-actions">
+        <button class="mini ghost" data-action="assignment-edit" data-id="${a.id}">编辑</button>
+        <button class="mini danger" data-action="assignment-delete" data-id="${a.id}">删除</button>
+      </div>
+    </div>`;
+  }
+
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>'"]/g, function (ch) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[ch];
+    });
+  }
+
+  function renderAssignments() {
+    hydrateCourseSelect();
+    const list = document.getElementById('assignmentList');
+    if (list) {
+      list.innerHTML = assignments.length ? assignments.map(assignmentCard).join('') : '<div class="empty">还没有作业。新增一条后，这里会显示截止日期和进度。</div>';
+    }
+    const hint = document.getElementById('studySyncHint');
+    if (hint) hint.textContent = window.SageCloudData?.localModeMessage?.() || '本地模式';
+  }
+
+  function resetAssignmentForm() {
+    document.getElementById('assignmentForm')?.reset();
+    const id = document.getElementById('assignmentId');
+    if (id) id.value = '';
+  }
+
+  function editAssignment(id) {
+    const a = assignments.find(item => item.id === id);
+    if (!a) return;
+    document.getElementById('assignmentId').value = a.id;
+    document.getElementById('assignmentTitle').value = a.title || '';
+    document.getElementById('assignmentCourse').value = a.course_id || '';
+    document.getElementById('assignmentDue').value = a.due_date || '';
+    document.getElementById('assignmentStatus').value = a.status || '未开始';
+    document.getElementById('assignmentProgress').value = a.progress || 0;
+    document.getElementById('assignmentNotes').value = a.notes || '';
+  }
+
+  async function saveAssignment(e) {
+    e.preventDefault();
+    const id = document.getElementById('assignmentId')?.value;
+    const payload = {
+      title: document.getElementById('assignmentTitle')?.value.trim(),
+      course_id: document.getElementById('assignmentCourse')?.value || null,
+      due_date: document.getElementById('assignmentDue')?.value || null,
+      status: document.getElementById('assignmentStatus')?.value || '未开始',
+      progress: Number(document.getElementById('assignmentProgress')?.value || 0),
+      notes: document.getElementById('assignmentNotes')?.value.trim() || '',
+    };
+    if (!payload.title) return;
+    if (id) {
+      const updated = await window.SageData.cloudUpdate('assignments', id, payload);
+      assignments = assignments.map(item => item.id === id ? Object.assign({}, item, updated || payload) : item);
+      toast('作业已更新');
+    } else {
+      const created = await window.SageData.cloudAdd('assignments', Object.assign({ id: window.SageData.uid('assn') }, payload));
+      assignments.unshift(created || payload);
+      toast('作业已保存');
+    }
+    window.SageData.saveLocalOnly('assignments', assignments);
+    resetAssignmentForm();
+    renderAssignments();
+  }
+
+  async function deleteAssignment(id) {
+    if (!confirm('确定删除这条作业吗？')) return;
+    await window.SageData.cloudRemove('assignments', id);
+    assignments = assignments.filter(item => item.id !== id);
+    window.SageData.saveLocalOnly('assignments', assignments);
+    renderAssignments();
+  }
+
+  function bindAssignmentActions() {
+    document.getElementById('courseForm')?.addEventListener('submit', addCustomCourse);
+    document.getElementById('assignmentForm')?.addEventListener('submit', saveAssignment);
+    document.getElementById('assignmentCancelEdit')?.addEventListener('click', resetAssignmentForm);
+    document.getElementById('assignmentList')?.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-id');
+      if (btn.getAttribute('data-action') === 'assignment-edit') editAssignment(id);
+      if (btn.getAttribute('data-action') === 'assignment-delete') deleteAssignment(id);
+    });
+  }
+
   // ── Sage 面板功能 ─────────────────────────────────
   function initSagePanel() {
     const sageToggle = document.getElementById('sageToggle');
@@ -291,7 +455,7 @@
         try {
           await navigator.clipboard.writeText(prompt);
           toast('已复制，可以粘贴给 ChatGPT');
-        } catch (e) {
+        } catch {
           const answerEl = document.getElementById('sageAnswer');
           if (answerEl) answerEl.textContent = prompt;
         }
@@ -302,12 +466,16 @@
   /* ═══════════════════════════════════════════════════
    *  初始化
    * ═══════════════════════════════════════════════════ */
-  function init() {
+  async function init() {
     if (window.__studyInited) return;
     window.__studyInited = true;
 
+    await loadCloudStudyData();
+
     // 初始化选课规划
     render();
+    renderAssignments();
+    bindAssignmentActions();
 
     // 初始化 Sage 面板
     initSagePanel();
@@ -317,7 +485,7 @@
   }
 
   // 暴露刷新接口供 SPA 切换时调用
-  window.__sageStudyRefresh = render;
+  window.__sageStudyRefresh = function () { render(); renderAssignments(); };
 
   // 执行初始化
   if (document.readyState === 'loading') {

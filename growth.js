@@ -7,8 +7,6 @@
   'use strict';
 
   const MODULE = 'growth';
-  const MOODS = ['平静', '开心', '疲惫', '兴奋', '焦虑', '满足', '迷茫'];
-
   function load()    { return window.SageData?.getAll(MODULE) || []; }
   function save(list) { window.SageData?.save(MODULE, list); }
   function uid()      { return window.SageData?.uid('grow') || ('grow-' + Date.now()); }
