@@ -58,6 +58,32 @@ test('首页任务以小标题折叠展示并隐藏备注句子', async ({ page 
   await expect(firstTask.getByRole('button', { name: '记录' })).toBeVisible();
 });
 
+test('一次性待办任务使用前置勾选框', async ({ page }) => {
+  await page.goto('/index.html');
+
+  const taskList = page.locator('#taskList');
+  const firstTodo = taskList.locator('.todo-row').first();
+  await expect(firstTodo).toBeVisible();
+  await expect(firstTodo.locator('input[type="checkbox"]')).toBeVisible();
+  await expect(firstTodo.locator('details.task-collapsible')).toHaveCount(0);
+});
+
+test('进度追踪记录后可以点开时间表查看历史', async ({ page }) => {
+  await page.goto('/index.html');
+
+  let firstProgress = page.locator('#progressList details.task-collapsible').first();
+  await firstProgress.locator('summary').click();
+  await firstProgress.locator('input[type="number"]').fill('49');
+  await firstProgress.getByRole('button', { name: '记录' }).click();
+
+  firstProgress = page.locator('#progressList details.task-collapsible').first();
+  await firstProgress.locator('summary').click();
+  await firstProgress.getByRole('button', { name: '时间表' }).click();
+
+  await expect(firstProgress.locator('.progress-history')).toBeVisible();
+  await expect(firstProgress.locator('.progress-history')).toContainText('49/320 页');
+});
+
 test('各分支页面顶部只保留简洁标题', async ({ page }) => {
   const pages = [
     { url: '/study.html', title: '学习中心' },

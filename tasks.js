@@ -23,6 +23,7 @@
 
   let items = [];
   const prevCurrents = new Map(); // 内存缓存 completeItem 前的进度，不持久化到 localStorage
+  const openHistories = new Set();
 
   const sectionMeta = {
     progress: { title: '进度追踪', empty: '这里放长期目标，比如读完一本书、整理作品集、完成课程项目。' },
@@ -35,7 +36,25 @@
   function num(v, fallback) { var n = Number(v); return (v === '' || v === null || v === undefined || !Number.isFinite(n)) ? (fallback || 0) : n; }
   function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
   function pct(item) { var t = Math.max(num(item.total, 1), 1); return Math.round(clamp(num(item.current, 0) / t, 0, 1) * 100); }
-  function normalize(item) { return Object.assign({}, item, { section: item.section || guessSection(item.type), total: Math.max(num(item.total, 1), 1), current: num(item.current, 0), unit: item.unit || '项' }); }
+  function normalize(item) {
+    var history = Array.isArray(item.history) ? item.history.filter(function (entry) {
+      return entry && entry.at && Number.isFinite(Number(entry.current));
+    }).map(function (entry) {
+      return {
+        at: entry.at,
+        current: num(entry.current, 0),
+        total: Math.max(num(entry.total, item.total || 1), 1),
+        unit: entry.unit || item.unit || '项'
+      };
+    }) : [];
+    return Object.assign({}, item, {
+      section: item.section || guessSection(item.type),
+      total: Math.max(num(item.total, 1), 1),
+      current: num(item.current, 0),
+      unit: item.unit || '项',
+      history: history
+    });
+  }
   function guessSection(type) { if (type && String(type).indexOf('习惯') !== -1) return 'habit'; if (['阅读', '作品集', '成长'].indexOf(type) !== -1) return 'progress'; return 'task'; }
   function escapeHTML(s) { return String(s).replace(/[&<>'"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c]; }); }
   function defaultUnit(section) { return section === 'habit' ? '天' : section === 'progress' ? '步' : '项'; }
@@ -105,7 +124,9 @@
       if (item.id !== id) return item;
       var total = Math.max(num(item.total, 1), 1);
       var current = clamp(num(input.value, item.current), 0, total);
-      return Object.assign({}, item, { current: current, done: current >= total });
+      var history = Array.isArray(item.history) ? item.history.slice() : [];
+      history.push({ at: new Date().toISOString(), current: current, total: total, unit: item.unit || '项' });
+      return Object.assign({}, item, { current: current, done: current >= total, history: history });
     });
     saveItems(); renderItems();
     say('进度更新好了。慢慢推进也很厉害。');
@@ -136,7 +157,14 @@
   function deleteItem(id) {
     if (!confirm('确定删除这一项吗？')) return;
     items = items.filter(function (item) { return item.id !== id; });
+    openHistories.delete(id);
     saveItems(); renderItems();
+  }
+
+  function toggleHistory(id) {
+    if (openHistories.has(id)) openHistories.delete(id);
+    else openHistories.add(id);
+    renderItems();
   }
 
   /* ── 通知（委托 SageUI） ── */
@@ -149,14 +177,16 @@
     var percent = pct(item);
     var unit = item.unit || '项';
     var overdue = isOverdue(item);
-    return '<details class="task-row task-collapsible ' + (item.done ? 'done' : '') + '">' +
+    if (item.section === 'task') return todoCard(item, overdue);
+    return '<details class="task-row task-collapsible ' + (item.done ? 'done' : '') + '"' + (openHistories.has(item.id) ? ' open' : '') + '>' +
       '<summary class="task-summary"><div class="task-card-top"><div>' +
       '<div class="task-title">' + escapeHTML(item.title) + '</div>' +
       '<div class="task-meta">' + escapeHTML(item.type) + ' · ' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + ' · ' + percent + '%</div></div>' +
       '<span class="task-badge ' + (overdue ? 'overdue' : '') + '">' + (item.done ? '已完成' : overdue ? '已过期' : percent >= 70 ? '接近完成' : '进行中') + '</span></div></summary>' +
       '<div class="task-details">' +
       '<div class="progress-track"><span class="progress-fill" style="width:' + percent + '%"></span></div>' +
-      '<div class="progress-line"><span>进度 ' + percent + '%</span><span>' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + '</span></div>' +
+      '<div class="progress-line"><span>进度 ' + percent + '%</span><span class="progress-side"><span>' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + '</span><button class="mini ghost history-toggle" data-action="toggle-history" data-id="' + item.id + '" type="button">时间表</button></span></div>' +
+      historyPanel(item) +
       '<div class="date-row">' + (item.start ? '<span class="date-pill">开始 ' + item.start + '</span>' : '') + (item.due ? '<span class="date-pill ' + (overdue ? 'overdue' : '') + '">计划截止 ' + item.due + '</span>' : '<span class="date-pill">长期保持</span>') + '</div>' +
       '<div class="progress-update"><input class="field" id="progress-' + item.id + '" type="number" min="0" max="' + item.total + '" value="' + item.current + '" placeholder="更新当前进度">' +
       '<button class="mini ghost" data-action="update" data-id="' + item.id + '">记录</button></div>' +
@@ -164,6 +194,35 @@
       '<button class="mini ghost" data-action="' + (item.done ? 'restore' : 'complete') + '" data-id="' + item.id + '">' + (item.done ? '恢复' : '完成') + '</button>' +
       '<button class="mini danger" data-action="delete" data-id="' + item.id + '">删除</button>' +
       '</div></div></details>';
+  }
+
+  function todoCard(item, overdue) {
+    return '<div class="task-row todo-row ' + (item.done ? 'done' : '') + '">' +
+      '<label class="todo-check"><input type="checkbox" data-action="' + (item.done ? 'restore' : 'complete') + '" data-id="' + item.id + '"' + (item.done ? ' checked' : '') + ' aria-label="' + (item.done ? '恢复任务' : '完成任务') + '">' +
+      '<span></span></label>' +
+      '<div class="todo-main"><div class="task-title">' + escapeHTML(item.title) + '</div>' +
+      '<div class="task-meta">' + escapeHTML(item.type) + (item.due ? ' · 截止 ' + item.due : '') + '</div></div>' +
+      '<span class="task-badge ' + (overdue ? 'overdue' : '') + '">' + (item.done ? '已完成' : overdue ? '已过期' : '待办') + '</span>' +
+      '<button class="mini danger" data-action="delete" data-id="' + item.id + '" type="button">删除</button>' +
+      '</div>';
+  }
+
+  function historyPanel(item) {
+    var history = Array.isArray(item.history) ? item.history.slice(-8).reverse() : [];
+    var content = history.length ? history.map(function (entry) {
+      return '<li><span>' + formatDateTime(entry.at) + '</span><strong>' + entry.current + '/' + entry.total + ' ' + escapeHTML(entry.unit || item.unit || '项') + '</strong></li>';
+    }).join('') : '<li><span>还没有记录</span><strong>点“记录”后会出现在这里</strong></li>';
+    return '<div class="progress-history' + (openHistories.has(item.id) ? ' show' : '') + '"><ul>' + content + '</ul></div>';
+  }
+
+  function formatDateTime(value) {
+    var d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '刚刚';
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    var hh = String(d.getHours()).padStart(2, '0');
+    var mi = String(d.getMinutes()).padStart(2, '0');
+    return mm + '/' + dd + ' ' + hh + ':' + mi;
   }
 
   function fillSection(section) {
@@ -205,6 +264,7 @@
       case 'complete': completeItem(id); break;
       case 'restore': restoreItem(id); break;
       case 'delete': deleteItem(id); break;
+      case 'toggle-history': toggleHistory(id); break;
     }
     e.preventDefault();
   }

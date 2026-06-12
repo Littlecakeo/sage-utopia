@@ -16,10 +16,23 @@
 .progress-line {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
   margin-top: 8px;
   color: var(--muted);
   font-size: 13px;
+}
+
+.progress-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-toggle {
+  padding: 5px 8px;
+  font-size: 12px;
+  box-shadow: none;
 }
 
 .task-form.progress-form {
@@ -119,6 +132,39 @@
   border-radius: 14px;
 }
 
+.progress-history {
+  display: none;
+  margin-top: 10px;
+  border: 1px solid rgba(120, 147, 114, .18);
+  border-radius: 16px;
+  background: rgba(255, 253, 248, .72);
+  padding: 10px 12px;
+}
+
+.progress-history.show {
+  display: block;
+}
+
+.progress-history ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.progress-history li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.progress-history strong {
+  color: #465845;
+}
+
 .date-row {
   display: flex;
   flex-wrap: wrap;
@@ -142,6 +188,53 @@
 
 .task-row.done .progress-fill {
   background: #AEB9A9;
+}
+
+.todo-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.todo-check {
+  display: grid;
+  place-items: center;
+}
+
+.todo-check input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.todo-check span {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(120, 147, 114, .42);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, .9);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  place-items: center;
+}
+
+.todo-check input:checked + span {
+  background: #789372;
+  border-color: #789372;
+}
+
+.todo-check input:checked + span::after {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+.todo-main {
+  min-width: 0;
 }
 
 .section-split {
@@ -244,6 +337,15 @@
   .zone-grid,
   .quick-groups {
     grid-template-columns: 1fr;
+  }
+
+  .todo-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .todo-row .task-badge,
+  .todo-row .danger {
+    justify-self: start;
   }
 
   .task-form.progress-form {
