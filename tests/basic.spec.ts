@@ -52,9 +52,12 @@ test('首页任务以小标题折叠展示并隐藏备注句子', async ({ page 
   const firstTask = page.locator('details.task-collapsible').first();
   await expect(firstTask).toBeVisible();
   await expect(firstTask).not.toHaveAttribute('open', '');
+  await expect(firstTask.locator('.task-expand-symbol')).toBeVisible();
+  await expect(firstTask.locator('summary')).not.toContainText('展开');
 
   await firstTask.locator('summary').click();
   await expect(firstTask).toHaveAttribute('open', '');
+  await expect(firstTask.locator('summary')).not.toContainText('收起');
   await expect(firstTask.getByRole('button', { name: '记录' })).toBeVisible();
 });
 
@@ -68,7 +71,7 @@ test('一次性待办任务使用前置勾选框', async ({ page }) => {
   await expect(firstTodo.locator('details.task-collapsible')).toHaveCount(0);
 });
 
-test('进度追踪记录后可以点开时间表查看历史', async ({ page }) => {
+test('进度追踪记录后可以点开 Timetable 查看历史', async ({ page }) => {
   await page.goto('/index.html');
 
   let firstProgress = page.locator('#progressList details.task-collapsible').first();
@@ -78,10 +81,27 @@ test('进度追踪记录后可以点开时间表查看历史', async ({ page }) 
 
   firstProgress = page.locator('#progressList details.task-collapsible').first();
   await firstProgress.locator('summary').click();
-  await firstProgress.getByRole('button', { name: '时间表' }).click();
+  await firstProgress.getByRole('button', { name: 'Timetable' }).click();
 
   await expect(firstProgress.locator('.progress-history')).toBeVisible();
   await expect(firstProgress.locator('.progress-history')).toContainText('49/320 页');
+});
+
+test('网站小标语在移动端和侧栏之间同步保存', async ({ page }) => {
+  await page.setViewportSize({ width: 599, height: 714 });
+  await page.goto('/index.html');
+
+  const text = '慢慢长大';
+  await page.locator('.mobile .brand .tag').evaluate((el, value) => {
+    el.textContent = value;
+    el.dispatchEvent(new InputEvent('input', { bubbles: true, data: value, inputType: 'insertText' }));
+  }, text);
+
+  await expect(page.locator('.side .brand .tag')).toHaveText(text);
+  await page.getByRole('button', { name: '保存更改' }).click();
+  await page.reload();
+  await expect(page.locator('.mobile .brand .tag')).toHaveText(text);
+  await expect(page.locator('.side .brand .tag')).toHaveText(text);
 });
 
 test('各分支页面顶部只保留简洁标题', async ({ page }) => {

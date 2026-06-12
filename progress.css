@@ -77,20 +77,44 @@
   content: "";
 }
 
-.task-summary .task-card-top::after {
-  content: "展开";
+.task-summary-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.task-summary-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.task-expand-symbol {
   flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
   border: 1px solid rgba(120, 147, 114, .2);
-  border-radius: 999px;
+  border-radius: 50%;
   background: rgba(232, 239, 229, .76);
   color: #60785d;
-  padding: 5px 8px;
-  font-size: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
   font-weight: 850;
 }
 
-.task-collapsible[open] .task-summary .task-card-top::after {
-  content: "收起";
+.task-expand-symbol::before {
+  content: "⌄";
+  line-height: 1;
+  transform: translateY(-2px);
+}
+
+.task-collapsible[open] .task-expand-symbol::before {
+  content: "⌃";
+  transform: translateY(1px);
 }
 
 .task-details {

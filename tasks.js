@@ -179,13 +179,13 @@
     var overdue = isOverdue(item);
     if (item.section === 'task') return todoCard(item, overdue);
     return '<details class="task-row task-collapsible ' + (item.done ? 'done' : '') + '"' + (openHistories.has(item.id) ? ' open' : '') + '>' +
-      '<summary class="task-summary"><div class="task-card-top"><div>' +
+      '<summary class="task-summary"><div class="task-summary-head">' +
       '<div class="task-title">' + escapeHTML(item.title) + '</div>' +
-      '<div class="task-meta">' + escapeHTML(item.type) + ' · ' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + ' · ' + percent + '%</div></div>' +
-      '<span class="task-badge ' + (overdue ? 'overdue' : '') + '">' + (item.done ? '已完成' : overdue ? '已过期' : percent >= 70 ? '接近完成' : '进行中') + '</span></div></summary>' +
+      '<span class="task-badge ' + (overdue ? 'overdue' : '') + '">' + (item.done ? '已完成' : overdue ? '已过期' : percent >= 70 ? '接近完成' : '进行中') + '</span></div>' +
+      '<div class="task-summary-foot"><div class="task-meta">' + escapeHTML(item.type) + ' · ' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + ' · ' + percent + '%</div><span class="task-expand-symbol" aria-hidden="true"></span></div></summary>' +
       '<div class="task-details">' +
       '<div class="progress-track"><span class="progress-fill" style="width:' + percent + '%"></span></div>' +
-      '<div class="progress-line"><span>进度 ' + percent + '%</span><span class="progress-side"><span>' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + '</span><button class="mini ghost history-toggle" data-action="toggle-history" data-id="' + item.id + '" type="button">时间表</button></span></div>' +
+      '<div class="progress-line"><span>进度 ' + percent + '%</span><span class="progress-side"><span>' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + '</span><button class="mini ghost history-toggle" data-action="toggle-history" data-id="' + item.id + '" type="button">Timetable</button></span></div>' +
       historyPanel(item) +
       '<div class="date-row">' + (item.start ? '<span class="date-pill">开始 ' + item.start + '</span>' : '') + (item.due ? '<span class="date-pill ' + (overdue ? 'overdue' : '') + '">计划截止 ' + item.due + '</span>' : '<span class="date-pill">长期保持</span>') + '</div>' +
       '<div class="progress-update"><input class="field" id="progress-' + item.id + '" type="number" min="0" max="' + item.total + '" value="' + item.current + '" placeholder="更新当前进度">' +

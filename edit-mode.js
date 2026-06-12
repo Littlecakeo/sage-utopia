@@ -10,6 +10,8 @@
   'use strict';
 
   const EDIT_PREFIX = 'sage.edit.v2.';
+  const BRAND_TAG_KEY = EDIT_PREFIX + 'brand.tag';
+  const LEGACY_BRAND_KEYS = [EDIT_PREFIX + 'mobile.brand.tag', EDIT_PREFIX + 'side.brand.tag'];
   const EDITABLE_SELECTOR = '.brand .tag, main .desc, main .sub, main .hint, main .task-title, main .task-meta, main .task-note, main .date-pill, main .chip, main .link-card .tag, main .profile-list p, main .term-card p, main .decision-card p, main td:not(:first-child)';
 
   /* ── 页面与分支索引 ── */
@@ -43,11 +45,29 @@
   }
 
   function editableKey(index, el) {
-    if (el && el.matches && el.matches('.brand .tag')) return EDIT_PREFIX + (el.closest('.mobile') ? 'mobile.brand.tag' : 'side.brand.tag');
+    if (el && el.matches && el.matches('.brand .tag')) return BRAND_TAG_KEY;
     var tag = el ? el.tagName.toLowerCase() : '';
     var text = (el ? el.textContent : '').trim().slice(0, 24).replace(/[^\w\u4e00-\u9fa5]/g, '');
     var cls = el && el.className ? String(el.className).replace(/[^a-zA-Z0-9]/g, '').slice(0, 12) : '';
     return EDIT_PREFIX + pathKey() + '.' + index + '.' + tag + cls + text;
+  }
+
+  function savedBrandTag() {
+    var saved = localStorage.getItem(BRAND_TAG_KEY);
+    if (saved !== null) return saved;
+    for (var i = 0; i < LEGACY_BRAND_KEYS.length; i += 1) {
+      saved = localStorage.getItem(LEGACY_BRAND_KEYS[i]);
+      if (saved !== null) return saved;
+    }
+    return null;
+  }
+
+  function syncBrandTags(source) {
+    if (!source || !source.matches || !source.matches('.brand .tag')) return;
+    document.querySelectorAll('.brand .tag').forEach(function (tag) {
+      if (tag !== source) tag.innerHTML = source.innerHTML;
+      tag.classList.toggle('editable-empty', !tag.textContent.trim());
+    });
   }
 
   function getEditables() {
@@ -69,6 +89,7 @@
       el.contentEditable = 'true';
       el.spellcheck = false;
       var saved = localStorage.getItem(key);
+      if (el.matches('.brand .tag')) saved = savedBrandTag();
       if (saved !== null) {
         el.innerHTML = saved;
         el.dataset.original = saved;
@@ -157,7 +178,10 @@
   /* ── 事件绑定 ── */
   document.addEventListener('input', function (e) {
     var el = e.target;
-    if (el && el.dataset && el.dataset.editable) markDirty();
+    if (el && el.dataset && el.dataset.editable) {
+      syncBrandTags(el);
+      markDirty();
+    }
   });
 
   document.addEventListener('focus', function (e) {
