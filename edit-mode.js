@@ -207,7 +207,7 @@
   (function loadSageSiteShell() {
     if (document.querySelector('script[data-sage-site-shell]')) return;
     var s = document.createElement('script');
-    s.src = 'site-shell.js?v=8';
+    s.src = 'site-shell.js?v=9';
     s.dataset.sageSiteShell = 'true';
     document.body.appendChild(s);
   })();

@@ -140,6 +140,28 @@ test('顶部导航在窄屏滚动时固定不跟随页面内容滑走', async ({
   expect(after?.y ?? 999).toBeLessThan(1);
 });
 
+test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
+  await page.setViewportSize({ width: 667, height: 714 });
+  await page.goto('/resume.html');
+  await page.waitForFunction(() => {
+    const nav = document.querySelector('.mobile');
+    const hero = document.querySelector('main > .hero');
+    if (!nav || !hero) return false;
+    return hero.getBoundingClientRect().top > nav.getBoundingClientRect().bottom + 8;
+  });
+
+  const positions = await page.evaluate(() => {
+    const nav = document.querySelector('.mobile')?.getBoundingClientRect();
+    const hero = document.querySelector('main > .hero')?.getBoundingClientRect();
+    return {
+      navBottom: nav?.bottom ?? 0,
+      heroTop: hero?.top ?? 0,
+    };
+  });
+
+  expect(positions.heroTop).toBeGreaterThan(positions.navBottom + 8);
+});
+
 test('桌面侧边栏滚动时保持固定', async ({ page }) => {
   await page.setViewportSize({ width: 1240, height: 714 });
   await page.goto('/index.html');

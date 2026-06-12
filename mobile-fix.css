@@ -104,7 +104,7 @@ button,
 
 @media (max-width: 900px) {
   body {
-    padding-top: var(--sage-mobile-nav-height, 220px);
+    padding-top: var(--sage-mobile-nav-height, 280px);
   }
 
   .mobile {
@@ -113,6 +113,12 @@ button,
     left: 0;
     right: 0;
     z-index: 30;
+  }
+
+  main section,
+  main .card,
+  main .work-zone {
+    scroll-margin-top: calc(var(--sage-mobile-nav-height, 280px) + 16px);
   }
 }
 
