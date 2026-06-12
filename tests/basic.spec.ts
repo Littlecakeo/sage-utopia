@@ -140,6 +140,16 @@ test('顶部导航在窄屏滚动时固定不跟随页面内容滑走', async ({
   expect(after?.y ?? 999).toBeLessThan(1);
 });
 
+test('移动端顶部导航直接显示作品集和关于 Sage', async ({ page }) => {
+  await page.setViewportSize({ width: 667, height: 714 });
+  await page.goto('/index.html');
+
+  const mobileNav = page.locator('.mobile');
+  await expect(mobileNav.getByRole('link', { name: '作品集' })).toBeVisible();
+  await expect(mobileNav.getByRole('link', { name: '关于 Sage' })).toBeVisible();
+  await expect(mobileNav).not.toContainText('更多');
+});
+
 test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 714 });
   await page.goto('/resume.html');
