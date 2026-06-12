@@ -57,7 +57,13 @@
   }
   function guessSection(type) { if (type && String(type).indexOf('习惯') !== -1) return 'habit'; if (['阅读', '作品集', '成长'].indexOf(type) !== -1) return 'progress'; return 'task'; }
   function escapeHTML(s) { return String(s).replace(/[&<>'"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c]; }); }
-  function defaultUnit(section) { return section === 'habit' ? '天' : section === 'progress' ? '步' : '项'; }
+  function defaultUnit(section, type, title) {
+    var text = String((type || '') + ' ' + (title || ''));
+    if (section === 'habit') return '天';
+    if (text.indexOf('阅读') !== -1 || text.indexOf('书') !== -1) return '页';
+    if (section === 'progress') return '步';
+    return '项';
+  }
   function isDueSoon(item) { if (item.done || !item.due) return false; var d = new Date(item.due + 'T00:00:00'); var now = new Date(todayISO() + 'T00:00:00'); var diff = (d - now) / 86400000; return diff >= 0 && diff <= 7; }
   function isOverdue(item) { if (item.done || !item.due) return false; var d = new Date(item.due + 'T00:00:00'); var now = new Date(todayISO() + 'T00:00:00'); return (d - now) / 86400000 < 0; }
 
@@ -102,14 +108,15 @@
     var total = Math.max(num(document.getElementById('itemTotal').value, 1), 1);
     var current = clamp(num(document.getElementById('itemCurrent').value, 0), 0, total);
     var section = document.getElementById('itemSection').value;
+    var type = document.getElementById('itemType').value.trim() || sectionMeta[section].title;
     items.unshift({
       id: window.SageData ? window.SageData.uid('item') : ('item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)),
       section: section, title: title,
-      type: document.getElementById('itemType').value.trim() || sectionMeta[section].title,
+      type: type,
       start: document.getElementById('itemStart').value,
       due: document.getElementById('itemDue').value,
       total: total, current: current,
-      unit: document.getElementById('itemUnit').value.trim() || defaultUnit(section),
+      unit: defaultUnit(section, type, title),
       done: current >= total,
       note: ''
     });

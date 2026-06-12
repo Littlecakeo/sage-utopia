@@ -104,6 +104,57 @@ test('网站小标语在移动端和侧栏之间同步保存', async ({ page }) 
   await expect(page.locator('.side .brand .tag')).toHaveText(text);
 });
 
+test('首页新增目标表单保持正常宽度不拥挤', async ({ page }) => {
+  await page.setViewportSize({ width: 1240, height: 714 });
+  await page.goto('/index.html');
+
+  const titleBox = await page.locator('#itemTitle').boundingBox();
+  const sectionBox = await page.locator('#itemSection').boundingBox();
+  const typeBox = await page.locator('#itemType').boundingBox();
+  const currentBox = await page.locator('#itemCurrent').boundingBox();
+  const totalBox = await page.locator('#itemTotal').boundingBox();
+  const dateBox = await page.locator('#itemStart').boundingBox();
+  const addBox = await page.locator('#itemForm button[type="submit"]').boundingBox();
+
+  await expect(page.locator('#itemUnit')).toHaveCount(0);
+  expect(titleBox?.width ?? 0).toBeGreaterThan(260);
+  expect(sectionBox?.width ?? 0).toBeGreaterThan(130);
+  expect(typeBox?.width ?? 0).toBeGreaterThan(130);
+  expect(dateBox?.width ?? 0).toBeGreaterThanOrEqual(130);
+  expect(Math.abs((sectionBox?.y ?? 0) - (typeBox?.y ?? 999))).toBeLessThan(4);
+  expect((currentBox?.x ?? 999)).toBeLessThan(totalBox?.x ?? 0);
+  expect(addBox?.width ?? 0).toBeGreaterThan(72);
+  expect(addBox?.height ?? 999).toBeLessThan(70);
+});
+
+test('顶部导航在窄屏滚动时固定不跟随页面内容滑走', async ({ page }) => {
+  await page.setViewportSize({ width: 651, height: 714 });
+  await page.goto('/index.html');
+
+  const before = await page.locator('.mobile').boundingBox();
+  await page.evaluate(() => window.scrollTo(0, 650));
+  await page.waitForTimeout(100);
+  const after = await page.locator('.mobile').boundingBox();
+
+  expect(before?.y ?? 999).toBeLessThan(1);
+  expect(after?.y ?? 999).toBeLessThan(1);
+});
+
+test('桌面侧边栏滚动时保持固定', async ({ page }) => {
+  await page.setViewportSize({ width: 1240, height: 714 });
+  await page.goto('/index.html');
+
+  const before = await page.locator('.side').boundingBox();
+  await page.evaluate(() => window.scrollTo(0, 800));
+  await page.waitForTimeout(100);
+  const after = await page.locator('.side').boundingBox();
+
+  expect(before?.x ?? 999).toBeLessThan(1);
+  expect(after?.x ?? 999).toBeLessThan(1);
+  expect(before?.y ?? 999).toBeLessThan(1);
+  expect(after?.y ?? 999).toBeLessThan(1);
+});
+
 test('各分支页面顶部只保留简洁标题', async ({ page }) => {
   const pages = [
     { url: '/study.html', title: '学习中心' },
@@ -204,6 +255,20 @@ test('关于和作品集公开页面可以单独访问', async ({ page }) => {
   await page.goto('/portfolio.html');
   await expect(page).toHaveURL(/portfolio\.html$/);
   await expect(page.getByRole('heading', { name: /作品集/ }).first()).toBeVisible();
+});
+
+test('关于页资料板块可以直接编辑并保存', async ({ page }) => {
+  await page.goto('/resume.html');
+
+  const title = page.locator('#resume-about h2').first();
+  await title.evaluate((el, value) => {
+    el.textContent = value;
+    el.dispatchEvent(new InputEvent('input', { bubbles: true, data: value, inputType: 'insertText' }));
+  }, '我的介绍');
+
+  await page.getByRole('button', { name: '保存更改' }).click();
+  await page.reload();
+  await expect(page.locator('#resume-about h2').first()).toHaveText('我的介绍');
 });
 
 test('移动端首页没有横向溢出', async ({ page }) => {

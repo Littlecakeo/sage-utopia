@@ -9,16 +9,32 @@
   <link rel="stylesheet" href="cloud-sync.css">
   <link rel="stylesheet" href="edit-mode.css">
   <style>
-    .about-hero{display:grid;grid-template-columns:180px 1fr;gap:24px;align-items:center}
-    .avatar-wrap{width:168px;height:168px;border-radius:34px;background:#E8F4EA;border:1px solid rgba(222,216,201,.8);box-shadow:var(--shadow);padding:10px;overflow:hidden}
-    .avatar-wrap img{width:100%;height:100%;object-fit:cover;border-radius:26px;display:block}
-    .profile-title{margin:0;font-size:clamp(34px,5vw,54px);line-height:1.08}
+    .resume-editable{display:grid;gap:18px}
+    .resume-hero{position:relative;overflow:hidden;padding:22px 26px}
+    .resume-hero:after{content:"";position:absolute;right:28px;top:24px;width:86px;height:46px;border-radius:50%;background:rgba(185,205,183,.38);transform:rotate(-24deg)}
+    .resume-hero h1{font-size:clamp(32px,4.4vw,52px)}
+    .resume-intro{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);gap:18px;align-items:stretch}
+    .profile-card,.keyword-card,.editor-card,.timeline-card{border-radius:20px}
+    .profile-card{display:grid;gap:16px;padding:24px}
+    .profile-lead{margin:0;font-size:18px;line-height:1.75;color:#5f766d;font-weight:750}
+    .profile-bio{margin:0;color:#6c7d75;line-height:1.9}
+    .keyword-card{padding:24px}
+    .keyword-card .chips{gap:10px}
+    .keyword-card .chip{padding:10px 14px;font-size:14px;background:rgba(255,253,248,.86)}
+    .editor-card{padding:22px}
+    .resume-section-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .timeline-card{padding:22px}
+    .timeline-list{display:grid;gap:12px;margin-top:14px}
+    .timeline-item{margin:0;border-left:3px solid rgba(120,147,114,.34);border-radius:0 16px 16px 0;background:rgba(238,243,234,.48);padding:14px 16px}
+    .timeline-item strong{display:block;margin-bottom:6px;color:#334139}
+    .contact-card{padding:22px}
+    .contact-card .links{grid-template-columns:1fr}
     .side .section-index{margin:8px 0 12px 10px;padding-left:10px;border-left:1px solid #D9E4D5}
     .side .section-index p{margin:8px 0;color:var(--muted);font-size:12px}
     .side .section-index a{display:block;padding:7px 10px;border-radius:12px;font-size:13px;color:#60785d}
     @media(max-width:900px){
-      .about-hero{grid-template-columns:1fr}
-      .avatar-wrap{width:138px;height:138px;border-radius:28px}
+      .resume-intro,.resume-section-grid{grid-template-columns:1fr}
+      .resume-hero{padding:20px}
     }
   </style>
 </head>
@@ -55,18 +71,18 @@
       <a href="#data-management">数据</a>
     </div>
   </aside>
-  <main>
-    <section class="hero page-title">
+  <main class="resume-editable">
+    <section class="hero page-title resume-hero">
       <h1>关于 Sage</h1>
     </section>
 
-    <section class="grid two" id="resume-about">
-      <div class="card">
+    <section class="resume-intro" id="resume-about">
+      <div class="card profile-card">
         <h2>关于我</h2>
-        <p class="hint" id="profileHeadline">ENFP 天秤座。关注新媒体内容、品牌传播、数字营销和用户洞察。</p>
-        <p class="hint" id="profileBio" style="margin-top:8px">我喜欢把创意、表达和数据放在一起思考：一边做内容，一边观察用户为什么被吸引、为什么停留、为什么行动。未来希望在 PR、Advertising、Content Marketing 或 Social Media 相关方向继续成长。</p>
+        <p class="profile-lead editable-text" id="profileHeadline">ENFP 天秤座。关注新媒体内容、品牌传播、数字营销和用户洞察。</p>
+        <p class="profile-bio editable-text" id="profileBio">我喜欢把创意、表达和数据放在一起思考：一边做内容，一边观察用户为什么被吸引、为什么停留、为什么行动。未来希望在 PR、Advertising、Content Marketing 或 Social Media 相关方向继续成长。</p>
       </div>
-      <div class="card">
+      <div class="card keyword-card">
         <h2>关键词</h2>
         <div class="chips">
           <span class="chip">UNSW MPRA</span>
@@ -79,7 +95,7 @@
       </div>
     </section>
 
-    <section class="card section">
+    <section class="card section editor-card">
       <h2>编辑公开资料</h2>
       <p class="sub">这些内容会用于关于页和未来的公开展示。配置 Supabase 后会保存到云端。</p>
       <form id="profileForm" class="task-form">
@@ -94,31 +110,37 @@
       <p class="unit-hint" id="profileSyncHint">正在检查云端连接...</p>
     </section>
 
-    <section class="card section">
-      <h2>教育经历</h2>
-      <div class="task">
-        <strong>UNSW Sydney</strong>
-        <p class="hint">Master of Public Relations & Advertising · 2026.09 - 2028.06</p>
+    <section class="resume-section-grid">
+      <div class="card timeline-card">
+        <h2>教育经历</h2>
+        <div class="timeline-list">
+          <div class="task timeline-item">
+            <strong>UNSW Sydney</strong>
+            <p class="hint">Master of Public Relations & Advertising · 2026.09 - 2028.06</p>
+          </div>
+          <div class="task timeline-item">
+            <strong>四川传媒学院</strong>
+            <p class="hint">播音与主持艺术（双语播音方向）本科 · 2021.09 - 2025.06</p>
+          </div>
+        </div>
       </div>
-      <div class="task">
-        <strong>四川传媒学院</strong>
-        <p class="hint">播音与主持艺术（双语播音方向）本科 · 2021.09 - 2025.06</p>
-      </div>
-    </section>
 
-    <section class="card section">
-      <h2>经历摘要</h2>
-      <div class="task">
-        <strong>小红书内容创作实习 · 蛋壳科技有限公司 / hfp</strong>
-        <p class="hint">参与产品照片与生活方式内容拍摄，撰写种草笔记与推广文案，分析同类产品优质内容结构，并根据后台数据复盘选题与表达。</p>
-      </div>
-      <div class="task">
-        <strong>视频剪辑实习 · 鹰潭市融媒体中心</strong>
-        <p class="hint">负责创意视频制作、剪辑、发布与数据反馈分析，持续优化视频平台内容输出。</p>
-      </div>
-      <div class="task">
-        <strong>翻译助理 · 成都策马翻译</strong>
-        <p class="hint">参与传媒类文段与创意视频文案翻译、校对和质量审核。</p>
+      <div class="card timeline-card">
+        <h2>经历摘要</h2>
+        <div class="timeline-list">
+          <div class="task timeline-item">
+            <strong>小红书内容创作实习 · 蛋壳科技有限公司 / hfp</strong>
+            <p class="hint">参与产品照片与生活方式内容拍摄，撰写种草笔记与推广文案，分析同类产品优质内容结构，并根据后台数据复盘选题与表达。</p>
+          </div>
+          <div class="task timeline-item">
+            <strong>视频剪辑实习 · 鹰潭市融媒体中心</strong>
+            <p class="hint">负责创意视频制作、剪辑、发布与数据反馈分析，持续优化视频平台内容输出。</p>
+          </div>
+          <div class="task timeline-item">
+            <strong>翻译助理 · 成都策马翻译</strong>
+            <p class="hint">参与传媒类文段与创意视频文案翻译、校对和质量审核。</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -145,7 +167,7 @@
     </section>
 
     <section class="grid two" id="resume-contact">
-      <div class="card">
+      <div class="card contact-card">
         <h2>联系方式</h2>
         <div class="chips">
           <span class="chip">邮箱 kuailexiaohai27@gmail.com</span>
@@ -154,7 +176,7 @@
           <span class="chip">LinkedIn / 小红书 待补充</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card contact-card">
         <h2>社交链接</h2>
         <div class="links">
           <a class="link-card" href="mailto:kuailexiaohai27@gmail.com">邮箱 ↗<span class="tag">kuailexiaohai27@gmail.com</span></a>

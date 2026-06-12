@@ -12,7 +12,7 @@
   const EDIT_PREFIX = 'sage.edit.v2.';
   const BRAND_TAG_KEY = EDIT_PREFIX + 'brand.tag';
   const LEGACY_BRAND_KEYS = [EDIT_PREFIX + 'mobile.brand.tag', EDIT_PREFIX + 'side.brand.tag'];
-  const EDITABLE_SELECTOR = '.brand .tag, main .desc, main .sub, main .hint, main .task-title, main .task-meta, main .task-note, main .date-pill, main .chip, main .link-card .tag, main .profile-list p, main .term-card p, main .decision-card p, main td:not(:first-child)';
+  const EDITABLE_SELECTOR = '.brand .tag, main .desc, main .sub, main .hint, main .task-title, main .task-meta, main .task-note, main .date-pill, main .chip, main .link-card .tag, main .profile-list p, main .term-card p, main .decision-card p, main td:not(:first-child), .resume-editable h2, .resume-editable h3, .resume-editable .task strong, .resume-editable .editable-text';
 
   /* ── 页面与分支索引 ── */
   const PAGE_BY_HASH = {
@@ -105,7 +105,7 @@
 
   function saveEdits() {
     getEditables().forEach(function (el, index) {
-      var key = editableKey(index, el);
+      var key = el.dataset.editKey || editableKey(index, el);
       el.dataset.editKey = key;
       localStorage.setItem(key, el.innerHTML);
       el.dataset.original = el.innerHTML;

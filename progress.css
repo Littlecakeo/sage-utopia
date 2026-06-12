@@ -36,10 +36,10 @@
 }
 
 .task-form.progress-form {
-  grid-template-columns: 1.3fr .78fr .78fr .78fr .78fr .58fr .58fr .56fr auto;
-  gap: 8px;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 10px;
   margin-top: 12px;
-  align-items: center;
+  align-items: start;
 }
 
 .task-form.progress-form .field {
@@ -49,13 +49,25 @@
 
 .task-form.progress-form button[type=submit] {
   width: auto;
+  min-width: 92px;
   min-height: 42px;
   padding: 10px 14px;
   justify-self: start;
+  align-self: center;
 }
 
 .task-form.progress-form #itemTitle {
+  grid-column: 1 / -1;
+}
+
+.task-form.progress-form #itemSection,
+.task-form.progress-form #itemType {
   grid-column: span 2;
+}
+
+.task-form.progress-form #itemStart,
+.task-form.progress-form #itemDue {
+  min-width: 0;
 }
 
 .task-collapsible {
@@ -379,10 +391,16 @@
   }
 
   .task-form.progress-form #itemTitle,
-  .task-form.progress-form #itemSection,
-  .task-form.progress-form #itemType,
   .task-form.progress-form button[type=submit] {
     grid-column: 1 / -1;
+  }
+
+  .task-form.progress-form #itemSection {
+    grid-column: 1 / 2;
+  }
+
+  .task-form.progress-form #itemType {
+    grid-column: 2 / 3;
   }
 
   .task-form.progress-form #itemStart {
@@ -393,16 +411,12 @@
     grid-column: 2 / 3;
   }
 
-  .task-form.progress-form #itemTotal {
+  .task-form.progress-form #itemCurrent {
     grid-column: 1 / 2;
   }
 
-  .task-form.progress-form #itemCurrent {
+  .task-form.progress-form #itemTotal {
     grid-column: 2 / 3;
-  }
-
-  .task-form.progress-form #itemUnit {
-    grid-column: 1 / -1;
   }
 
   .task-form.progress-form .field {
@@ -435,7 +449,6 @@
 
   .task-form.progress-form #itemSection,
   .task-form.progress-form #itemType,
-  .task-form.progress-form #itemUnit,
   .task-form.progress-form #itemTotal,
   .task-form.progress-form #itemCurrent {
     grid-column: auto;
