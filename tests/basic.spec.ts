@@ -79,6 +79,24 @@ test('各页面本页分支会停在对应板块而不是回到顶部', async ({
   }
 });
 
+test('点击本页分支时左侧导航保持不动', async ({ page }) => {
+  await page.goto('/study.html');
+  await page.evaluate(() => {
+    const side = document.querySelector('.side');
+    if (side) side.scrollTop = 42;
+  });
+
+  const before = await page.evaluate(() => document.querySelector('.side')?.scrollTop ?? 0);
+  await page.getByRole('link', { name: '同步', exact: true }).click();
+  await page.waitForFunction(() => {
+    const target = document.getElementById('sync');
+    return !!target && window.scrollY > 40 && target.getBoundingClientRect().top < window.innerHeight;
+  });
+
+  const after = await page.evaluate(() => document.querySelector('.side')?.scrollTop ?? 0);
+  expect(after).toBe(before);
+});
+
 test('财务中心页面可以打开并显示支出记录入口', async ({ page }) => {
   await page.goto('/finance.html');
 
