@@ -37,6 +37,7 @@
   };
 
   let dirty = false;
+  let activeEditable = null;
 
   function pathKey() {
     var h = (location.hash || '').replace('#', '');
@@ -97,9 +98,28 @@
     });
   }
 
-  function markDirty() {
+  function positionSaveDock(target) {
+    var dock = document.querySelector('.edit-save-dock');
+    var source = target || activeEditable;
+    if (!dock || !source || !source.getBoundingClientRect) return;
+    var rect = source.getBoundingClientRect();
+    var dockRect = dock.getBoundingClientRect();
+    var gap = 10;
+    var left = rect.right + gap;
+    var top = rect.top + Math.max(0, (rect.height - dockRect.height) / 2);
+    if (left + dockRect.width > window.innerWidth - 10) {
+      left = Math.min(Math.max(10, rect.left), window.innerWidth - dockRect.width - 10);
+      top = rect.bottom + gap;
+    }
+    if (top + dockRect.height > window.innerHeight - 10) top = Math.max(10, rect.top - dockRect.height - gap);
+    dock.style.left = Math.round(Math.max(10, left)) + 'px';
+    dock.style.top = Math.round(Math.max(10, top)) + 'px';
+  }
+
+  function markDirty(target) {
     dirty = true;
     document.body.classList.add('has-unsaved-edits');
+    positionSaveDock(target);
   }
 
   function saveEdits() {
@@ -112,6 +132,7 @@
     });
     dirty = false;
     document.body.classList.remove('has-unsaved-edits');
+    activeEditable = null;
     toast('已保存更改');
   }
 
@@ -123,6 +144,7 @@
     });
     dirty = false;
     document.body.classList.remove('has-unsaved-edits');
+    activeEditable = null;
     toast('已放弃本次更改');
   }
 
@@ -178,18 +200,26 @@
   document.addEventListener('input', function (e) {
     var el = e.target;
     if (el && el.dataset && el.dataset.editable) {
+      activeEditable = el;
       syncBrandTags(el);
-      markDirty();
+      markDirty(el);
     }
   });
 
   document.addEventListener('focus', function (e) {
     var el = e.target;
-    if (el && el.dataset && el.dataset.editable && !sessionStorage.getItem('sage.edit.hint')) {
-      sessionStorage.setItem('sage.edit.hint', '1');
-      toast('可以直接改内容，记得保存更改');
+    if (el && el.dataset && el.dataset.editable) {
+      activeEditable = el;
+      if (dirty) positionSaveDock(el);
+      if (!sessionStorage.getItem('sage.edit.hint')) {
+        sessionStorage.setItem('sage.edit.hint', '1');
+        toast('可以直接改内容，记得保存更改');
+      }
     }
   }, true);
+
+  window.addEventListener('scroll', function () { if (dirty) positionSaveDock(); }, true);
+  window.addEventListener('resize', function () { if (dirty) positionSaveDock(); });
 
   window.addEventListener('beforeunload', function (e) {
     if (!dirty) return;

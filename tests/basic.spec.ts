@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('首页可以正常打开并显示主要内容', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   await expect(page).toHaveTitle(/Sage Utopia/i);
   await expect(page.getByRole('link', { name: /Sage Utopia/ }).first()).toBeVisible();
@@ -11,7 +11,7 @@ test('首页可以正常打开并显示主要内容', async ({ page }) => {
 });
 
 test('导航按钮可以点击并进入学习中心', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   await page.getByRole('link', { name: '学习中心' }).first().click();
   await expect(page).toHaveURL(/(study\.html|#study)$/);
@@ -19,7 +19,7 @@ test('导航按钮可以点击并进入学习中心', async ({ page }) => {
 });
 
 test('#study 学习中心区域和主要按钮渲染正常', async ({ page }) => {
-  await page.goto('/index.html#study');
+  await page.goto('/index.html#study', { waitUntil: 'domcontentloaded' });
 
   await expect(page).toHaveURL(/study\.html$/);
   await expect(page.getByRole('heading', { name: /学习中心/ }).first()).toBeVisible();
@@ -32,7 +32,7 @@ test('#study 学习中心区域和主要按钮渲染正常', async ({ page }) =>
 });
 
 test('侧边栏分支不会把子页面跳回首页', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   await page.getByRole('link', { name: '求职中心' }).first().click();
   await expect(page).toHaveURL(/career\.html$/);
@@ -44,7 +44,7 @@ test('侧边栏分支不会把子页面跳回首页', async ({ page }) => {
 });
 
 test('首页任务以小标题折叠展示并隐藏备注句子', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   await expect(page.getByText('每天记录看到第几页。')).toHaveCount(0);
   await expect(page.locator('#itemNote')).toHaveCount(0);
@@ -62,7 +62,7 @@ test('首页任务以小标题折叠展示并隐藏备注句子', async ({ page 
 });
 
 test('一次性待办任务使用前置勾选框', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   const taskList = page.locator('#taskList');
   const firstTodo = taskList.locator('.todo-row').first();
@@ -72,7 +72,7 @@ test('一次性待办任务使用前置勾选框', async ({ page }) => {
 });
 
 test('进度追踪记录后可以点开 Timetable 查看历史', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   let firstProgress = page.locator('#progressList details.task-collapsible').first();
   await firstProgress.locator('summary').click();
@@ -89,7 +89,7 @@ test('进度追踪记录后可以点开 Timetable 查看历史', async ({ page }
 
 test('网站小标语在移动端和侧栏之间同步保存', async ({ page }) => {
   await page.setViewportSize({ width: 599, height: 714 });
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   const text = '慢慢长大';
   await page.locator('.mobile .brand .tag').evaluate((el, value) => {
@@ -106,7 +106,7 @@ test('网站小标语在移动端和侧栏之间同步保存', async ({ page }) 
 
 test('首页新增目标表单保持正常宽度不拥挤', async ({ page }) => {
   await page.setViewportSize({ width: 1240, height: 714 });
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   const titleBox = await page.locator('#itemTitle').boundingBox();
   const sectionBox = await page.locator('#itemSection').boundingBox();
@@ -129,7 +129,7 @@ test('首页新增目标表单保持正常宽度不拥挤', async ({ page }) => 
 
 test('顶部导航在窄屏滚动时固定不跟随页面内容滑走', async ({ page }) => {
   await page.setViewportSize({ width: 651, height: 714 });
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   const before = await page.locator('.mobile').boundingBox();
   await page.evaluate(() => window.scrollTo(0, 650));
@@ -142,7 +142,7 @@ test('顶部导航在窄屏滚动时固定不跟随页面内容滑走', async ({
 
 test('移动端顶部导航把作品集合并进关于 Sage', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 714 });
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   const mobileNav = page.locator('.mobile');
   await expect(mobileNav.getByRole('link', { name: '作品集' })).toHaveCount(0);
@@ -156,7 +156,7 @@ test('移动端顶部导航把作品集合并进关于 Sage', async ({ page }) =
 
 test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 714 });
-  await page.goto('/resume.html');
+  await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => {
     const nav = document.querySelector('.mobile');
     const hero = document.querySelector('main > .hero');
@@ -178,7 +178,7 @@ test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
 
 test('桌面侧边栏滚动时保持固定', async ({ page }) => {
   await page.setViewportSize({ width: 1240, height: 714 });
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   const before = await page.locator('.side').boundingBox();
   await page.evaluate(() => window.scrollTo(0, 800));
@@ -201,7 +201,7 @@ test('各分支页面顶部只保留简洁标题', async ({ page }) => {
   ];
 
   for (const item of pages) {
-    await page.goto(item.url);
+    await page.goto(item.url, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('main > .hero').first()).toHaveClass(/page-title/);
     await expect(page.getByRole('heading', { name: item.title }).first()).toBeVisible();
     await expect(page.locator('main > .hero .desc').first()).toHaveCount(0);
@@ -218,7 +218,7 @@ test('各页面本页分支会停在对应板块而不是回到顶部', async ({
   ];
 
   for (const item of cases) {
-    await page.goto(item.url);
+    await page.goto(item.url, { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: item.label, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`${item.url.replace('/', '')}#${item.hash}$`));
     await page.waitForFunction(
@@ -247,7 +247,7 @@ test('各页面本页分支会停在对应板块而不是回到顶部', async ({
 });
 
 test('点击本页分支时左侧导航保持不动', async ({ page }) => {
-  await page.goto('/study.html');
+  await page.goto('/study.html', { waitUntil: 'domcontentloaded' });
   await page.evaluate(() => {
     const side = document.querySelector('.side');
     if (side) side.scrollTop = 42;
@@ -265,7 +265,7 @@ test('点击本页分支时左侧导航保持不动', async ({ page }) => {
 });
 
 test('财务中心页面可以打开并显示支出记录入口', async ({ page }) => {
-  await page.goto('/finance.html');
+  await page.goto('/finance.html', { waitUntil: 'domcontentloaded' });
 
   await expect(page).toHaveTitle(/财务中心/);
   await expect(page.getByRole('heading', { name: /财务中心/ }).first()).toBeVisible();
@@ -273,7 +273,7 @@ test('财务中心页面可以打开并显示支出记录入口', async ({ page 
 });
 
 test('求职表单按钮保持正常尺寸', async ({ page }) => {
-  await page.goto('/career.html');
+  await page.goto('/career.html', { waitUntil: 'domcontentloaded' });
 
   const save = page.getByRole('button', { name: '保存' });
   await expect(save).toBeVisible();
@@ -283,17 +283,17 @@ test('求职表单按钮保持正常尺寸', async ({ page }) => {
 });
 
 test('关于页可以访问且旧作品集链接跳到关于页作品集板块', async ({ page }) => {
-  await page.goto('/about.html');
+  await page.goto('/about.html', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/about\.html$/);
   await expect(page.getByRole('heading', { name: /Sage|桂维桢/ }).first()).toBeVisible();
 
-  await page.goto('/portfolio.html');
+  await page.goto('/portfolio.html', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/resume\.html#resume-portfolio$/);
   await expect(page.locator('#resume-portfolio').getByRole('heading', { name: '作品集' })).toBeVisible();
 });
 
 test('关于页资料板块可以直接编辑并保存', async ({ page }) => {
-  await page.goto('/resume.html');
+  await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
 
   const title = page.locator('#resume-about h2').first();
   await title.evaluate((el, value) => {
@@ -306,9 +306,29 @@ test('关于页资料板块可以直接编辑并保存', async ({ page }) => {
   await expect(page.locator('#resume-about h2').first()).toHaveText('我的介绍');
 });
 
+test('保存更改按钮会出现在当前编辑内容旁边', async ({ page }) => {
+  await page.setViewportSize({ width: 1240, height: 714 });
+  await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
+
+  const title = page.locator('#resume-about h2').first();
+  await title.evaluate((el, value) => {
+    el.textContent = value;
+    el.dispatchEvent(new InputEvent('input', { bubbles: true, data: value, inputType: 'insertText' }));
+  }, '关于我自己');
+
+  const saveButton = page.getByRole('button', { name: '保存更改' });
+  await expect(saveButton).toBeVisible();
+  const titleBox = await title.boundingBox();
+  const saveBox = await saveButton.boundingBox();
+
+  expect(saveBox?.y ?? 9999).toBeLessThan((titleBox?.y ?? 0) + 80);
+  expect(saveBox?.y ?? 0).toBeGreaterThan((titleBox?.y ?? 0) - 80);
+  expect(saveBox?.y ?? 0).toBeLessThan(500);
+});
+
 test('移动端首页没有横向溢出', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/index.html');
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
   const hasOverflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2,
