@@ -24,8 +24,16 @@
     .compact-stats .stat{grid-row:1/3;font-size:22px;line-height:1;margin:0;color:#34483e;text-align:left;min-width:34px}
     .compact-stats .hint{font-size:11px;font-weight:700;color:#8a958b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .home-section-title{margin:22px 0 8px;font-size:16px;color:#60785d;font-weight:900}
+    .dashboard-summary{display:block;padding:18px 20px}
+    .dashboard-summary .home-section-title{margin:0;font-size:18px;color:#506b58}
+    .dashboard-summary .section-note{margin:6px 0 16px;color:#789372;font-size:13px;font-weight:700;line-height:1.6}
+    .overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .overview-card{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:12px;padding:14px 16px;border:1px solid rgba(222,216,201,.78);border-radius:16px;background:rgba(255,253,248,.82);box-shadow:var(--shadow-soft)}
+    .overview-card .stat{grid-row:1/3;margin:0;min-width:34px;font-size:28px;line-height:1;color:#34483e}
+    .overview-card p{margin:0;color:#506b58;font-size:15px;font-weight:900;line-height:1.25}
+    .overview-card .hint{margin-top:4px;color:#7d8d80;font-size:12px;font-weight:700;line-height:1.45;white-space:normal;overflow:visible;text-overflow:clip}
     @media(max-width:900px){.quick-mini{grid-template-columns:repeat(3,1fr)}.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.quick-card{padding:14px;min-height:78px}.quick-card strong{font-size:15px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}}
-    @media(max-width:620px){.quick-mini{grid-template-columns:1fr 1fr 1fr;gap:8px}.quick-card{padding:12px 10px;min-height:72px}.quick-card strong{font-size:14px}.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.quote-card h1{font-size:38px}.quote-source{text-align:left}}
+    @media(max-width:620px){.quick-mini{grid-template-columns:1fr 1fr 1fr;gap:8px}.quick-card{padding:12px 10px;min-height:72px}.quick-card strong{font-size:14px}.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card h1{font-size:38px}.quote-source{text-align:left}}
   </style>
 </head>
 <body>
@@ -62,12 +70,13 @@
         <div class="card soft"><div class="stat" id="doneCount">0</div><p>已完成</p><p class="hint">完成记录</p></div>
       </section>
 
-      <section class="compact-stats section" aria-label="全站概览">
-        <h2 class="home-section-title">全站概览</h2>
-        <div class="compact-stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-          <div class="card peach"><div class="stat" id="dashCareer">0</div><p>求职中</p><p class="hint">面试+申请</p></div>
-          <div class="card soft"><div class="stat" id="dashGrowth">0</div><p>成长记录</p><p class="hint">总条数</p></div>
-          <div class="card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集</p><p class="hint">项目数</p></div>
+      <section class="card section dashboard-summary" aria-label="数据总览">
+        <h2 class="home-section-title">数据总览</h2>
+        <p class="section-note">这里汇总求职、成长记录和作品集的云端数据，新增内容后会自动更新。</p>
+        <div class="overview-grid">
+          <div class="overview-card peach"><div class="stat" id="dashCareer">0</div><p>求职进展</p><p class="hint">已申请和面试中的机会</p></div>
+          <div class="overview-card soft"><div class="stat" id="dashGrowth">0</div><p>成长记录</p><p class="hint">已保存的成长条数</p></div>
+          <div class="overview-card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集项目</p><p class="hint">已保存的公开项目</p></div>
         </div>
       </section>
 
