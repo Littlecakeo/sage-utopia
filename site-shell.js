@@ -4,7 +4,7 @@
   function loadHelpers(){loadCss('theme-refresh.css?v=8','sageTheme');loadScript('sage-ui.js?v=1','sageUI');loadScript('brand-edit-fix.js?v=2','brandEditFix')}
   loadHelpers();
   const PAGES={
-    home:{file:'index.html',label:'首页',branches:[['#quickAdd','快速新增'],['#taskBoard','操作区']]},
+    home:{file:'index.html',label:'首页',branches:[['#taskBoard','操作区']]},
     study:{file:'study.html',label:'学习中心',branches:[['#planner','课程'],['#assignments','作业'],['#links','官方链接'],['#sync','同步']]},
     career:{file:'career.html',label:'求职中心',branches:[['#careerOverview','概览'],['#careerFormSection','新增机会'],['#careerListSection','求职列表']]},
     finance:{file:'finance.html',label:'财务中心',branches:[['main .grid.three','概览'],['#expenseFormSection','记支出'],['#expenseListSection','支出列表']]},

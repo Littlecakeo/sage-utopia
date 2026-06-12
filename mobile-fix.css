@@ -28,10 +28,6 @@ button,
 }
 
 @media (max-width: 620px) {
-  .quick-mini {
-    grid-template-columns: 1fr !important;
-  }
-
   .quote-card h1 {
     overflow-wrap: anywhere;
   }
@@ -39,5 +35,57 @@ button,
   .compact-stats {
     width: 100%;
     overflow: hidden;
+  }
+}
+
+.hero.page-title {
+  padding: 18px 22px;
+  margin-bottom: 16px;
+  border-radius: 22px;
+}
+
+.hero.page-title h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.12;
+}
+
+.task-form:not(.progress-form) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.task-form:not(.progress-form) .form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  grid-column: 1 / -1;
+}
+
+.task-form:not(.progress-form) > .field,
+.task-form:not(.progress-form) > textarea.field,
+.task-form:not(.progress-form) > .note-field,
+.task-form:not(.progress-form) > label.hint {
+  grid-column: 1 / -1;
+}
+
+.task-form:not(.progress-form) > input.field:not(.note-field),
+.task-form:not(.progress-form) > select.field {
+  grid-column: auto;
+}
+
+.task-form:not(.progress-form) > button {
+  justify-self: start;
+  align-self: center;
+  width: auto;
+  min-width: 92px;
+  min-height: 40px;
+  padding: 10px 14px;
+  border-radius: 999px;
+}
+
+@media (max-width: 700px) {
+  .task-form:not(.progress-form),
+  .task-form:not(.progress-form) .form-row {
+    grid-template-columns: 1fr;
   }
 }

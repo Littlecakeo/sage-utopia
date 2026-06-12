@@ -25,7 +25,7 @@
   };
 
   const SECTION_INDEX = {
-    'index.html': [{ label: '快速新增', selector: '#quickAdd' }, { label: '操作区', selector: '#taskBoard' }],
+    'index.html': [{ label: '操作区', selector: '#taskBoard' }],
     'study.html': [{ label: '课程', selector: '#planner' }, { label: '作业', selector: '#assignments' }, { label: '官方链接', selector: '#links' }, { label: '同步', selector: '#sync' }],
     'career.html': [{ label: '概览', selector: '#careerOverview' }, { label: '新增机会', selector: '#careerFormSection' }, { label: '求职列表', selector: '#careerListSection' }],
     'finance.html': [{ label: '概览', selector: 'main .grid.three' }, { label: '记支出', selector: '#expenseFormSection' }, { label: '支出列表', selector: '#expenseListSection' }],

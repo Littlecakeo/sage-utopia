@@ -13,11 +13,6 @@
     .quote-date{margin:0 0 18px;font-size:16px;color:#60785d;font-weight:900;letter-spacing:0}
     .quote-source{margin:22px 0 0;font-size:15px;color:#60785d;font-weight:900;text-align:right}
     .quote-card h1{max-width:920px}
-    .quick-mini{grid-template-columns:repeat(3,1fr);margin-top:18px}
-    .quick-card{appearance:none;border:1px solid rgba(222,216,201,.82);text-align:left;color:var(--text);padding:16px;min-height:88px;box-shadow:var(--shadow-soft);background:rgba(255,253,248,.86)}
-    .quick-card span{display:block;color:#60785d;font-size:13px;font-weight:900;margin-bottom:8px}
-    .quick-card strong{display:block;font-size:17px;line-height:1.35}
-    .quick-card:hover{background:#fff;transform:translateY(-2px)}
     .compact-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
     .compact-stats .card{padding:10px 12px;border-radius:16px;box-shadow:0 8px 22px rgba(74,93,78,.08);display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;row-gap:2px;min-height:58px;background:rgba(255,253,248,.76)}
     .compact-stats .card p{margin:0;font-size:12px;font-weight:900;color:#60785d;line-height:1.15;white-space:nowrap}
@@ -32,8 +27,8 @@
     .overview-card .stat{grid-row:1/3;margin:0;min-width:34px;font-size:28px;line-height:1;color:#34483e}
     .overview-card p{margin:0;color:#506b58;font-size:15px;font-weight:900;line-height:1.25}
     .overview-card .hint{margin-top:4px;color:#7d8d80;font-size:12px;font-weight:700;line-height:1.45;white-space:normal;overflow:visible;text-overflow:clip}
-    @media(max-width:900px){.quick-mini{grid-template-columns:repeat(3,1fr)}.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.quick-card{padding:14px;min-height:78px}.quick-card strong{font-size:15px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}}
-    @media(max-width:620px){.quick-mini{grid-template-columns:1fr 1fr 1fr;gap:8px}.quick-card{padding:12px 10px;min-height:72px}.quick-card strong{font-size:14px}.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card h1{font-size:38px}.quote-source{text-align:left}}
+    @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}}
+    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card h1{font-size:38px}.quote-source{text-align:left}}
   </style>
 </head>
 <body>
@@ -55,12 +50,6 @@
         <p class="quote-date" id="dailyQuoteDate">26/06/05</p>
         <h1 id="dailyQuoteText">女性不是天生的 而是被塑造成的</h1>
         <p class="quote-source" id="dailyQuoteMeta">——西蒙娜·德·波伏娃《第二性》</p>
-      </section>
-
-      <section class="grid three quick-mini" id="quickAdd">
-        <button class="card soft quick-card" type="button" onclick="SageTasks.quickType('progress','进度追踪')"><span>进度</span><strong>记录页数或阶段</strong></button>
-        <button class="card soft quick-card" type="button" onclick="SageTasks.quickType('habit','习惯养成')"><span>习惯</span><strong>记录天数或次数</strong></button>
-        <button class="card soft quick-card" type="button" onclick="SageTasks.quickType('task','任务清单')"><span>任务</span><strong>记录待办和截止</strong></button>
       </section>
 
       <section class="compact-stats section" aria-label="状态概览">
@@ -102,7 +91,6 @@
           <input class="field" id="itemTotal" type="number" min="1" placeholder="总额度">
           <input class="field" id="itemCurrent" type="number" min="0" placeholder="当前">
           <input class="field" id="itemUnit" placeholder="单位">
-          <input class="field note-field" id="itemNote" placeholder="备注 可不填">
           <button type="submit">添加</button>
         </form>
         <p class="unit-hint">例子 阅读用页 习惯用天 作品集用步 普通任务用项</p>

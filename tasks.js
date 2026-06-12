@@ -92,7 +92,7 @@
       total: total, current: current,
       unit: document.getElementById('itemUnit').value.trim() || defaultUnit(section),
       done: current >= total,
-      note: document.getElementById('itemNote').value.trim()
+      note: ''
     });
     document.getElementById('itemForm').reset();
     saveItems(); renderItems();
@@ -149,21 +149,21 @@
     var percent = pct(item);
     var unit = item.unit || '项';
     var overdue = isOverdue(item);
-    return '<div class="task-row ' + (item.done ? 'done' : '') + '">' +
-      '<div class="task-card-top"><div>' +
+    return '<details class="task-row task-collapsible ' + (item.done ? 'done' : '') + '">' +
+      '<summary class="task-summary"><div class="task-card-top"><div>' +
       '<div class="task-title">' + escapeHTML(item.title) + '</div>' +
       '<div class="task-meta">' + escapeHTML(item.type) + ' · ' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + ' · ' + percent + '%</div></div>' +
-      '<span class="task-badge ' + (overdue ? 'overdue' : '') + '">' + (item.done ? '已完成' : overdue ? '已过期' : percent >= 70 ? '接近完成' : '进行中') + '</span></div>' +
+      '<span class="task-badge ' + (overdue ? 'overdue' : '') + '">' + (item.done ? '已完成' : overdue ? '已过期' : percent >= 70 ? '接近完成' : '进行中') + '</span></div></summary>' +
+      '<div class="task-details">' +
       '<div class="progress-track"><span class="progress-fill" style="width:' + percent + '%"></span></div>' +
       '<div class="progress-line"><span>进度 ' + percent + '%</span><span>' + item.current + '/' + item.total + ' ' + escapeHTML(unit) + '</span></div>' +
       '<div class="date-row">' + (item.start ? '<span class="date-pill">开始 ' + item.start + '</span>' : '') + (item.due ? '<span class="date-pill ' + (overdue ? 'overdue' : '') + '">计划截止 ' + item.due + '</span>' : '<span class="date-pill">长期保持</span>') + '</div>' +
-      (item.note ? '<div class="task-note">' + escapeHTML(item.note) + '</div>' : '') +
       '<div class="progress-update"><input class="field" id="progress-' + item.id + '" type="number" min="0" max="' + item.total + '" value="' + item.current + '" placeholder="更新当前进度">' +
       '<button class="mini ghost" data-action="update" data-id="' + item.id + '">记录</button></div>' +
       '<div class="task-actions">' +
       '<button class="mini ghost" data-action="' + (item.done ? 'restore' : 'complete') + '" data-id="' + item.id + '">' + (item.done ? '恢复' : '完成') + '</button>' +
       '<button class="mini danger" data-action="delete" data-id="' + item.id + '">删除</button>' +
-      '</div></div>';
+      '</div></div></details>';
   }
 
   function fillSection(section) {
