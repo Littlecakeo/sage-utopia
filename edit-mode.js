@@ -38,6 +38,7 @@
 
   let dirty = false;
   let activeEditable = null;
+  let siteContentCache = new Map();
 
   function pathKey() {
     var h = (location.hash || '').replace('#', '');
@@ -80,7 +81,21 @@
     });
   }
 
-  function loadEdits() {
+  async function loadSiteContent() {
+    siteContentCache = new Map();
+    if (!window.SageData) return;
+    try {
+      const rows = await window.SageData.loadAsync('siteContent');
+      rows.forEach(function (row) {
+        if (row.content_key) siteContentCache.set(row.content_key, row.html || '');
+      });
+    } catch (err) {
+      toast(err.message || '页面文案加载失败，请检查云端连接。');
+    }
+  }
+
+  async function loadEdits() {
+    await loadSiteContent();
     getEditables().forEach(function (el, index) {
       var key = editableKey(index, el);
       el.dataset.editable = 'true';
@@ -88,12 +103,13 @@
       el.dataset.original = el.innerHTML;
       el.contentEditable = 'true';
       el.spellcheck = false;
-      var saved = localStorage.getItem(key);
-      if (el.matches('.brand .tag')) saved = savedBrandTag();
+      var saved = siteContentCache.has(key) ? siteContentCache.get(key) : localStorage.getItem(key);
+      if (el.matches('.brand .tag') && !siteContentCache.has(key)) saved = savedBrandTag();
       if (saved !== null) {
         el.innerHTML = saved;
         el.dataset.original = saved;
       }
+      if (el.matches('.brand .tag')) syncBrandTags(el);
       el.classList.toggle('editable-empty', !el.textContent.trim());
     });
   }
@@ -122,18 +138,35 @@
     positionSaveDock(target);
   }
 
-  function saveEdits() {
-    getEditables().forEach(function (el, index) {
-      var key = el.dataset.editKey || editableKey(index, el);
-      el.dataset.editKey = key;
-      localStorage.setItem(key, el.innerHTML);
+  async function saveEdits() {
+    var editables = getEditables();
+    try {
+      await Promise.all(editables.map(function (el, index) {
+        var key = el.dataset.editKey || editableKey(index, el);
+        el.dataset.editKey = key;
+        localStorage.setItem(key, el.innerHTML);
+        if (el.matches('.brand .tag')) localStorage.setItem(BRAND_TAG_KEY, el.innerHTML);
+        if (!window.SageData) return Promise.resolve();
+        return window.SageData.cloudUpsertBy('siteContent', 'content_key', key, {
+          content_key: key,
+          page_key: pathKey(),
+          selector_hint: el.tagName.toLowerCase() + (el.id ? '#' + el.id : ''),
+          html: el.innerHTML,
+          plain_text: el.textContent.trim()
+        });
+      }));
+    } catch (err) {
+      toast(err.message || '保存失败，请先解锁管理模式并检查 Supabase。');
+      return;
+    }
+    editables.forEach(function (el) {
       el.dataset.original = el.innerHTML;
       el.classList.toggle('editable-empty', !el.textContent.trim());
     });
     dirty = false;
     document.body.classList.remove('has-unsaved-edits');
     activeEditable = null;
-    toast('已保存更改');
+    toast('已保存到云端');
   }
 
   function discardEdits() {
@@ -190,9 +223,9 @@
     }
   }
 
-  function initSageEditMode() {
+  async function initSageEditMode() {
     addSectionIndex();
-    loadEdits();
+    await loadEdits();
     addSaveDock();
   }
 

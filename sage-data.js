@@ -2,7 +2,7 @@
  * sage-data.js v2.0
  * ─────────────────────────────────────
  * Sage Utopia · 统一数据层
- * 所有模块通过本模块读写。Supabase 配置存在时优先云端，
+ * 所有模块通过本模块读写。Supabase 配置存在时以云端为准，
  * 未配置时保留 localStorage 本地模式，方便本地预览和迁移。
  */
 (function () {
@@ -18,6 +18,8 @@
     profile:   'sage.profile.v1',
     sync:      'sage.sync.ical.v1',
     study:     'sage.study.planV3',
+    siteContent: 'sage.site.content.v1',
+    settings: 'sage.settings.v1',
   };
 
   /* ── Schema 定义（最小校验）────────────────────────── */
@@ -30,6 +32,8 @@
     profile:   { type: 'array', desc: '个人资料' },
     sync:      { type: 'array', desc: '同步事件' },
     study:     { type: 'array', desc: '学习计划' },
+    siteContent: { type: 'array', desc: '页面文案' },
+    settings: { type: 'array', desc: '站点设置' },
   };
 
   /* ── Schema 校验 ───────────────────────────────────── */
@@ -78,14 +82,10 @@
 
   async function loadAsync(module) {
     if (window.SageCloudData && window.SageCloudData.hasConfig) {
-      try {
-        const cloud = await window.SageCloudData.list(module);
-        if (Array.isArray(cloud)) {
-          saveLocalOnly(module, cloud);
-          return cloud;
-        }
-      } catch (e) {
-        console.warn('[sage-data] cloud load fallback:', module, e);
+      const cloud = await window.SageCloudData.list(module);
+      if (Array.isArray(cloud)) {
+        saveLocalOnly(module, cloud);
+        return cloud;
       }
     }
     return load(module);
@@ -122,6 +122,15 @@
     } catch (e) {
       console.warn('[sage-data] local cache save error:', module, e);
     }
+  }
+
+  function notifyCloudError(err, fallback) {
+    const text = (err && err.message) || fallback || '云端操作失败，请检查 Supabase 配置。';
+    if (window.SageUI && window.SageUI.toast) {
+      window.SageUI.toast(text);
+      return;
+    }
+    console.warn('[sage-data] cloud error:', text);
   }
 
   /* ── 生成唯一 ID ───────────────────────────────────── */
@@ -162,8 +171,9 @@
       try {
         const saved = await window.SageCloudData.create(module, item);
         if (saved) return saved;
-      } catch (e) {
-        console.warn('[sage-data] cloud add fallback:', module, e);
+      } catch (err) {
+        notifyCloudError(err, '保存失败，请检查云端连接。');
+        throw err;
       }
     }
     return add(module, item);
@@ -174,8 +184,9 @@
       try {
         const saved = await window.SageCloudData.update(module, id, updates);
         if (saved) return saved;
-      } catch (e) {
-        console.warn('[sage-data] cloud update fallback:', module, e);
+      } catch (err) {
+        notifyCloudError(err, '更新失败，请检查云端连接。');
+        throw err;
       }
     }
     return update(module, id, updates);
@@ -186,17 +197,37 @@
       try {
         await window.SageCloudData.remove(module, id);
         return;
-      } catch (e) {
-        console.warn('[sage-data] cloud remove fallback:', module, e);
+      } catch (err) {
+        notifyCloudError(err, '删除失败，请检查云端连接。');
+        throw err;
       }
     }
     remove(module, id);
   }
 
+  async function cloudUpsertBy(module, column, value, item) {
+    if (window.SageCloudData && window.SageCloudData.hasConfig) {
+      try {
+        const saved = await window.SageCloudData.upsertBy(module, column, value, item);
+        if (saved) return saved;
+      } catch (err) {
+        notifyCloudError(err, '保存失败，请检查云端连接。');
+        throw err;
+      }
+    }
+    const list = load(module);
+    const idx = list.findIndex(i => i[column] === value);
+    const next = { ...item, [column]: value, id: item.id || uid(module) };
+    if (idx === -1) list.unshift(next);
+    else list[idx] = { ...list[idx], ...next };
+    save(module, list);
+    return next;
+  }
+
   /* ── 导出 ──────────────────────────────────────────── */
   window.SageData = {
     load, loadAsync, save, saveLocalOnly, uid, getAll, getById, add, update, remove, query,
-    cloudAdd, cloudUpdate, cloudRemove, KEYS, SCHEMAS, validate: validateData
+    cloudAdd, cloudUpdate, cloudRemove, cloudUpsertBy, KEYS, SCHEMAS, validate: validateData
   };
   console.log('[sage-data] v1.1 loaded — modules:', Object.keys(KEYS).join(', '), '(+schema validation)');
 })();

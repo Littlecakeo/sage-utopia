@@ -14,11 +14,11 @@
 
   /* ── 默认数据 ── */
   const defaults = [
-    { id: 'progress-book', section: 'progress', title: '读完一本传播学相关书', type: '阅读', start: '2026-06-05', due: '2026-07-05', total: 320, current: 48, unit: '页', done: false, note: '每天记录看到第几页。' },
-    { id: 'progress-portfolio', section: 'progress', title: '整理作品集首页', type: '作品集', start: '2026-06-05', due: '2026-06-16', total: 5, current: 1, unit: '步', done: false, note: '封面、项目简介、负责内容、成果展示、联系方式。' },
-    { id: 'habit-reading', section: 'habit', title: '每天阅读 20 分钟', type: '阅读习惯', start: '2026-06-05', due: '', total: 30, current: 3, unit: '天', done: false, note: '适合记录连续天数或本月完成次数。' },
-    { id: 'habit-portfolio', section: 'habit', title: '每周更新一次作品集', type: '成长习惯', start: '2026-06-05', due: '', total: 12, current: 1, unit: '次', done: false, note: '每次只补充一个小地方也算。' },
-    { id: 'task-moodle', section: 'task', title: '检查 Moodle 作业截止日期', type: '学习任务', start: '2026-06-05', due: '2026-06-08', total: 1, current: 0, unit: '项', done: false, note: '同步中心可以辅助整理。' }
+    { id: 'progress-book', section: 'progress', title: '读完一本传播学相关书', type: '阅读', start: '2026-06-05', due: '2026-07-05', total: 320, current: 48, unit: '页', done: false, note: '' },
+    { id: 'progress-portfolio', section: 'progress', title: '整理作品集首页', type: '作品集', start: '2026-06-05', due: '2026-06-16', total: 5, current: 1, unit: '步', done: false, note: '' },
+    { id: 'habit-reading', section: 'habit', title: '每天阅读 20 分钟', type: '阅读习惯', start: '2026-06-05', due: '', total: 30, current: 3, unit: '天', done: false, note: '' },
+    { id: 'habit-portfolio', section: 'habit', title: '每周更新一次作品集', type: '成长习惯', start: '2026-06-05', due: '', total: 12, current: 1, unit: '次', done: false, note: '' },
+    { id: 'task-moodle', section: 'task', title: '检查 Moodle 作业截止日期', type: '学习任务', start: '2026-06-05', due: '2026-06-08', total: 1, current: 0, unit: '项', done: false, note: '' }
   ];
 
   let items = [];
@@ -68,25 +68,29 @@
   function isOverdue(item) { if (item.done || !item.due) return false; var d = new Date(item.due + 'T00:00:00'); var now = new Date(todayISO() + 'T00:00:00'); return (d - now) / 86400000 < 0; }
 
   /* ── 数据读写（通过 SageData 统一数据层） ── */
-  function loadItems() {
+  async function loadItems() {
     try {
-      var list = window.SageData ? window.SageData.getAll(MODULE) : null;
+      var list = window.SageData ? await window.SageData.loadAsync(MODULE) : null;
       if (!list || !list.length) {
-        // v1 → v2 迁移
-        var old = JSON.parse(localStorage.getItem(OLD_KEY) || 'null');
-        list = old ? old.map(normalize) : defaults;
+        if (window.SageCloudData && window.SageCloudData.hasConfig) {
+          list = [];
+        } else {
+          // v1 → v2 迁移
+          var old = JSON.parse(localStorage.getItem(OLD_KEY) || 'null');
+          list = old ? old.map(normalize) : defaults;
+        }
       }
       items = list.map(normalize);
-      saveItems();
+      saveLocalItems();
     } catch {
-      items = defaults;
-      saveItems();
+      items = [];
+      say('云端任务加载失败，请检查 Supabase 表结构和环境变量。');
     }
   }
 
-  function saveItems() {
+  function saveLocalItems() {
     if (window.SageData) {
-      window.SageData.save(MODULE, items);
+      window.SageData.saveLocalOnly(MODULE, items);
     } else {
       // fallback：SageData 未加载时直接写 localStorage
       try { localStorage.setItem('sage.progress.items.v2', JSON.stringify(items)); } catch (e) { console.error('[tasks] save error:', e); }
@@ -101,7 +105,7 @@
     var board = document.getElementById('taskBoard'); if (board) board.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function addItem(e) {
+  async function addItem(e) {
     e.preventDefault();
     var title = document.getElementById('itemTitle').value.trim();
     if (!title) return;
@@ -109,7 +113,7 @@
     var current = clamp(num(document.getElementById('itemCurrent').value, 0), 0, total);
     var section = document.getElementById('itemSection').value;
     var type = document.getElementById('itemType').value.trim() || sectionMeta[section].title;
-    items.unshift({
+    var item = {
       id: window.SageData ? window.SageData.uid('item') : ('item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)),
       section: section, title: title,
       type: type,
@@ -119,53 +123,91 @@
       unit: defaultUnit(section, type, title),
       done: current >= total,
       note: ''
-    });
+    };
+    try {
+      var saved = await window.SageData.cloudAdd(MODULE, item);
+      items.unshift(normalize(saved || item));
+      saveLocalItems();
+    } catch (err) {
+      say(err.message || '保存失败，请先解锁管理模式并检查云端连接。');
+      return;
+    }
     document.getElementById('itemForm').reset();
-    saveItems(); renderItems();
-    say('已收好啦。它已经放进对应分区，可以直接记录进度。');
+    renderItems();
+    say('已收好啦。它已经保存到云端。');
   }
 
-  function updateProgress(id) {
+  async function updateProgress(id) {
     var input = document.getElementById('progress-' + id);
-    items = items.map(function (item) {
-      if (item.id !== id) return item;
-      var total = Math.max(num(item.total, 1), 1);
-      var current = clamp(num(input.value, item.current), 0, total);
-      var history = Array.isArray(item.history) ? item.history.slice() : [];
-      history.push({ at: new Date().toISOString(), current: current, total: total, unit: item.unit || '项' });
-      return Object.assign({}, item, { current: current, done: current >= total, history: history });
-    });
-    saveItems(); renderItems();
+    var idx = items.findIndex(function (item) { return item.id === id; });
+    if (idx === -1) return;
+    var item = items[idx];
+    var total = Math.max(num(item.total, 1), 1);
+    var current = clamp(num(input.value, item.current), 0, total);
+    var history = Array.isArray(item.history) ? item.history.slice() : [];
+    history.push({ at: new Date().toISOString(), current: current, total: total, unit: item.unit || '项' });
+    var next = Object.assign({}, item, { current: current, done: current >= total, history: history });
+    try {
+      var saved = await window.SageData.cloudUpdate(MODULE, id, next);
+      items[idx] = normalize(saved || next);
+      saveLocalItems();
+    } catch (err) {
+      say(err.message || '进度保存失败，请检查云端连接。');
+      return;
+    }
+    renderItems();
     say('进度更新好了。慢慢推进也很厉害。');
   }
 
-  function completeItem(id) {
-    items = items.map(function (item) {
-      if (item.id !== id) return item;
-      prevCurrents.set(id, item.current); // 内存缓存，不持久化到 localStorage
-      return Object.assign({}, item, { current: Math.max(num(item.total, 1), 1), done: true });
-    });
-    saveItems(); renderItems();
+  async function completeItem(id) {
+    var idx = items.findIndex(function (item) { return item.id === id; });
+    if (idx === -1) return;
+    var item = items[idx];
+    prevCurrents.set(id, item.current);
+    var next = Object.assign({}, item, { current: Math.max(num(item.total, 1), 1), done: true });
+    try {
+      var saved = await window.SageData.cloudUpdate(MODULE, id, next);
+      items[idx] = normalize(saved || next);
+      saveLocalItems();
+    } catch (err) {
+      say(err.message || '完成状态保存失败，请检查云端连接。');
+      return;
+    }
+    renderItems();
     say('完成啦，给今天的自己一点掌声。');
   }
 
-  function restoreItem(id) {
-    items = items.map(function (item) {
-      if (item.id !== id) return item;
-      var prev = prevCurrents.get(id);
-      var restored = prev != null ? prev : Math.min(num(item.current, 0), Math.max(num(item.total, 1) - 1, 0));
-      prevCurrents.delete(id);
-      return Object.assign({}, item, { done: false, current: restored });
-    });
-    saveItems(); renderItems();
+  async function restoreItem(id) {
+    var idx = items.findIndex(function (item) { return item.id === id; });
+    if (idx === -1) return;
+    var item = items[idx];
+    var prev = prevCurrents.get(id);
+    var restored = prev != null ? prev : Math.min(num(item.current, 0), Math.max(num(item.total, 1) - 1, 0));
+    prevCurrents.delete(id);
+    var next = Object.assign({}, item, { done: false, current: restored });
+    try {
+      var saved = await window.SageData.cloudUpdate(MODULE, id, next);
+      items[idx] = normalize(saved || next);
+      saveLocalItems();
+    } catch (err) {
+      say(err.message || '恢复状态保存失败，请检查云端连接。');
+      return;
+    }
+    renderItems();
     say('已恢复，继续加油。');
   }
 
-  function deleteItem(id) {
+  async function deleteItem(id) {
     if (!confirm('确定删除这一项吗？')) return;
-    items = items.filter(function (item) { return item.id !== id; });
-    openHistories.delete(id);
-    saveItems(); renderItems();
+    try {
+      await window.SageData.cloudRemove(MODULE, id);
+      items = items.filter(function (item) { return item.id !== id; });
+      openHistories.delete(id);
+      saveLocalItems();
+      renderItems();
+    } catch (err) {
+      say(err.message || '删除失败，请检查云端连接。');
+    }
   }
 
   function toggleHistory(id) {
@@ -296,8 +338,9 @@
   /* ── 初始化 ── */
   var _itemForm = document.getElementById('itemForm');
   if (_itemForm) _itemForm.addEventListener('submit', addItem);
-  loadItems();
-  renderItems();
-  bindTaskContainer();
+  loadItems().then(function () {
+    renderItems();
+    bindTaskContainer();
+  });
 
 })();

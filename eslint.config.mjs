@@ -23,6 +23,7 @@ export default [
         ...globals.node,
         __SAGE_SUPABASE_URL__: 'readonly',
         __SAGE_SUPABASE_ANON_KEY__: 'readonly',
+        __SAGE_ADMIN_PASSCODE__: 'readonly',
       },
     },
     rules: {

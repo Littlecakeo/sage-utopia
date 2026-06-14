@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
     define: {
       __SAGE_SUPABASE_URL__: JSON.stringify(env.NEXT_PUBLIC_SUPABASE_URL || ''),
       __SAGE_SUPABASE_ANON_KEY__: JSON.stringify(env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''),
+      __SAGE_ADMIN_PASSCODE__: JSON.stringify(env.NEXT_PUBLIC_ADMIN_PASSCODE || ''),
     },
     build: {
       rollupOptions: {

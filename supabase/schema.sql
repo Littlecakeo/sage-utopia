@@ -88,6 +88,56 @@ create table if not exists portfolio_projects (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists task_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid null,
+  section text not null default 'task',
+  title text not null,
+  type text,
+  start_date date,
+  due_date date,
+  total numeric(12,2) not null default 1,
+  current numeric(12,2) not null default 0,
+  unit text not null default '项',
+  done boolean not null default false,
+  note text,
+  history jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists growth_entries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid null,
+  entry_date date not null default current_date,
+  mood text,
+  content text not null,
+  tags text[] not null default '{}',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists site_content (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid null,
+  content_key text not null unique,
+  page_key text,
+  selector_hint text,
+  html text not null default '',
+  plain_text text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists app_settings (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid null,
+  setting_key text not null unique,
+  value jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create or replace function set_updated_at()
 returns trigger as $$
 begin
@@ -113,3 +163,76 @@ create trigger expenses_set_updated_at before update on expenses for each row ex
 
 drop trigger if exists portfolio_projects_set_updated_at on portfolio_projects;
 create trigger portfolio_projects_set_updated_at before update on portfolio_projects for each row execute function set_updated_at();
+
+drop trigger if exists task_items_set_updated_at on task_items;
+create trigger task_items_set_updated_at before update on task_items for each row execute function set_updated_at();
+
+drop trigger if exists growth_entries_set_updated_at on growth_entries;
+create trigger growth_entries_set_updated_at before update on growth_entries for each row execute function set_updated_at();
+
+drop trigger if exists site_content_set_updated_at on site_content;
+create trigger site_content_set_updated_at before update on site_content for each row execute function set_updated_at();
+
+drop trigger if exists app_settings_set_updated_at on app_settings;
+create trigger app_settings_set_updated_at before update on app_settings for each row execute function set_updated_at();
+
+alter table profile enable row level security;
+alter table courses enable row level security;
+alter table assignments enable row level security;
+alter table job_applications enable row level security;
+alter table expenses enable row level security;
+alter table portfolio_projects enable row level security;
+alter table task_items enable row level security;
+alter table growth_entries enable row level security;
+alter table site_content enable row level security;
+alter table app_settings enable row level security;
+
+drop policy if exists "sage_public_read_profile" on profile;
+create policy "sage_public_read_profile" on profile for select using (true);
+drop policy if exists "sage_public_write_profile" on profile;
+create policy "sage_public_write_profile" on profile for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_courses" on courses;
+create policy "sage_public_read_courses" on courses for select using (true);
+drop policy if exists "sage_public_write_courses" on courses;
+create policy "sage_public_write_courses" on courses for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_assignments" on assignments;
+create policy "sage_public_read_assignments" on assignments for select using (true);
+drop policy if exists "sage_public_write_assignments" on assignments;
+create policy "sage_public_write_assignments" on assignments for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_job_applications" on job_applications;
+create policy "sage_public_read_job_applications" on job_applications for select using (true);
+drop policy if exists "sage_public_write_job_applications" on job_applications;
+create policy "sage_public_write_job_applications" on job_applications for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_expenses" on expenses;
+create policy "sage_public_read_expenses" on expenses for select using (true);
+drop policy if exists "sage_public_write_expenses" on expenses;
+create policy "sage_public_write_expenses" on expenses for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_portfolio_projects" on portfolio_projects;
+create policy "sage_public_read_portfolio_projects" on portfolio_projects for select using (true);
+drop policy if exists "sage_public_write_portfolio_projects" on portfolio_projects;
+create policy "sage_public_write_portfolio_projects" on portfolio_projects for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_task_items" on task_items;
+create policy "sage_public_read_task_items" on task_items for select using (true);
+drop policy if exists "sage_public_write_task_items" on task_items;
+create policy "sage_public_write_task_items" on task_items for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_growth_entries" on growth_entries;
+create policy "sage_public_read_growth_entries" on growth_entries for select using (true);
+drop policy if exists "sage_public_write_growth_entries" on growth_entries;
+create policy "sage_public_write_growth_entries" on growth_entries for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_site_content" on site_content;
+create policy "sage_public_read_site_content" on site_content for select using (true);
+drop policy if exists "sage_public_write_site_content" on site_content;
+create policy "sage_public_write_site_content" on site_content for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_app_settings" on app_settings;
+create policy "sage_public_read_app_settings" on app_settings for select using (true);
+drop policy if exists "sage_public_write_app_settings" on app_settings;
+create policy "sage_public_write_app_settings" on app_settings for all using (true) with check (true);

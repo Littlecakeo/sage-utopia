@@ -8,7 +8,7 @@
 
   const MODULE = 'growth';
   function load()    { return window.SageData?.getAll(MODULE) || []; }
-  function save(list) { window.SageData?.save(MODULE, list); }
+  function saveLocal(list) { window.SageData?.saveLocalOnly(MODULE, list); }
   function uid()      { return window.SageData?.uid('grow') || ('grow-' + Date.now()); }
 
   function renderStats() {
@@ -46,7 +46,7 @@
       </div>`;
   }
 
-  window.growthAdd = function (e) {
+  window.growthAdd = async function (e) {
     e.preventDefault();
     const content = document.getElementById('growthContent')?.value.trim();
     if (!content) return;
@@ -58,16 +58,29 @@
       tags: parseTags(document.getElementById('growthTags')?.value || ''),
       createdAt: new Date().toISOString(),
     };
-    const list = load(); list.unshift(entry); save(list);
+    let saved;
+    try {
+      saved = await window.SageData.cloudAdd(MODULE, entry);
+    } catch (err) {
+      say(err.message || '成长记录保存失败，请先解锁管理模式并检查云端连接。');
+      return;
+    }
+    const list = load(); list.unshift(saved || entry); saveLocal(list);
     document.getElementById('growthForm')?.reset();
     const dateInput = document.getElementById('growthDate');
     if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
-    refresh(); say('已记录，今天的你也很好。');
+    refresh(); say('已保存到云端，今天的你也很好。');
   };
 
-  window.growthDelete = function (id) {
+  window.growthDelete = async function (id) {
     if (!confirm('确定删除这条记录吗？')) return;
-    save(load().filter(e => e.id !== id)); refresh();
+    try {
+      await window.SageData.cloudRemove(MODULE, id);
+      saveLocal(load().filter(e => e.id !== id));
+      refresh();
+    } catch (err) {
+      say(err.message || '删除失败，请检查云端连接。');
+    }
   };
 
   function parseTags(str) {
@@ -93,13 +106,19 @@
     el.dataset._sageGrowthBound = '1';
   }
 
-  function init() {
+  async function init() {
     if (window.__growthInited) return;
     window.__growthInited = true;
     const form = document.getElementById('growthForm');
     if (form) form.addEventListener('submit', window.growthAdd);
     const dateInput = document.getElementById('growthDate');
     if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
+    try {
+      const cloud = await (window.SageData?.loadAsync(MODULE) || Promise.resolve([]));
+      saveLocal(cloud);
+    } catch (err) {
+      say(err.message || '成长记录加载失败，请检查云端连接。');
+    }
     refresh();
   }
 
