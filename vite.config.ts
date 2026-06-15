@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
       __SAGE_ADMIN_PASSCODE__: JSON.stringify(env.NEXT_PUBLIC_ADMIN_PASSCODE || ''),
     },
     build: {
+      assetsDir: '',
       rollupOptions: {
         input: {
           index: 'index.html',
@@ -19,8 +20,12 @@ export default defineConfig(({ mode }) => {
           finance: 'finance.html',
           growth: 'growth.html',
           resume: 'resume.html',
-          portfolio: 'portfolio.html',
           about: 'about.html',
+        },
+        output: {
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name].js',
+          assetFileNames: '[name][extname]',
         },
       },
     },

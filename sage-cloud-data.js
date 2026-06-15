@@ -1,9 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = typeof __SAGE_SUPABASE_URL__ !== 'undefined' ? __SAGE_SUPABASE_URL__ : '';
+const runtimeEnv = (typeof window !== 'undefined' && window.__SAGE_ENV__) || {};
+const SUPABASE_URL =
+  runtimeEnv.NEXT_PUBLIC_SUPABASE_URL ||
+  (typeof __SAGE_SUPABASE_URL__ !== 'undefined' ? __SAGE_SUPABASE_URL__ : '');
 const SUPABASE_ANON_KEY =
-  typeof __SAGE_SUPABASE_ANON_KEY__ !== 'undefined' ? __SAGE_SUPABASE_ANON_KEY__ : '';
-const ADMIN_PASSCODE = typeof __SAGE_ADMIN_PASSCODE__ !== 'undefined' ? __SAGE_ADMIN_PASSCODE__ : '';
+  runtimeEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  (typeof __SAGE_SUPABASE_ANON_KEY__ !== 'undefined' ? __SAGE_SUPABASE_ANON_KEY__ : '');
+const ADMIN_PASSCODE =
+  runtimeEnv.NEXT_PUBLIC_ADMIN_PASSCODE ||
+  (typeof __SAGE_ADMIN_PASSCODE__ !== 'undefined' ? __SAGE_ADMIN_PASSCODE__ : '');
 
 const MODULE_TABLES = {
   study: 'courses',

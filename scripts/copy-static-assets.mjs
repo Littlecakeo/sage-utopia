@@ -1,13 +1,20 @@
 import { copyFile, mkdir } from 'node:fs/promises';
 
 const staticFiles = [
+  '.nojekyll',
+  'portfolio.html',
   'brand-edit-fix.js',
   'career.js',
+  'cloud-sync.css',
   'cloud-sync.js',
+  'compact.css',
+  'edit-mode.css',
   'edit-mode.js',
   'finance.js',
   'growth.js',
+  'mobile-fix.css',
   'portfolio.js',
+  'progress.css',
   'resume.js',
   'sage-cloud-sync.js',
   'sage-data.js',
@@ -15,7 +22,9 @@ const staticFiles = [
   'sage-ui.js',
   'site-shell.js',
   'study.js',
+  'style.css',
   'tasks.js',
+  'theme-refresh.css',
 ];
 
 await mkdir('dist', { recursive: true });
