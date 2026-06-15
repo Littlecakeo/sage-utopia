@@ -173,3 +173,7 @@ h1,h2,h3,h4,.hero h1,.quote-card h1,.profile-title{
 .course-title,.task-title,.link-card strong,.quick-card strong{
   font-family:var(--font-sans-cn)!important;
 }
+
+#data-management{
+  margin-bottom:180px;
+}
