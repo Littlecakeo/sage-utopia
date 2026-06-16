@@ -9,6 +9,7 @@ const requiredFiles = [
   'portfolio.html',
   'about.html',
   'resume.html',
+  'friends.html',
   'sage-cloud-data.js',
   'style.css',
   'mobile-fix.css',
@@ -31,6 +32,7 @@ const requiredAnchors = [
   'career.html',
   'finance.html',
   'growth.html',
+  'friends.html',
   'resume.html',
 ];
 
@@ -52,6 +54,7 @@ const pagesWithCloud = [
   'dist/finance.html',
   'dist/growth.html',
   'dist/resume.html',
+  'dist/friends.html',
   'dist/about.html',
 ];
 

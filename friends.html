@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sage Utopia｜朋友留言板</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="guestbook.css">
+</head>
+<body class="friend-page" data-public-page="friends">
+  <div class="friend-shell">
+    <header class="friend-top">
+      <a class="friend-brand" href="index.html">
+        <span class="leaf"></span>
+        <span>Sage Utopia<small>朋友留言板</small></span>
+      </a>
+      <nav class="friend-nav" aria-label="朋友入口导航">
+        <a class="active" href="#guestbook">留言板</a>
+        <a href="#friend-home">首页简介</a>
+        <a href="#friend-about">关于 Sage</a>
+        <a href="index.html">返回首页</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="friend-hero">
+        <div class="friend-title-card">
+          <p class="friend-kicker">SAGE'S FRIEND</p>
+          <h1>写一张小纸条，贴在 Sage 的校园留言板上。</h1>
+          <p>这里是朋友入口。第一次进入时设置昵称、用户名和密码；之后用同一组用户名密码回来继续留言。</p>
+        </div>
+
+        <section class="friend-gate-card" id="friendGate" aria-label="朋友入口">
+          <h2>Sage's friend</h2>
+          <p>这个入口不会进入 Sage 的管理模式，只用于留言。</p>
+          <form class="friend-form" id="friendGateForm">
+            <input class="friend-field" id="friendName" name="friendName" autocomplete="name" maxlength="40" placeholder="昵称 例如 小林🌱 / Lin!" required>
+            <input class="friend-field" id="friendUsername" name="friendUsername" autocomplete="username" maxlength="32" placeholder="用户名 仅英文/数字/符号" required>
+            <input class="friend-field" id="friendPassword" name="friendPassword" type="password" autocomplete="current-password" minlength="4" placeholder="密码" required>
+            <button class="friend-button" type="submit">进入留言板</button>
+          </form>
+          <p class="friend-error" id="friendGateError" role="status" aria-live="polite"></p>
+        </section>
+      </section>
+
+      <div id="friendArea" hidden>
+        <section class="friend-section" id="guestbook">
+          <div style="display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <h2>校园留言板</h2>
+              <p class="sub">欢迎你，<span id="friendVisitorName">朋友</span>。写完后所有朋友都能看到。</p>
+            </div>
+            <button class="friend-chip" id="friendSwitchName" type="button">换一个名字</button>
+          </div>
+
+          <div class="guestbook-board">
+            <form class="guestbook-compose" id="guestbookForm" data-guest-write="true">
+              <label>
+                留一张小纸条
+                <textarea class="friend-message" id="guestbookMessage" maxlength="500" placeholder="可以写祝福、近况、悄悄话、emoji、中文、英文或符号。" required></textarea>
+              </label>
+              <button class="friend-button guestbook-submit" type="submit">贴上去</button>
+            </form>
+            <p class="friend-status" id="guestbookStatus" role="status" aria-live="polite"></p>
+            <div class="note-grid" id="guestbookList" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section class="friend-section" id="friend-home">
+          <h2>首页简介</h2>
+          <p class="sub">Sage Utopia 是一个慢慢长大的中文留学生活小屋，记录学习、求职、财务、成长和作品集。</p>
+          <div class="friend-readonly-grid">
+            <div class="friend-readonly-card">
+              <strong>柔软有序</strong>
+              <p>把复杂的生活拆成可以被记录、被回看、被轻轻推进的小步骤。</p>
+            </div>
+            <div class="friend-readonly-card">
+              <strong>云端保存</strong>
+              <p>重要内容连接 Supabase，刷新和换设备后仍能继续看到。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="friend-section" id="friend-about">
+          <h2>关于 Sage</h2>
+          <p class="sub">关注新媒体内容、品牌传播、数字营销和用户洞察。喜欢把创意、表达和数据放在一起思考。</p>
+          <div class="friend-readonly-grid">
+            <div class="friend-readonly-card">
+              <strong>关键词</strong>
+              <p>UNSW MPRA、PR & Advertising、社媒运营、品牌传播、数字营销。</p>
+            </div>
+            <div class="friend-readonly-card">
+              <strong>朋友可见范围</strong>
+              <p>你现在只能看到留言板、首页简介和关于 Sage 摘要，不会进入 Sage 的管理区。</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="sage-env.js"></script>
+  <script type="module" src="sage-cloud-data.js"></script>
+  <script src="guestbook.js"></script>
+</body>
+</html>

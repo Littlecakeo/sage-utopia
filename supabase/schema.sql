@@ -138,6 +138,29 @@ create table if not exists app_settings (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists guestbook_messages (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid null,
+  friend_username text,
+  display_name text not null check (char_length(display_name) between 1 and 40),
+  message text not null check (char_length(message) between 1 and 500),
+  sticker text,
+  note_color text,
+  is_visible boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists friend_profiles (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid null,
+  username text not null unique check (username ~ '^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$'),
+  display_name text not null check (char_length(display_name) between 1 and 40),
+  password_hash text not null check (char_length(password_hash) >= 40),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create or replace function set_updated_at()
 returns trigger as $$
 begin
@@ -176,6 +199,12 @@ create trigger site_content_set_updated_at before update on site_content for eac
 drop trigger if exists app_settings_set_updated_at on app_settings;
 create trigger app_settings_set_updated_at before update on app_settings for each row execute function set_updated_at();
 
+drop trigger if exists guestbook_messages_set_updated_at on guestbook_messages;
+create trigger guestbook_messages_set_updated_at before update on guestbook_messages for each row execute function set_updated_at();
+
+drop trigger if exists friend_profiles_set_updated_at on friend_profiles;
+create trigger friend_profiles_set_updated_at before update on friend_profiles for each row execute function set_updated_at();
+
 alter table profile enable row level security;
 alter table courses enable row level security;
 alter table assignments enable row level security;
@@ -186,6 +215,8 @@ alter table task_items enable row level security;
 alter table growth_entries enable row level security;
 alter table site_content enable row level security;
 alter table app_settings enable row level security;
+alter table guestbook_messages enable row level security;
+alter table friend_profiles enable row level security;
 
 drop policy if exists "sage_public_read_profile" on profile;
 create policy "sage_public_read_profile" on profile for select using (true);
@@ -236,3 +267,17 @@ drop policy if exists "sage_public_read_app_settings" on app_settings;
 create policy "sage_public_read_app_settings" on app_settings for select using (true);
 drop policy if exists "sage_public_write_app_settings" on app_settings;
 create policy "sage_public_write_app_settings" on app_settings for all using (true) with check (true);
+
+drop policy if exists "sage_guestbook_read_visible" on guestbook_messages;
+create policy "sage_guestbook_read_visible" on guestbook_messages for select using (is_visible = true);
+drop policy if exists "sage_guestbook_insert_public" on guestbook_messages;
+create policy "sage_guestbook_insert_public" on guestbook_messages for insert with check (is_visible = true);
+
+grant select, insert on guestbook_messages to anon, authenticated;
+
+drop policy if exists "sage_friend_profiles_read_public" on friend_profiles;
+create policy "sage_friend_profiles_read_public" on friend_profiles for select using (true);
+drop policy if exists "sage_friend_profiles_insert_public" on friend_profiles;
+create policy "sage_friend_profiles_insert_public" on friend_profiles for insert with check (true);
+
+grant select, insert on friend_profiles to anon, authenticated;

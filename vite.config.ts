@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
           growth: 'growth.html',
           resume: 'resume.html',
           about: 'about.html',
+          friends: 'friends.html',
         },
         output: {
           entryFileNames: '[name].js',

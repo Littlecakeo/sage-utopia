@@ -8,6 +8,7 @@ const pages = [
   'dist/growth.html',
   'dist/resume.html',
   'dist/about.html',
+  'dist/friends.html',
 ];
 
 for (const page of pages) {

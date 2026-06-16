@@ -22,6 +22,8 @@ test('Supabase 环境和 schema 文件已准备好', () => {
     'expenses',
     'portfolio_projects',
     'profile',
+    'guestbook_messages',
+    'friend_profiles',
   ]) {
     expect(schema).toContain(`create table if not exists ${table}`);
   }
@@ -29,7 +31,7 @@ test('Supabase 环境和 schema 文件已准备好', () => {
 
 test('构建校验覆盖核心页面入口', () => {
   const validator = readFileSync(path.join(root, 'scripts', 'validate-static-site.mjs'), 'utf8');
-  for (const page of ['study.html', 'career.html', 'finance.html', 'portfolio.html', 'about.html']) {
+  for (const page of ['study.html', 'career.html', 'finance.html', 'portfolio.html', 'about.html', 'friends.html']) {
     expect(validator).toContain(page);
   }
 });

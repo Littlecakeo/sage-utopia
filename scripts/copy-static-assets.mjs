@@ -11,6 +11,8 @@ const staticFiles = [
   'edit-mode.css',
   'edit-mode.js',
   'finance.js',
+  'guestbook.css',
+  'guestbook.js',
   'growth.js',
   'mobile-fix.css',
   'portfolio.js',

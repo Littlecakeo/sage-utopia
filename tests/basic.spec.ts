@@ -335,3 +335,45 @@ test('移动端首页没有横向溢出', async ({ page }) => {
   );
   expect(hasOverflow).toBe(false);
 });
+
+test('朋友留言板使用独立入口且不会出现管理操作', async ({ page }) => {
+  await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page).toHaveTitle(/朋友留言板/);
+  await expect(page.getByRole('heading', { name: "Sage's friend" })).toBeVisible();
+  await expect(page.getByPlaceholder('昵称 例如 小林🌱 / Lin!')).toBeVisible();
+  await expect(page.getByPlaceholder('用户名 仅英文/数字/符号')).toBeVisible();
+  await expect(page.getByPlaceholder('密码')).toBeVisible();
+  await expect(page.getByRole('button', { name: '保存更改' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '管理已解锁' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '管理模式' })).toHaveCount(0);
+});
+
+test('朋友用户名禁止中文并保留昵称 emoji 输入', async ({ page }) => {
+  await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  await page.getByPlaceholder('昵称 例如 小林🌱 / Lin!').fill('小林🌱 / Lin!');
+  await page.getByPlaceholder('用户名 仅英文/数字/符号').fill('小林');
+  await page.getByPlaceholder('密码').fill('testpass');
+  await page.getByRole('button', { name: '进入留言板' }).click();
+
+  await expect(page.locator('#friendGateError')).toContainText('用户名只能使用英文');
+});
+
+test('管理入口提供 Sage 和朋友双入口选择', async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as Window & { __SAGE_ENV__?: Record<string, string> }).__SAGE_ENV__ = {
+      NEXT_PUBLIC_ADMIN_PASSCODE: 'admin-test',
+      NEXT_PUBLIC_SUPABASE_URL: '',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: '',
+    };
+  });
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('.sage-role-switch')).toBeVisible();
+  await expect(page.locator('.sage-role-switch')).toContainText('Sage');
+  await expect(page.locator('.sage-role-switch').getByRole('link', { name: "Sage's friend" })).toHaveAttribute(
+    'href',
+    'friends.html',
+  );
+});
