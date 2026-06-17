@@ -28,7 +28,7 @@ test('Supabase 环境和 schema 文件已准备好', () => {
     expect(schema).toContain(`create table if not exists ${table}`);
   }
   expect(schema).toContain('create or replace function sage_friend_enter');
-  expect(schema).toContain('create or replace function sage_hide_guestbook_message');
+  expect(schema).toContain('create function sage_hide_guestbook_message');
   expect(schema).toContain('revoke select, insert, update, delete on friend_profiles from anon, authenticated');
   expect(schema).toContain('grant select (id, user_id, friend_username, display_name, message, sticker, note_color, is_visible, created_at, updated_at)');
 });

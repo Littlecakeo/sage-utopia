@@ -46,6 +46,7 @@
     const visitor = {
       username: profile.username,
       name: profile.display_name,
+      passwordHash: profile.password_hash || '',
       enteredAt: new Date().toISOString(),
     };
     sessionStorage.setItem(VISITOR_KEY, JSON.stringify(visitor));
@@ -167,7 +168,7 @@
       time.textContent = formatTime(message.created_at);
 
       card.append(pin, title, text, time);
-      if (message.id && tokens[message.id] && visitor?.username === message.friend_username) {
+      if (message.id && visitor?.username === message.friend_username && (visitor.passwordHash || tokens[message.id])) {
         const removeButton = document.createElement('button');
         removeButton.className = 'guest-delete';
         removeButton.type = 'button';
@@ -223,7 +224,7 @@
       password_hash: hash,
     });
     if (!profile) throw new Error('进入失败，请稍后再试。');
-    return setVisitor(profile);
+    return setVisitor({ ...profile, password_hash: hash });
   }
 
   function installGate() {
@@ -309,8 +310,9 @@
       if (!button) return;
       const messageId = button.dataset.messageId || '';
       const token = getMessageTokens()[messageId] || '';
-      if (!messageId || !token) {
-        setStatus('这条留言没有找到可用的删除凭证。', true);
+      const visitor = getVisitor();
+      if (!messageId || !visitor?.username || !visitor?.passwordHash) {
+        setStatus('请先用发布这条留言的用户名和密码重新进入。', true);
         return;
       }
       if (!cloud().hasConfig || !cloud().hideGuestbookMessage) {
@@ -320,7 +322,7 @@
       try {
         button.disabled = true;
         setStatus('正在删除这张小纸条...');
-        const ok = await cloud().hideGuestbookMessage(messageId, token);
+        const ok = await cloud().hideGuestbookMessage(messageId, token, visitor.username, visitor.passwordHash);
         if (!ok) throw new Error('delete_denied');
         forgetMessageToken(messageId);
         setStatus('留言已删除。');
@@ -339,6 +341,8 @@
       showGate();
       setStatus('');
       setGateError('');
+      const password = $('#friendPassword');
+      if (password) password.value = '';
     });
   }
 

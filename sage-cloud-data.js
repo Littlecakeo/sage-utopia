@@ -484,13 +484,14 @@ async function createFriendProfile(payload) {
   return data;
 }
 
-async function hideGuestbookMessage(id, deleteToken) {
+async function hideGuestbookMessage(id, deleteToken, username, passwordHash) {
   if (!client) return false;
   const { data, error } = await client
     .rpc('sage_hide_guestbook_message', {
       p_message_id: id,
       p_delete_token: String(deleteToken || '').trim(),
-      p_admin_passcode: '',
+      p_username: String(username || '').trim().slice(0, 32),
+      p_password_hash: String(passwordHash || '').trim(),
     });
   if (error) throw error;
   return Boolean(data);
