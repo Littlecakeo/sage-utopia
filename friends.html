@@ -30,8 +30,8 @@
 
         <section class="friend-gate-card" id="friendGate" aria-label="朋友入口">
           <h2>Sage's friend</h2>
-          <p>这个入口不会进入 Sage 的管理模式，只用于留言。</p>
-          <form class="friend-form" id="friendGateForm">
+          <p>访客入口只用于留言，不会进入 Sage 的管理模式。</p>
+          <form class="friend-form" id="friendGateForm" action="javascript:void(0)" onsubmit="return false">
             <input class="friend-field" id="friendName" name="friendName" autocomplete="name" maxlength="40" placeholder="昵称 例如 小林🌱 / Lin!" required>
             <input class="friend-field" id="friendUsername" name="friendUsername" autocomplete="username" maxlength="32" placeholder="用户名 仅英文/数字/符号" required>
             <input class="friend-field" id="friendPassword" name="friendPassword" type="password" autocomplete="current-password" minlength="4" placeholder="密码" required>
@@ -46,13 +46,13 @@
           <div style="display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap">
             <div>
               <h2>校园留言板</h2>
-              <p class="sub">欢迎你，<span id="friendVisitorName">朋友</span>。写完后所有朋友都能看到。</p>
+              <p class="sub">欢迎你，<span id="friendVisitorName">朋友</span>。<span id="friendModeHint">写完后所有朋友都能看到。</span></p>
             </div>
             <button class="friend-chip" id="friendSwitchName" type="button">退出当前账号</button>
           </div>
 
           <div class="guestbook-board">
-            <form class="guestbook-compose" id="guestbookForm" data-guest-write="true">
+            <form class="guestbook-compose" id="guestbookForm" data-guest-write="true" action="javascript:void(0)" onsubmit="return false">
               <label>
                 留一张小纸条
                 <textarea class="friend-message" id="guestbookMessage" maxlength="500" placeholder="可以写祝福、近况、悄悄话、emoji、中文、英文或符号。" required></textarea>

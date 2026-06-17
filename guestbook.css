@@ -158,6 +158,14 @@ body.friend-page{
 }
 .friend-section h2{margin:0 0 8px;font-size:24px}
 .friend-section .sub{margin:0;color:rgba(49,66,56,.62);font-weight:720;line-height:1.7}
+body.friend-sage-mode .friend-section{
+  border-color:rgba(120,147,114,.32);
+  box-shadow:0 22px 60px rgba(86,116,84,.13),inset 0 0 0 1px rgba(120,147,114,.12);
+}
+body.friend-sage-mode #friendVisitorName{
+  color:#5f7f5d;
+  font-weight:950;
+}
 .guestbook-board{
   position:relative;
   margin-top:18px;

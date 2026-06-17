@@ -2,6 +2,8 @@
   'use strict';
 
   const VISITOR_KEY = 'sage.friend.visitor.v1';
+  const ADMIN_SESSION_KEY = 'sage.admin.unlocked.v1';
+  const FORCE_VISITOR_KEY = 'sage.friend.force.visitor.v1';
   const MESSAGE_TOKEN_KEY = 'sage.friend.message.tokens.v1';
   const USERNAME_RE = /^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$/;
   const COLORS = ['#fff8cf', '#e6f2df', '#e5f0f1', '#f7eadf', '#eee6f6', '#f9f1c8'];
@@ -9,6 +11,11 @@
   let didInit = false;
 
   const $ = (selector) => document.querySelector(selector);
+
+  function cleanSensitiveUrl() {
+    if (!location.search || !/[?&]friend(?:Name|Username|Password)=/.test(location.search)) return;
+    history.replaceState(history.state || {}, '', `${location.pathname}${location.hash || ''}`);
+  }
 
   function cloud() {
     return window.SageCloudData || {};
@@ -42,13 +49,42 @@
     return null;
   }
 
+  function isAdminUnlocked() {
+    try {
+      return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  function isForceVisitorLogin() {
+    try {
+      return sessionStorage.getItem(FORCE_VISITOR_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  function getSageVisitor() {
+    if (!isAdminUnlocked() || isForceVisitorLogin()) return null;
+    return {
+      username: 'sage',
+      name: 'Sage',
+      passwordHash: '',
+      isSage: true,
+      enteredAt: new Date().toISOString(),
+    };
+  }
+
   function setVisitor(profile) {
     const visitor = {
       username: profile.username,
       name: profile.display_name,
       passwordHash: profile.password_hash || '',
+      isSage: Boolean(profile.isSage),
       enteredAt: new Date().toISOString(),
     };
+    sessionStorage.removeItem(FORCE_VISITOR_KEY);
     sessionStorage.setItem(VISITOR_KEY, JSON.stringify(visitor));
     return visitor;
   }
@@ -101,9 +137,18 @@
     const gate = $('#friendGate');
     const area = $('#friendArea');
     const name = $('#friendVisitorName');
+    const switchButton = $('#friendSwitchName');
+    const modeHint = $('#friendModeHint');
     if (gate) gate.hidden = true;
     if (area) area.hidden = false;
     if (name) name.textContent = visitor.name;
+    document.body.classList.toggle('friend-sage-mode', Boolean(visitor.isSage));
+    if (switchButton) switchButton.textContent = visitor.isSage ? '切换访客身份' : '退出当前账号';
+    if (modeHint) {
+      modeHint.textContent = visitor.isSage
+        ? '当前是 Sage 身份，可以直接留言；访客入口仍然独立保留。'
+        : '写完后所有朋友都能看到。';
+    }
   }
 
   function showGate() {
@@ -111,6 +156,7 @@
     const area = $('#friendArea');
     if (gate) gate.hidden = false;
     if (area) area.hidden = true;
+    document.body.classList.remove('friend-sage-mode');
   }
 
   function setGateError(text) {
@@ -168,7 +214,11 @@
       time.textContent = formatTime(message.created_at);
 
       card.append(pin, title, text, time);
-      if (message.id && visitor?.username === message.friend_username && (visitor.passwordHash || tokens[message.id])) {
+      if (
+        message.id &&
+        ((visitor?.isSage && message.friend_username === 'sage' && tokens[message.id]) ||
+          (visitor?.username === message.friend_username && (visitor.passwordHash || tokens[message.id])))
+      ) {
         const removeButton = document.createElement('button');
         removeButton.className = 'guest-delete';
         removeButton.type = 'button';
@@ -245,6 +295,7 @@
         if (button) button.disabled = true;
         setGateError('正在进入留言板...');
         const visitor = await enterWithCredentials(name, username, password);
+        sessionStorage.removeItem(FORCE_VISITOR_KEY);
         setGateError('');
         showFriendArea(visitor);
         await loadMessages();
@@ -337,7 +388,9 @@
 
   function installLogout() {
     $('#friendSwitchName')?.addEventListener('click', () => {
+      const visitor = getVisitor();
       sessionStorage.removeItem(VISITOR_KEY);
+      if (visitor?.isSage) sessionStorage.setItem(FORCE_VISITOR_KEY, '1');
       showGate();
       setStatus('');
       setGateError('');
@@ -349,12 +402,18 @@
   function init() {
     if (didInit) return;
     didInit = true;
+    cleanSensitiveUrl();
     installGate();
     installComposer();
     installDelete();
     installLogout();
     const visitor = getVisitor();
-    if (visitor) {
+    const sageVisitor = getSageVisitor();
+    if (sageVisitor) {
+      sessionStorage.setItem(VISITOR_KEY, JSON.stringify(sageVisitor));
+      showFriendArea(sageVisitor);
+      loadMessages();
+    } else if (visitor) {
       showFriendArea(visitor);
       loadMessages();
     } else {
@@ -369,7 +428,7 @@
     }
     window.addEventListener('sage-cloud-ready', init, { once: true });
     window.setTimeout(() => {
-      if (window.SageCloudData) init();
+      init();
     }, 800);
   }
 

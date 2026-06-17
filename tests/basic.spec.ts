@@ -185,6 +185,28 @@ test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
   expect(positions.heroTop).toBeGreaterThan(positions.navBottom + 8);
 });
 
+test('移动端所有主要页面顶部导航不遮挡内容', async ({ page }) => {
+  await page.setViewportSize({ width: 667, height: 714 });
+  const pages = ['/index.html', '/study.html', '/career.html', '/finance.html', '/growth.html', '/resume.html', '/friends.html'];
+
+  for (const url of pages) {
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(120);
+    const positions = await page.evaluate(() => {
+      const nav = document.querySelector('.mobile,.friend-top')?.getBoundingClientRect();
+      const first = document.querySelector('main > section, main > .hero, main > .card')?.getBoundingClientRect();
+      return {
+        navBottom: nav?.bottom ?? 0,
+        firstTop: first?.top ?? 0,
+        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 2,
+      };
+    });
+
+    expect(positions.firstTop, url).toBeGreaterThan(positions.navBottom + 8);
+    expect(positions.overflow, url).toBe(false);
+  }
+});
+
 test('桌面侧边栏滚动时保持固定', async ({ page }) => {
   await page.setViewportSize({ width: 1240, height: 714 });
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
@@ -370,6 +392,7 @@ test('朋友用户名禁止中文并保留昵称 emoji 输入', async ({ page })
   await page.getByRole('button', { name: '进入留言板' }).click();
 
   await expect(page.locator('#friendGateError')).toContainText('用户名只能使用英文');
+  await expect(page).not.toHaveURL(/friendPassword=/);
 });
 
 test('管理入口提供 Sage 和朋友双入口选择', async ({ page }) => {
@@ -388,4 +411,18 @@ test('管理入口提供 Sage 和朋友双入口选择', async ({ page }) => {
     'href',
     'friends.html',
   );
+});
+
+test('管理已解锁时留言板直接使用 Sage 身份', async ({ page }) => {
+  await page.addInitScript(() => {
+    sessionStorage.setItem('sage.admin.unlocked.v1', '1');
+    sessionStorage.removeItem('sage.friend.force.visitor.v1');
+    sessionStorage.removeItem('sage.friend.visitor.v1');
+  });
+  await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#friendGate')).toBeHidden();
+  await expect(page.locator('#friendVisitorName')).toHaveText('Sage');
+  await expect(page.locator('#friendModeHint')).toContainText('当前是 Sage 身份');
+  await expect(page.getByRole('button', { name: '切换访客身份' })).toBeVisible();
 });
