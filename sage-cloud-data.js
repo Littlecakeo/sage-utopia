@@ -26,6 +26,9 @@ const MODULE_TABLES = {
   friendProfiles: 'friend_profiles',
 };
 
+const GUESTBOOK_PUBLIC_COLUMNS =
+  'id,user_id,friend_username,display_name,message,sticker,note_color,is_visible,created_at,updated_at';
+
 const hasConfig = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const client = hasConfig ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 const ADMIN_SESSION_KEY = 'sage.admin.unlocked.v1';
@@ -422,7 +425,8 @@ function fromCloud(module, payload) {
 
 async function list(module, orderField = 'created_at') {
   if (!client) return null;
-  const { data, error } = await client.from(tableFor(module)).select('*').order(orderField, { ascending: false });
+  const columns = module === 'guestbook' ? GUESTBOOK_PUBLIC_COLUMNS : '*';
+  const { data, error } = await client.from(tableFor(module)).select(columns).order(orderField, { ascending: false });
   if (error) throw error;
   return (data || []).map((item) => fromCloud(module, item));
 }
@@ -440,7 +444,7 @@ async function createGuestbookMessage(payload) {
   const { data, error } = await client
     .from(tableFor('guestbook'))
     .insert(toCloud('guestbook', payload))
-    .select('*')
+    .select(GUESTBOOK_PUBLIC_COLUMNS)
     .single();
   if (error) throw error;
   return fromCloud('guestbook', data);

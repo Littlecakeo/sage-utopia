@@ -6,6 +6,7 @@
   const USERNAME_RE = /^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$/;
   const COLORS = ['#fff8cf', '#e6f2df', '#e5f0f1', '#f7eadf', '#eee6f6', '#f9f1c8'];
   const STICKERS = ['✦', '♡', '✧', '♪', '※', '⋆'];
+  let didInit = false;
 
   const $ = (selector) => document.querySelector(selector);
 
@@ -342,6 +343,8 @@
   }
 
   function init() {
+    if (didInit) return;
+    didInit = true;
     installGate();
     installComposer();
     installDelete();
@@ -355,9 +358,20 @@
     }
   }
 
+  function initWhenCloudReady() {
+    if (window.SageCloudData) {
+      init();
+      return;
+    }
+    window.addEventListener('sage-cloud-ready', init, { once: true });
+    window.setTimeout(() => {
+      if (window.SageCloudData) init();
+    }, 800);
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', initWhenCloudReady);
   } else {
-    init();
+    initWhenCloudReady();
   }
 })();
