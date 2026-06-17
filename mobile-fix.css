@@ -104,7 +104,7 @@ button,
 
 @media (max-width: 900px) {
   body {
-    padding-top: var(--sage-mobile-nav-height, 280px);
+    padding-top: var(--sage-mobile-nav-height, 340px);
   }
 
   .mobile {
@@ -113,6 +113,8 @@ button,
     left: 0;
     right: 0;
     z-index: 30;
+    max-height: 46dvh;
+    overflow-y: auto;
   }
 
   main section,

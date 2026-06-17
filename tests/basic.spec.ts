@@ -146,12 +146,21 @@ test('移动端顶部导航把作品集合并进关于 Sage', async ({ page }) =
 
   const mobileNav = page.locator('.mobile');
   await expect(mobileNav.getByRole('link', { name: '作品集' })).toHaveCount(0);
+  await expect(mobileNav.getByRole('link', { name: '留言板' })).toBeVisible();
   await expect(mobileNav.getByRole('link', { name: '关于 Sage' })).toBeVisible();
   await expect(mobileNav).not.toContainText('更多');
 
   await mobileNav.getByRole('link', { name: '关于 Sage' }).click();
   await expect(page).toHaveURL(/resume\.html$/);
   await expect(page.locator('.mobile-branches').getByRole('link', { name: '作品集' })).toBeVisible();
+});
+
+test('首页可以进入独立留言板分支', async ({ page }) => {
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+  await page.getByRole('link', { name: '留言板' }).first().click();
+  await expect(page).toHaveURL(/friends\.html$/);
+  await expect(page.getByRole('heading', { name: "Sage's friend" })).toBeVisible();
 });
 
 test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
@@ -347,6 +356,9 @@ test('朋友留言板使用独立入口且不会出现管理操作', async ({ pa
   await expect(page.getByRole('button', { name: '保存更改' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '管理已解锁' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '管理模式' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: '首页简介' })).toHaveCount(0);
+  await expect(page.locator('#friend-home')).toHaveCount(0);
+  await expect(page.locator('#friend-about')).toHaveCount(0);
 });
 
 test('朋友用户名禁止中文并保留昵称 emoji 输入', async ({ page }) => {
