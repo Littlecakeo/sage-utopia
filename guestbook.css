@@ -244,6 +244,31 @@ body.friend-page{
   font-size:12px;
   font-weight:800;
 }
+.guest-delete{
+  position:absolute;
+  right:14px;
+  bottom:12px;
+  border:1px solid rgba(120,147,114,.28);
+  border-radius:999px;
+  background:rgba(255,253,247,.7);
+  color:#66825f;
+  padding:6px 10px;
+  font:inherit;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  box-shadow:0 6px 12px rgba(78,69,47,.06);
+}
+.guest-delete:hover{
+  background:rgba(255,255,255,.88);
+  transform:translateY(-1px);
+}
+.guest-delete:disabled{
+  cursor:wait;
+  opacity:.62;
+  transform:none;
+}
 
 .guest-empty{
   border:1px dashed rgba(120,147,114,.34);

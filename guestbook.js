@@ -2,6 +2,7 @@
   'use strict';
 
   const VISITOR_KEY = 'sage.friend.visitor.v1';
+  const MESSAGE_TOKEN_KEY = 'sage.friend.message.tokens.v1';
   const USERNAME_RE = /^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$/;
   const COLORS = ['#fff8cf', '#e6f2df', '#e5f0f1', '#f7eadf', '#eee6f6', '#f9f1c8'];
   const STICKERS = ['✦', '♡', '✧', '♪', '※', '⋆'];
@@ -26,6 +27,12 @@
     return sha256(`sage-friend:${username}:${password}`);
   }
 
+  function randomToken() {
+    const bytes = new Uint8Array(24);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes).map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  }
+
   function getVisitor() {
     try {
       const parsed = JSON.parse(sessionStorage.getItem(VISITOR_KEY) || 'null');
@@ -42,6 +49,28 @@
     };
     sessionStorage.setItem(VISITOR_KEY, JSON.stringify(visitor));
     return visitor;
+  }
+
+  function getMessageTokens() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(MESSAGE_TOKEN_KEY) || '{}');
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function rememberMessageToken(messageId, token) {
+    if (!messageId || !token) return;
+    const tokens = getMessageTokens();
+    tokens[messageId] = token;
+    localStorage.setItem(MESSAGE_TOKEN_KEY, JSON.stringify(tokens));
+  }
+
+  function forgetMessageToken(messageId) {
+    const tokens = getMessageTokens();
+    delete tokens[messageId];
+    localStorage.setItem(MESSAGE_TOKEN_KEY, JSON.stringify(tokens));
   }
 
   function formatTime(value) {
@@ -95,6 +124,14 @@
     status.classList.toggle('friend-status', !isError);
   }
 
+  function friendErrorMessage(error) {
+    const text = String(error?.message || error || '');
+    if (text.includes('invalid_credentials')) return '用户名或密码不正确。';
+    if (text.includes('invalid_username')) return '用户名只能使用英文、数字和指定符号。';
+    if (text.includes('missing_display_name')) return '先写下你的昵称。';
+    return text || '进入失败，请稍后再试。';
+  }
+
   function renderMessages(messages) {
     const list = $('#guestbookList');
     if (!list) return;
@@ -106,6 +143,8 @@
       list.appendChild(empty);
       return;
     }
+    const tokens = getMessageTokens();
+    const visitor = getVisitor();
     messages.forEach((message, index) => {
       const card = document.createElement('article');
       card.className = 'guest-note';
@@ -127,6 +166,15 @@
       time.textContent = formatTime(message.created_at);
 
       card.append(pin, title, text, time);
+      if (message.id && tokens[message.id] && visitor?.username === message.friend_username) {
+        const removeButton = document.createElement('button');
+        removeButton.className = 'guest-delete';
+        removeButton.type = 'button';
+        removeButton.dataset.messageId = message.id;
+        removeButton.textContent = '删除';
+        removeButton.setAttribute('aria-label', `删除 ${message.display_name || '朋友'} 的留言`);
+        card.appendChild(removeButton);
+      }
       list.appendChild(card);
     });
   }
@@ -164,21 +212,17 @@
   }
 
   async function enterWithCredentials(name, username, password) {
-    if (!cloud().hasConfig || !cloud().getFriendProfile || !cloud().createFriendProfile) {
+    if (!cloud().hasConfig || !cloud().enterFriendProfile) {
       throw new Error('朋友账号暂时连不上云端，请稍后再试。');
     }
     const hash = await passwordHash(username, password);
-    const existing = await cloud().getFriendProfile(username);
-    if (existing) {
-      if (existing.password_hash !== hash) throw new Error('用户名或密码不正确。');
-      return setVisitor(existing);
-    }
-    const created = await cloud().createFriendProfile({
+    const profile = await cloud().enterFriendProfile({
       username,
       display_name: name,
       password_hash: hash,
     });
-    return setVisitor(created);
+    if (!profile) throw new Error('进入失败，请稍后再试。');
+    return setVisitor(profile);
   }
 
   function installGate() {
@@ -203,7 +247,7 @@
         showFriendArea(visitor);
         await loadMessages();
       } catch (error) {
-        setGateError(error.message || '进入失败，请稍后再试。');
+        setGateError(friendErrorMessage(error));
       } finally {
         if (button) button.disabled = false;
       }
@@ -233,14 +277,17 @@
       try {
         if (button) button.disabled = true;
         setStatus('正在把小纸条贴到留言板...');
-        await cloud().createGuestbookMessage({
+        const deleteToken = await sha256(`sage-delete:${visitor.username}:${randomToken()}`);
+        const saved = await cloud().createGuestbookMessage({
           friend_username: visitor.username,
           display_name: visitor.name,
           message,
           sticker: STICKERS[Math.floor(Math.random() * STICKERS.length)],
           note_color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          delete_token: deleteToken,
           is_visible: true,
         });
+        rememberMessageToken(saved?.id, deleteToken);
         if ($('#guestbookMessage')) $('#guestbookMessage').value = '';
         setStatus('留言已贴上去。');
         await loadMessages();
@@ -249,6 +296,38 @@
         setStatus('保存失败，请检查云端连接或稍后再试。', true);
       } finally {
         if (button) button.disabled = false;
+      }
+    });
+  }
+
+  function installDelete() {
+    const list = $('#guestbookList');
+    if (!list) return;
+    list.addEventListener('click', async (event) => {
+      const button = event.target.closest?.('.guest-delete');
+      if (!button) return;
+      const messageId = button.dataset.messageId || '';
+      const token = getMessageTokens()[messageId] || '';
+      if (!messageId || !token) {
+        setStatus('这条留言没有找到可用的删除凭证。', true);
+        return;
+      }
+      if (!cloud().hasConfig || !cloud().hideGuestbookMessage) {
+        setStatus('留言板暂时连不上云端，请稍后再试。', true);
+        return;
+      }
+      try {
+        button.disabled = true;
+        setStatus('正在删除这张小纸条...');
+        const ok = await cloud().hideGuestbookMessage(messageId, token);
+        if (!ok) throw new Error('delete_denied');
+        forgetMessageToken(messageId);
+        setStatus('留言已删除。');
+        await loadMessages();
+      } catch (error) {
+        console.warn('[guestbook] delete failed', error);
+        setStatus('删除失败，可能不是这台设备发布的留言。', true);
+        button.disabled = false;
       }
     });
   }
@@ -265,6 +344,7 @@
   function init() {
     installGate();
     installComposer();
+    installDelete();
     installLogout();
     const visitor = getVisitor();
     if (visitor) {

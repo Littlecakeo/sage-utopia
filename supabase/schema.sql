@@ -146,10 +146,13 @@ create table if not exists guestbook_messages (
   message text not null check (char_length(message) between 1 and 500),
   sticker text,
   note_color text,
+  delete_token text,
   is_visible boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table guestbook_messages add column if not exists delete_token text;
 
 create table if not exists friend_profiles (
   id uuid primary key default gen_random_uuid(),
@@ -273,11 +276,101 @@ create policy "sage_guestbook_read_visible" on guestbook_messages for select usi
 drop policy if exists "sage_guestbook_insert_public" on guestbook_messages;
 create policy "sage_guestbook_insert_public" on guestbook_messages for insert with check (is_visible = true);
 
-grant select, insert on guestbook_messages to anon, authenticated;
+revoke select, insert, update, delete on guestbook_messages from anon, authenticated;
+grant select (id, user_id, friend_username, display_name, message, sticker, note_color, is_visible, created_at, updated_at)
+on guestbook_messages to anon, authenticated;
+grant insert (user_id, friend_username, display_name, message, sticker, note_color, delete_token, is_visible)
+on guestbook_messages to anon, authenticated;
 
 drop policy if exists "sage_friend_profiles_read_public" on friend_profiles;
-create policy "sage_friend_profiles_read_public" on friend_profiles for select using (true);
 drop policy if exists "sage_friend_profiles_insert_public" on friend_profiles;
-create policy "sage_friend_profiles_insert_public" on friend_profiles for insert with check (true);
 
-grant select, insert on friend_profiles to anon, authenticated;
+revoke select, insert, update, delete on friend_profiles from anon, authenticated;
+
+create or replace function sage_friend_enter(
+  p_display_name text,
+  p_username text,
+  p_password_hash text
+)
+returns table (
+  id uuid,
+  username text,
+  display_name text,
+  created_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  existing friend_profiles%rowtype;
+  cleaned_name text := left(trim(coalesce(p_display_name, '')), 40);
+  cleaned_username text := left(trim(coalesce(p_username, '')), 32);
+  cleaned_hash text := trim(coalesce(p_password_hash, ''));
+begin
+  if cleaned_name = '' then
+    raise exception 'missing_display_name';
+  end if;
+
+  if cleaned_username !~ '^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$' then
+    raise exception 'invalid_username';
+  end if;
+
+  if char_length(cleaned_hash) < 40 then
+    raise exception 'invalid_password_hash';
+  end if;
+
+  select * into existing
+  from friend_profiles fp
+  where fp.username = cleaned_username;
+
+  if found then
+    if existing.password_hash <> cleaned_hash then
+      raise exception 'invalid_credentials';
+    end if;
+
+    return query
+    select existing.id, existing.username, existing.display_name, existing.created_at;
+    return;
+  end if;
+
+  insert into friend_profiles (username, display_name, password_hash)
+  values (cleaned_username, cleaned_name, cleaned_hash)
+  returning friend_profiles.* into existing;
+
+  return query
+  select existing.id, existing.username, existing.display_name, existing.created_at;
+end;
+$$;
+
+create or replace function sage_hide_guestbook_message(
+  p_message_id uuid,
+  p_delete_token text,
+  p_admin_passcode text default null
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  hidden_count integer := 0;
+  cleaned_token text := trim(coalesce(p_delete_token, ''));
+begin
+  update guestbook_messages
+  set is_visible = false,
+      updated_at = now()
+  where id = p_message_id
+    and is_visible = true
+    and delete_token is not null
+    and delete_token = cleaned_token;
+
+  get diagnostics hidden_count = row_count;
+  return hidden_count > 0;
+end;
+$$;
+
+revoke all on function sage_friend_enter(text, text, text) from public;
+revoke all on function sage_hide_guestbook_message(uuid, text, text) from public;
+grant execute on function sage_friend_enter(text, text, text) to anon, authenticated;
+grant execute on function sage_hide_guestbook_message(uuid, text, text) to anon, authenticated;

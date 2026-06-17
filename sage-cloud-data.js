@@ -395,6 +395,7 @@ function toCloud(module, payload) {
     item.message = String(item.message || '').trim().slice(0, 500);
     item.sticker = String(item.sticker || '').trim().slice(0, 16);
     item.note_color = String(item.note_color || '').trim().slice(0, 24);
+    item.delete_token = String(item.delete_token || '').trim().slice(0, 160);
     item.is_visible = item.is_visible !== false;
   }
   return cleanPayload(item);
@@ -456,6 +457,18 @@ async function getFriendProfile(username) {
   return data || null;
 }
 
+async function enterFriendProfile(payload) {
+  if (!client) return null;
+  const { data, error } = await client
+    .rpc('sage_friend_enter', {
+      p_display_name: String(payload?.display_name || '').trim().slice(0, 40),
+      p_username: String(payload?.username || '').trim().slice(0, 32),
+      p_password_hash: String(payload?.password_hash || '').trim(),
+    });
+  if (error) throw error;
+  return Array.isArray(data) ? data[0] || null : data;
+}
+
 async function createFriendProfile(payload) {
   if (!client) return null;
   const { data, error } = await client
@@ -465,6 +478,18 @@ async function createFriendProfile(payload) {
     .single();
   if (error) throw error;
   return data;
+}
+
+async function hideGuestbookMessage(id, deleteToken) {
+  if (!client) return false;
+  const { data, error } = await client
+    .rpc('sage_hide_guestbook_message', {
+      p_message_id: id,
+      p_delete_token: String(deleteToken || '').trim(),
+      p_admin_passcode: '',
+    });
+  if (error) throw error;
+  return Boolean(data);
 }
 
 async function update(module, id, payload) {
@@ -513,8 +538,10 @@ window.SageCloudData = {
   list,
   create,
   createGuestbookMessage,
+  enterFriendProfile,
   getFriendProfile,
   createFriendProfile,
+  hideGuestbookMessage,
   update,
   remove,
   upsertBy,
