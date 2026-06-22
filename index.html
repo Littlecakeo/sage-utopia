@@ -27,8 +27,19 @@
     .overview-card .stat{grid-row:1/3;margin:0;min-width:34px;font-size:28px;line-height:1;color:#34483e}
     .overview-card p{margin:0;color:#506b58;font-size:15px;font-weight:900;line-height:1.25}
     .overview-card .hint{margin-top:4px;color:#7d8d80;font-size:12px;font-weight:700;line-height:1.45;white-space:normal;overflow:visible;text-overflow:clip}
-    @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}}
-    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card h1{font-size:38px}.quote-source{text-align:left}}
+    .home-guestbook{position:relative;overflow:hidden;padding:22px 24px;border-color:rgba(145,120,82,.18);background:linear-gradient(90deg,rgba(255,255,255,.18) 1px,transparent 1px),linear-gradient(180deg,rgba(255,255,255,.16) 1px,transparent 1px),linear-gradient(135deg,#f3ecd9,#edf4e8 58%,#f8f5eb);background-size:34px 34px,34px 34px,auto}
+    .home-guestbook:after{content:"";position:absolute;right:-48px;top:-50px;width:180px;height:180px;border-radius:999px;background:rgba(185,205,183,.22);pointer-events:none}
+    .guestbook-home-head{position:relative;z-index:1;display:flex;justify-content:space-between;gap:18px;align-items:start;flex-wrap:wrap}
+    .guestbook-home-head h2{margin:0;font-size:22px;color:#385044}
+    .guestbook-home-head p{margin:8px 0 0;color:#6f7f77;font-size:14px;font-weight:720;line-height:1.7}
+    .guestbook-home-button{border:1px solid rgba(120,147,114,.34);border-radius:999px;background:#789372;color:#fff;padding:11px 16px;font-weight:950;box-shadow:0 14px 30px rgba(99,126,97,.16)}
+    .guestbook-notes{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+    .guestbook-preview-note{position:relative;min-height:112px;padding:20px 16px 14px;border:1px solid rgba(145,120,82,.16);border-radius:16px 16px 20px 14px;background:var(--note-bg,#fff8cf);box-shadow:0 14px 22px rgba(78,69,47,.08);transform:rotate(var(--tilt,0deg))}
+    .guestbook-preview-note:before{content:"";position:absolute;left:50%;top:-8px;width:62px;height:18px;border-radius:6px;background:rgba(255,255,255,.48);border:1px solid rgba(120,147,114,.16);transform:translateX(-50%) rotate(-2deg)}
+    .guestbook-preview-note strong{display:block;margin-bottom:8px;color:#395047;font-size:15px}
+    .guestbook-preview-note span{display:block;color:rgba(49,66,56,.62);font-size:13px;font-weight:720;line-height:1.6}
+    @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}.guestbook-notes{grid-template-columns:1fr}}
+    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card h1{font-size:38px}.quote-source{text-align:left}.guestbook-home-head{display:grid}.guestbook-home-button{justify-self:start}}
   </style>
 </head>
 <body>
@@ -66,6 +77,21 @@
           <div class="overview-card peach"><div class="stat" id="dashCareer">0</div><p>求职进展</p><p class="hint">已申请和面试中的机会</p></div>
           <div class="overview-card soft"><div class="stat" id="dashGrowth">0</div><p>成长记录</p><p class="hint">已保存的成长条数</p></div>
           <div class="overview-card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集项目</p><p class="hint">已保存的公开项目</p></div>
+        </div>
+      </section>
+
+      <section class="card section home-guestbook" id="homeGuestbook" aria-label="朋友留言板入口">
+        <div class="guestbook-home-head">
+          <div>
+            <h2>校园留言板</h2>
+            <p>朋友们的小纸条会贴在这里的留言板上。进入后可以写留言，也可以看到其他人的留言。</p>
+          </div>
+          <a class="guestbook-home-button" href="friends.html">进入留言板</a>
+        </div>
+        <div class="guestbook-notes" aria-hidden="true">
+          <div class="guestbook-preview-note" style="--note-bg:#fff8cf;--tilt:-1deg"><strong>小纸条</strong><span>留下近况、祝福或一句想说的话。</span></div>
+          <div class="guestbook-preview-note" style="--note-bg:#e6f2df;--tilt:.7deg"><strong>朋友可见</strong><span>大家可以看到彼此的留言。</span></div>
+          <div class="guestbook-preview-note" style="--note-bg:#eee6f6;--tilt:-.4deg"><strong>Sage 身份</strong><span>你解锁后会直接以 Sage 留言。</span></div>
         </div>
       </section>
 
@@ -107,6 +133,7 @@
   <script src="tasks.js"></script>
   <script src="edit-mode.js?v=10"></script>
   <script src="sage-cloud-sync.js?v=1"></script>
+  <script src="site-shell.js?v=10"></script>
   <script>
     /* ── 每日名言 ──────────────────────────────────── */
     function applyQuoteNow(){

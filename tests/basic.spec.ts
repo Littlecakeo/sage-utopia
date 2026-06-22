@@ -146,11 +146,11 @@ test('移动端顶部导航把作品集合并进关于 Sage', async ({ page }) =
 
   const mobileNav = page.locator('.mobile');
   await expect(mobileNav.getByRole('link', { name: '作品集' })).toHaveCount(0);
-  await expect(mobileNav.getByRole('link', { name: '留言板' })).toBeVisible();
-  await expect(mobileNav.getByRole('link', { name: '关于 Sage' })).toBeVisible();
+  await expect(mobileNav.locator('.mobile-scroll').getByRole('link', { name: '留言板' })).toBeVisible();
+  await expect(mobileNav.locator('.mobile-scroll').getByRole('link', { name: '关于 Sage' })).toBeVisible();
   await expect(mobileNav).not.toContainText('更多');
 
-  await mobileNav.getByRole('link', { name: '关于 Sage' }).click();
+  await mobileNav.locator('.mobile-scroll').getByRole('link', { name: '关于 Sage' }).click();
   await expect(page).toHaveURL(/resume\.html$/);
   await expect(page.locator('.mobile-branches').getByRole('link', { name: '作品集' })).toBeVisible();
 });
@@ -161,6 +161,48 @@ test('首页可以进入独立留言板分支', async ({ page }) => {
   await page.getByRole('link', { name: '留言板' }).first().click();
   await expect(page).toHaveURL(/friends\.html$/);
   await expect(page.getByRole('heading', { name: "Sage's friend" })).toBeVisible();
+});
+
+test('首页宽屏内容不会被侧边栏挤出屏幕', async ({ page }) => {
+  await page.setViewportSize({ width: 2048, height: 1152 });
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(120);
+
+  const layout = await page.evaluate(() => {
+    const main = document.querySelector('main')?.getBoundingClientRect();
+    const stats = document.querySelector('.compact-stats')?.getBoundingClientRect();
+    const guestbook = document.querySelector('#homeGuestbook')?.getBoundingClientRect();
+    return {
+      clientWidth: document.documentElement.clientWidth,
+      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 2,
+      mainRight: main?.right ?? 9999,
+      statsRight: stats?.right ?? 9999,
+      guestbookRight: guestbook?.right ?? 9999,
+    };
+  });
+
+  expect(layout.overflow).toBe(false);
+  expect(layout.mainRight).toBeLessThanOrEqual(layout.clientWidth);
+  expect(layout.statsRight).toBeLessThanOrEqual(layout.clientWidth);
+  expect(layout.guestbookRight).toBeLessThanOrEqual(layout.clientWidth);
+});
+
+test('移动端首页分支导航可点击并进入留言板板块', async ({ page }) => {
+  await page.setViewportSize({ width: 667, height: 714 });
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(120);
+
+  const branch = page.locator('.mobile-branches').getByRole('link', { name: '留言板' });
+  await expect(branch).toBeVisible();
+  const hitTarget = await branch.evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) === el;
+  });
+  expect(hitTarget).toBe(true);
+
+  await branch.click();
+  await expect(page).toHaveURL(/index\.html#homeGuestbook$/);
+  await expect(page.locator('#homeGuestbook')).toBeInViewport();
 });
 
 test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {

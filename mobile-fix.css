@@ -99,6 +99,15 @@ button,
 
   main {
     margin-left: 280px;
+    width: min(1220px, calc(100vw - 280px));
+    max-width: calc(100vw - 280px);
+  }
+
+  .sage-admin-dock {
+    top: 18px !important;
+    right: 18px !important;
+    bottom: auto !important;
+    max-width: min(390px, calc(100vw - 320px)) !important;
   }
 }
 
