@@ -6,8 +6,34 @@
   <title>Sage Utopia｜朋友留言板</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="guestbook.css">
+  <script>
+    (function () {
+      var isFile = location.protocol === 'file:';
+      if (/[?&]friend(?:Name|Username|Password)=/.test(location.search)) {
+        history.replaceState(history.state || {}, '', location.pathname + (location.hash || ''));
+      }
+      if (isFile) document.documentElement.classList.add('sage-file-mode');
+      document.addEventListener('submit', function (event) {
+        if (!isFile || !event.target || !event.target.matches('#friendGateForm,#guestbookForm')) return;
+        event.preventDefault();
+        event.stopPropagation();
+      }, true);
+      if (isFile) {
+        document.addEventListener('DOMContentLoaded', function () {
+          var error = document.getElementById('friendGateError');
+          var button = document.querySelector('#friendGateForm button[type="submit"]');
+          if (error) error.textContent = '本地文件不能登录云端留言板，请打开上方线上留言板链接。';
+          if (button) button.disabled = true;
+        });
+      }
+    })();
+  </script>
 </head>
 <body class="friend-page" data-public-page="friends">
+  <div class="file-mode-banner" role="status">
+    你现在打开的是本地文件，本地文件不能连接云端留言板，也不能读取线上 Sage 登录状态。
+    <a href="https://sage-utopia.vercel.app/friends.html">打开线上留言板</a>
+  </div>
   <div class="friend-shell">
     <header class="friend-top">
       <a class="friend-brand" href="index.html">

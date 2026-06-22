@@ -104,6 +104,10 @@ button,
 
 @media (max-width: 900px) {
   body {
+    padding-top: 0;
+  }
+
+  .shell {
     padding-top: var(--sage-mobile-nav-height, 340px);
   }
 

@@ -395,6 +395,21 @@ test('朋友用户名禁止中文并保留昵称 emoji 输入', async ({ page })
   await expect(page).not.toHaveURL(/friendPassword=/);
 });
 
+test('本地文件打开留言板会清理密码参数并提示使用线上入口', async ({ page }) => {
+  const fileUrl = `file://${process.cwd().replaceAll(' ', '%20')}/friends.html?friendName=%E6%B5%8B%E8%AF%95&friendUsername=ceshi&friendPassword=secret`;
+  await page.goto(fileUrl, { waitUntil: 'domcontentloaded' });
+
+  await expect(page).not.toHaveURL(/friendPassword=/);
+  await expect(page.locator('.file-mode-banner')).toBeVisible();
+  await expect(page.locator('.file-mode-banner')).toContainText('本地文件不能连接云端留言板');
+  await expect(page.locator('.file-mode-banner a')).toHaveAttribute(
+    'href',
+    'https://sage-utopia.vercel.app/friends.html',
+  );
+  await expect(page.locator('#friendGateError')).toContainText('本地文件不能登录云端留言板');
+  await expect(page.getByRole('button', { name: '进入留言板' })).toBeDisabled();
+});
+
 test('管理入口提供 Sage 和朋友双入口选择', async ({ page }) => {
   await page.addInitScript(() => {
     (window as Window & { __SAGE_ENV__?: Record<string, string> }).__SAGE_ENV__ = {

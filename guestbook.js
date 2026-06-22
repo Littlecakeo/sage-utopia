@@ -8,6 +8,7 @@
   const USERNAME_RE = /^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$/;
   const COLORS = ['#fff8cf', '#e6f2df', '#e5f0f1', '#f7eadf', '#eee6f6', '#f9f1c8'];
   const STICKERS = ['✦', '♡', '✧', '♪', '※', '⋆'];
+  const LIVE_FRIENDS_URL = 'https://sage-utopia.vercel.app/friends.html';
   let didInit = false;
 
   const $ = (selector) => document.querySelector(selector);
@@ -19,6 +20,10 @@
 
   function cloud() {
     return window.SageCloudData || {};
+  }
+
+  function isFileMode() {
+    return location.protocol === 'file:';
   }
 
   function normalize(value, max) {
@@ -162,6 +167,18 @@
   function setGateError(text) {
     const error = $('#friendGateError');
     if (error) error.textContent = text || '';
+  }
+
+  function showFileModeWarning() {
+    document.documentElement.classList.add('sage-file-mode');
+    const banner = document.querySelector('.file-mode-banner');
+    if (banner) {
+      const link = banner.querySelector('a');
+      if (link) link.setAttribute('href', LIVE_FRIENDS_URL);
+    }
+    setGateError('本地文件不能登录云端留言板，请打开上方线上留言板链接。');
+    const button = $('#friendGateForm button[type="submit"]');
+    if (button) button.disabled = true;
   }
 
   function setStatus(text, isError) {
@@ -407,6 +424,11 @@
     installComposer();
     installDelete();
     installLogout();
+    if (isFileMode()) {
+      showGate();
+      showFileModeWarning();
+      return;
+    }
     const visitor = getVisitor();
     const sageVisitor = getSageVisitor();
     if (sageVisitor) {

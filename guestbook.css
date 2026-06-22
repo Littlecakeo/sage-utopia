@@ -19,6 +19,37 @@ body.friend-page{
   font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
 }
 
+.file-mode-banner{
+  display:none;
+  width:min(1120px,calc(100% - 32px));
+  margin:16px auto 0;
+  border:1px solid rgba(154,107,88,.22);
+  border-radius:18px;
+  background:rgba(255,246,232,.88);
+  color:#8b604e;
+  padding:12px 14px;
+  font-size:13px;
+  font-weight:850;
+  line-height:1.6;
+  box-shadow:0 12px 28px rgba(91,68,48,.06);
+}
+.file-mode-banner a{
+  display:inline-flex;
+  margin-left:6px;
+  color:#5f7f5d;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.sage-file-mode .file-mode-banner{display:block}
+.sage-file-mode .friend-gate-card{
+  border-color:rgba(154,107,88,.26);
+}
+.sage-file-mode .friend-button{
+  opacity:.62;
+  cursor:not-allowed;
+  transform:none;
+}
+
 .friend-shell{
   width:min(1120px,calc(100% - 32px));
   margin:0 auto;
