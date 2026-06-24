@@ -437,19 +437,20 @@ test('朋友用户名禁止中文并保留昵称 emoji 输入', async ({ page })
   await expect(page).not.toHaveURL(/friendPassword=/);
 });
 
-test('本地文件打开留言板会清理密码参数并提示使用线上入口', async ({ page }) => {
+test('本地文件打开留言板会自动跳到线上并清理密码参数', async ({ page }) => {
+  await page.route('https://sage-utopia.vercel.app/friends.html', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/html',
+      body: '<!doctype html><title>online friends</title><main>online</main>',
+    });
+  });
   const fileUrl = `file://${process.cwd().replaceAll(' ', '%20')}/friends.html?friendName=%E6%B5%8B%E8%AF%95&friendUsername=ceshi&friendPassword=secret`;
   await page.goto(fileUrl, { waitUntil: 'domcontentloaded' });
 
   await expect(page).not.toHaveURL(/friendPassword=/);
-  await expect(page.locator('.file-mode-banner')).toBeVisible();
-  await expect(page.locator('.file-mode-banner')).toContainText('本地文件不能连接云端留言板');
-  await expect(page.locator('.file-mode-banner a')).toHaveAttribute(
-    'href',
-    'https://sage-utopia.vercel.app/friends.html',
-  );
-  await expect(page.locator('#friendGateError')).toContainText('本地文件不能登录云端留言板');
-  await expect(page.getByRole('button', { name: '进入留言板' })).toBeDisabled();
+  await expect(page).toHaveURL('https://sage-utopia.vercel.app/friends.html');
+  await expect(page.locator('main')).toContainText('online');
 });
 
 test('管理入口提供 Sage 和朋友双入口选择', async ({ page }) => {
@@ -473,12 +474,12 @@ test('管理入口提供 Sage 和朋友双入口选择', async ({ page }) => {
 test('管理已解锁时留言板直接使用 Sage 身份', async ({ page }) => {
   await page.addInitScript(() => {
     sessionStorage.setItem('sage.admin.unlocked.v1', '1');
-    sessionStorage.removeItem('sage.friend.force.visitor.v1');
     sessionStorage.removeItem('sage.friend.visitor.v1');
   });
   await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
 
   await expect(page.locator('#friendGate')).toBeHidden();
+  await expect(page.locator('.friend-hero')).toBeHidden();
   await expect(page.locator('#friendVisitorName')).toHaveText('Sage');
   await expect(page.locator('#friendModeHint')).toContainText('当前是 Sage 身份');
   await expect(page.getByRole('button', { name: '切换访客身份' })).toBeVisible();

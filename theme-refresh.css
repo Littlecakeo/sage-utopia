@@ -83,6 +83,41 @@ button:hover,.button:hover{background:#243029 !important;color:#FFFDF8 !importan
 @media(max-width:900px){*{scroll-margin-top:160px;}.mobile-scroll a,.mobile-scroll button,.mobile-branches a{font-weight:900 !important;}.hero:after{width:42px;height:30px;right:18px;top:18px;}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none !important;transition:none !important;}}
 
+main{
+  min-width:0 !important;
+}
+main > section,
+main > .section,
+main > .card,
+main > .hero{
+  width:min(100%,1120px) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+main > .compact-stats{
+  width:min(100%,1120px) !important;
+}
+.quote-card h1{
+  overflow-wrap:anywhere;
+}
+@media (min-width:901px){
+  main{
+    width:calc(100vw - 280px) !important;
+    max-width:none !important;
+    padding:clamp(22px,2.4vw,34px) !important;
+  }
+}
+@media (max-width:900px){
+  .mobile{
+    max-height:none !important;
+    overflow:visible !important;
+  }
+  .mobile-scroll,.mobile-branches{
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+}
+
 /* Softer mint accent and editorial title font. */
 :root{
   --primary:#BFE6D2;

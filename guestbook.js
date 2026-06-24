@@ -3,7 +3,6 @@
 
   const VISITOR_KEY = 'sage.friend.visitor.v1';
   const ADMIN_SESSION_KEY = 'sage.admin.unlocked.v1';
-  const FORCE_VISITOR_KEY = 'sage.friend.force.visitor.v1';
   const MESSAGE_TOKEN_KEY = 'sage.friend.message.tokens.v1';
   const USERNAME_RE = /^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$/;
   const COLORS = ['#fff8cf', '#e6f2df', '#e5f0f1', '#f7eadf', '#eee6f6', '#f9f1c8'];
@@ -62,16 +61,8 @@
     }
   }
 
-  function isForceVisitorLogin() {
-    try {
-      return sessionStorage.getItem(FORCE_VISITOR_KEY) === '1';
-    } catch {
-      return false;
-    }
-  }
-
   function getSageVisitor() {
-    if (!isAdminUnlocked() || isForceVisitorLogin()) return null;
+    if (!isAdminUnlocked()) return null;
     return {
       username: 'sage',
       name: 'Sage',
@@ -89,7 +80,6 @@
       isSage: Boolean(profile.isSage),
       enteredAt: new Date().toISOString(),
     };
-    sessionStorage.removeItem(FORCE_VISITOR_KEY);
     sessionStorage.setItem(VISITOR_KEY, JSON.stringify(visitor));
     return visitor;
   }
@@ -146,6 +136,7 @@
     const modeHint = $('#friendModeHint');
     if (gate) gate.hidden = true;
     if (area) area.hidden = false;
+    document.body.classList.add('friend-entered');
     if (name) name.textContent = visitor.name;
     document.body.classList.toggle('friend-sage-mode', Boolean(visitor.isSage));
     if (switchButton) switchButton.textContent = visitor.isSage ? '切换访客身份' : '退出当前账号';
@@ -161,6 +152,7 @@
     const area = $('#friendArea');
     if (gate) gate.hidden = false;
     if (area) area.hidden = true;
+    document.body.classList.remove('friend-entered');
     document.body.classList.remove('friend-sage-mode');
   }
 
@@ -233,7 +225,7 @@
       card.append(pin, title, text, time);
       if (
         message.id &&
-        ((visitor?.isSage && message.friend_username === 'sage' && tokens[message.id]) ||
+        ((visitor?.isSage && message.friend_username === 'sage') ||
           (visitor?.username === message.friend_username && (visitor.passwordHash || tokens[message.id])))
       ) {
         const removeButton = document.createElement('button');
@@ -312,7 +304,6 @@
         if (button) button.disabled = true;
         setGateError('正在进入留言板...');
         const visitor = await enterWithCredentials(name, username, password);
-        sessionStorage.removeItem(FORCE_VISITOR_KEY);
         setGateError('');
         showFriendArea(visitor);
         await loadMessages();
@@ -379,7 +370,7 @@
       const messageId = button.dataset.messageId || '';
       const token = getMessageTokens()[messageId] || '';
       const visitor = getVisitor();
-      if (!messageId || !visitor?.username || !visitor?.passwordHash) {
+      if (!messageId || !visitor?.username || (!visitor.passwordHash && !token)) {
         setStatus('请先用发布这条留言的用户名和密码重新进入。', true);
         return;
       }
@@ -397,7 +388,7 @@
         await loadMessages();
       } catch (error) {
         console.warn('[guestbook] delete failed', error);
-        setStatus('删除失败，可能不是这台设备发布的留言。', true);
+        setStatus('删除失败。请确认你用发布这条留言的用户名和密码登录；旧版本留言可能需要先运行最新数据库脚本。', true);
         button.disabled = false;
       }
     });
@@ -405,9 +396,7 @@
 
   function installLogout() {
     $('#friendSwitchName')?.addEventListener('click', () => {
-      const visitor = getVisitor();
       sessionStorage.removeItem(VISITOR_KEY);
-      if (visitor?.isSage) sessionStorage.setItem(FORCE_VISITOR_KEY, '1');
       showGate();
       setStatus('');
       setGateError('');

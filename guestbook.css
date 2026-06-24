@@ -98,6 +98,9 @@ body.friend-page{
   align-items:stretch;
   margin-bottom:22px;
 }
+body.friend-entered .friend-hero{
+  display:none;
+}
 
 .friend-title-card,.friend-gate-card,.friend-section{
   border:1px solid rgba(255,253,248,.9);
@@ -186,6 +189,9 @@ body.friend-page{
 .friend-section{
   margin-top:20px;
   padding:26px;
+}
+body.friend-entered .friend-section{
+  margin-top:0;
 }
 .friend-section h2{margin:0 0 8px;font-size:24px}
 .friend-section .sub{margin:0;color:rgba(49,66,56,.62);font-weight:720;line-height:1.7}
@@ -323,11 +329,24 @@ body.friend-sage-mode #friendVisitorName{
 
 @media(max-width:900px){
   .friend-shell{width:min(100% - 24px,720px);padding-top:12px}
-  .friend-top{display:block;margin:0 -12px 16px;padding:12px}
+  .friend-top{display:block;margin:0 -12px 16px;padding:12px;position:sticky;top:0}
   .friend-nav{justify-content:flex-start;margin-top:12px}
   .friend-hero{grid-template-columns:1fr}
   .friend-title-card{padding:26px}
+  .friend-title-card h1{font-size:clamp(34px,12vw,54px);overflow-wrap:anywhere}
+  .friend-section{padding:18px;border-radius:24px}
+  .guestbook-board{padding:14px;border-radius:24px}
   .guestbook-compose{grid-template-columns:1fr}
   .guestbook-submit{min-height:52px}
   .note-grid{grid-template-columns:1fr}
+}
+
+@media(max-width:560px){
+  .friend-shell{width:min(100% - 20px,420px)}
+  .friend-top{margin:0 -10px 14px}
+  .friend-brand .leaf{width:42px;height:42px;border-radius:16px}
+  .friend-nav a,.friend-chip{padding:8px 10px;font-size:12px}
+  .friend-title-card,.friend-gate-card{border-radius:24px;padding:22px}
+  .friend-title-card h1{font-size:38px;line-height:1.08}
+  .guest-note{min-height:150px}
 }

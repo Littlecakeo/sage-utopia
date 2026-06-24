@@ -42,6 +42,17 @@ test('构建校验覆盖核心页面入口', () => {
   }
 });
 
+test('所有页面都会从本地文件自动跳到线上版本', () => {
+  const redirectScript = readFileSync(path.join(root, 'online-only.js'), 'utf8');
+  expect(redirectScript).toContain("location.protocol !== 'file:'");
+  expect(redirectScript).toContain('https://sage-utopia.vercel.app/');
+
+  for (const page of ['index.html', 'study.html', 'career.html', 'finance.html', 'growth.html', 'resume.html', 'friends.html']) {
+    const html = readFileSync(path.join(root, page), 'utf8');
+    expect(html).toContain('online-only.js');
+  }
+});
+
 test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
   const cloud = readFileSync(path.join(root, 'sage-cloud-data.js'), 'utf8');
   const guestbook = readFileSync(path.join(root, 'guestbook.js'), 'utf8');
@@ -51,5 +62,10 @@ test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
   expect(guestbook).toContain('enterFriendProfile');
   expect(guestbook).toContain('hideGuestbookMessage');
   expect(guestbook).toContain('guest-delete');
+  expect(guestbook).toContain('friend-entered');
   expect(guestbook).not.toContain('getFriendProfile(username)');
+
+  const friends = readFileSync(path.join(root, 'friends.html'), 'utf8');
+  expect(friends).toContain('autocomplete="off"');
+  expect(cloud).toContain('autocomplete="off"');
 });

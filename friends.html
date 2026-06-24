@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="online-only.js"></script>
   <title>Sage Utopia｜朋友留言板</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="guestbook.css">
@@ -60,7 +61,7 @@
           <form class="friend-form" id="friendGateForm" action="javascript:void(0)" onsubmit="return false">
             <input class="friend-field" id="friendName" name="friendName" autocomplete="name" maxlength="40" placeholder="昵称 例如 小林🌱 / Lin!" required>
             <input class="friend-field" id="friendUsername" name="friendUsername" autocomplete="username" maxlength="32" placeholder="用户名 仅英文/数字/符号" required>
-            <input class="friend-field" id="friendPassword" name="friendPassword" type="password" autocomplete="current-password" minlength="4" placeholder="密码" required>
+            <input class="friend-field" id="friendPassword" name="friendPassword" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" minlength="4" placeholder="密码" required>
             <button class="friend-button" type="submit">进入留言板</button>
           </form>
           <p class="friend-error" id="friendGateError" role="status" aria-live="polite"></p>

@@ -15,6 +15,7 @@ const staticFiles = [
   'guestbook.js',
   'growth.js',
   'mobile-fix.css',
+  'online-only.js',
   'portfolio.js',
   'progress.css',
   'resume.js',

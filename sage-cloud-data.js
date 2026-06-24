@@ -320,7 +320,7 @@ function renderAdminGate() {
           <a href="friends.html">Sage's friend</a>
         </div>
         <form class="sage-admin-gate-form">
-          <input type="password" autocomplete="current-password" placeholder="输入管理密码" aria-label="管理密码">
+          <input type="password" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="输入管理密码" aria-label="管理密码">
           <button type="submit">进入</button>
         </form>
         <p class="sage-admin-gate-error" role="status" aria-live="polite"></p>

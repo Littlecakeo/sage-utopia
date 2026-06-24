@@ -374,7 +374,10 @@ begin
         from friend_profiles fp
         where fp.username = cleaned_username
           and fp.password_hash = cleaned_hash
-          and gm.friend_username = cleaned_username
+          and (
+            gm.friend_username = cleaned_username
+            or (gm.friend_username is null and gm.display_name = fp.display_name)
+          )
       )
     );
 
