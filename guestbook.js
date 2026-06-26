@@ -4,11 +4,25 @@
   const VISITOR_KEY = 'sage.friend.visitor.v1';
   const ADMIN_SESSION_KEY = 'sage.admin.unlocked.v1';
   const MESSAGE_TOKEN_KEY = 'sage.friend.message.tokens.v1';
+  const REMEMBER_KEY = 'sage.friend.remembered.v1';
   const USERNAME_RE = /^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$/;
   const COLORS = ['#fff8cf', '#e6f2df', '#e5f0f1', '#f7eadf', '#eee6f6', '#f9f1c8'];
   const STICKERS = ['✦', '♡', '✧', '♪', '※', '⋆'];
+  const AVATARS = [
+    { emoji: '🌱', color: '#e6f2df' },
+    { emoji: '🍵', color: '#dff0e2' },
+    { emoji: '🌼', color: '#fff4c8' },
+    { emoji: '🫧', color: '#e5f0f1' },
+    { emoji: '🪻', color: '#eee6f6' },
+    { emoji: '🍊', color: '#f7eadf' },
+    { emoji: '⭐', color: '#f9f1c8' },
+  ];
   const LIVE_FRIENDS_URL = 'https://sage-utopia.vercel.app/friends.html';
+  const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
   let didInit = false;
+  let selectedAvatarIndex = 0;
+  let selectedAvatarFile = null;
+  let selectedAvatarUrl = '';
 
   const $ = (selector) => document.querySelector(selector);
 
@@ -27,6 +41,120 @@
 
   function normalize(value, max) {
     return String(value || '').trim().slice(0, max);
+  }
+
+  function normalizeAvatar(input) {
+    const emoji = normalize(input?.emoji || input?.avatar_emoji || input?.avatarEmoji || '🌱', 8) || '🌱';
+    const color = normalize(input?.color || input?.avatar_color || input?.avatarColor || '#e6f2df', 24);
+    const url = normalize(input?.url || input?.avatar_url || input?.avatarUrl || '', 500);
+    return {
+      emoji,
+      color: /^#[0-9a-fA-F]{3,8}$/.test(color) ? color : '#e6f2df',
+      url: /^https?:\/\//.test(url) || url.startsWith('blob:') ? url : '',
+    };
+  }
+
+  function getSelectedAvatar() {
+    return normalizeAvatar(AVATARS[selectedAvatarIndex] || AVATARS[0]);
+  }
+
+  function avatarIndexFor(avatar) {
+    const normalized = normalizeAvatar(avatar);
+    const index = AVATARS.findIndex((item) => item.emoji === normalized.emoji && item.color === normalized.color);
+    return index >= 0 ? index : 0;
+  }
+
+  function applyAvatarToElement(element, avatar) {
+    if (!element) return;
+    const normalized = normalizeAvatar(avatar);
+    element.style.setProperty('--avatar-bg', normalized.color);
+    element.textContent = '';
+    if (normalized.url) {
+      const image = document.createElement('img');
+      image.src = normalized.url;
+      image.alt = '';
+      image.loading = 'lazy';
+      element.appendChild(image);
+      return;
+    }
+    element.textContent = normalized.emoji;
+  }
+
+  function updateAvatarPicker() {
+    const avatar = { ...getSelectedAvatar(), url: selectedAvatarUrl };
+    applyAvatarToElement($('#friendAvatarPreview'), avatar);
+    $('#friendAvatarButton')?.style.setProperty('--avatar-bg', avatar.color);
+  }
+
+  function installAvatarPicker() {
+    const button = $('#friendAvatarButton');
+    const input = $('#friendAvatarInput');
+    if (!button) return;
+    updateAvatarPicker();
+    button.addEventListener('click', () => {
+      input?.click();
+    });
+    input?.addEventListener('change', () => {
+      const file = input.files?.[0] || null;
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        setGateError('头像需要选择图片文件。');
+        input.value = '';
+        return;
+      }
+      if (file.size > MAX_AVATAR_SIZE) {
+        setGateError('头像图片不能超过 2MB。');
+        input.value = '';
+        return;
+      }
+      selectedAvatarFile = file;
+      if (selectedAvatarUrl.startsWith('blob:')) URL.revokeObjectURL(selectedAvatarUrl);
+      selectedAvatarUrl = URL.createObjectURL(file);
+      updateAvatarPicker();
+    });
+  }
+
+  function getRememberedFriend() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(REMEMBER_KEY) || 'null');
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function hydrateRememberedFriend() {
+    const remembered = getRememberedFriend();
+    if (!remembered) return;
+    const name = $('#friendName');
+    const username = $('#friendUsername');
+    if (name && remembered.name) name.value = remembered.name;
+    if (username && remembered.username) username.value = remembered.username;
+    selectedAvatarIndex = avatarIndexFor({
+      emoji: remembered.avatarEmoji,
+      color: remembered.avatarColor,
+    });
+    selectedAvatarUrl = remembered.avatarUrl || '';
+    updateAvatarPicker();
+  }
+
+  function rememberFriend(visitor) {
+    const checkbox = $('#friendRemember');
+    if (!checkbox?.checked) {
+      localStorage.removeItem(REMEMBER_KEY);
+      return;
+    }
+    const avatar = normalizeAvatar(visitor);
+    localStorage.setItem(
+      REMEMBER_KEY,
+      JSON.stringify({
+        name: visitor.name,
+        username: visitor.username,
+        avatarEmoji: avatar.emoji,
+        avatarColor: avatar.color,
+        avatarUrl: avatar.url,
+      })
+    );
   }
 
   async function sha256(text) {
@@ -67,16 +195,23 @@
       username: 'sage',
       name: 'Sage',
       passwordHash: '',
+      avatarEmoji: '🌱',
+      avatarColor: '#e6f2df',
+      avatarUrl: '',
       isSage: true,
       enteredAt: new Date().toISOString(),
     };
   }
 
   function setVisitor(profile) {
+    const avatar = normalizeAvatar(profile);
     const visitor = {
       username: profile.username,
-      name: profile.display_name,
-      passwordHash: profile.password_hash || '',
+      name: profile.display_name || profile.name,
+      passwordHash: profile.password_hash || profile.passwordHash || '',
+      avatarEmoji: avatar.emoji,
+      avatarColor: avatar.color,
+      avatarUrl: avatar.url,
       isSage: Boolean(profile.isSage),
       enteredAt: new Date().toISOString(),
     };
@@ -132,19 +267,17 @@
     const gate = $('#friendGate');
     const area = $('#friendArea');
     const name = $('#friendVisitorName');
+    const avatar = $('#friendVisitorAvatar');
     const switchButton = $('#friendSwitchName');
     const modeHint = $('#friendModeHint');
     if (gate) gate.hidden = true;
     if (area) area.hidden = false;
     document.body.classList.add('friend-entered');
     if (name) name.textContent = visitor.name;
+    applyAvatarToElement(avatar, visitor);
     document.body.classList.toggle('friend-sage-mode', Boolean(visitor.isSage));
     if (switchButton) switchButton.textContent = visitor.isSage ? '切换访客身份' : '退出当前账号';
-    if (modeHint) {
-      modeHint.textContent = visitor.isSage
-        ? '当前是 Sage 身份，可以直接留言；访客入口仍然独立保留。'
-        : '写完后所有朋友都能看到。';
-    }
+    if (modeHint) modeHint.textContent = '';
   }
 
   function showGate() {
@@ -213,7 +346,17 @@
       pin.setAttribute('aria-hidden', 'true');
 
       const title = document.createElement('h3');
-      title.textContent = `${message.sticker || STICKERS[index % STICKERS.length]} ${message.display_name || '朋友'}`;
+      const avatar = document.createElement('span');
+      avatar.className = 'guest-avatar';
+      applyAvatarToElement(avatar, {
+        emoji: message.avatar_emoji,
+        color: message.avatar_color,
+        url: message.avatar_url,
+      });
+      const author = document.createElement('span');
+      author.className = 'guest-author';
+      author.textContent = `${message.sticker || STICKERS[index % STICKERS.length]} ${message.display_name || '朋友'}`;
+      title.append(avatar, author);
 
       const text = document.createElement('p');
       text.textContent = message.message || '';
@@ -272,18 +415,40 @@
     return '';
   }
 
-  async function enterWithCredentials(name, username, password) {
+  async function uploadSelectedAvatar(username) {
+    if (!selectedAvatarFile) return selectedAvatarUrl;
+    if (!cloud().uploadFriendAvatar) throw new Error('头像上传暂时连不上云端，请稍后再试。');
+    return cloud().uploadFriendAvatar(selectedAvatarFile, username);
+  }
+
+  async function enterWithCredentials(name, username, password, avatar) {
     if (!cloud().hasConfig || !cloud().enterFriendProfile) {
       throw new Error('朋友账号暂时连不上云端，请稍后再试。');
     }
+    const safeAvatar = normalizeAvatar(avatar);
     const hash = await passwordHash(username, password);
     const profile = await cloud().enterFriendProfile({
       username,
       display_name: name,
       password_hash: hash,
+      avatar_emoji: safeAvatar.emoji,
+      avatar_color: safeAvatar.color,
+      avatar_url: safeAvatar.url.startsWith('blob:') ? '' : safeAvatar.url,
     });
     if (!profile) throw new Error('进入失败，请稍后再试。');
-    return setVisitor({ ...profile, password_hash: hash });
+    let visitor = setVisitor({ ...profile, password_hash: hash });
+    if (selectedAvatarFile) {
+      const avatarUrl = await uploadSelectedAvatar(username);
+      if (avatarUrl && cloud().updateFriendAvatar) {
+        const updated = await cloud().updateFriendAvatar(username, hash, avatarUrl);
+        visitor = setVisitor({ ...(updated || profile), password_hash: hash, avatar_url: avatarUrl });
+      } else {
+        visitor = setVisitor({ ...profile, password_hash: hash, avatar_url: avatarUrl });
+      }
+      selectedAvatarFile = null;
+      selectedAvatarUrl = avatarUrl;
+    }
+    return visitor;
   }
 
   function installGate() {
@@ -302,8 +467,9 @@
       }
       try {
         if (button) button.disabled = true;
-        setGateError('正在进入留言板...');
-        const visitor = await enterWithCredentials(name, username, password);
+        setGateError(selectedAvatarFile ? '正在上传头像并进入留言板...' : '正在进入留言板...');
+        const visitor = await enterWithCredentials(name, username, password, { ...getSelectedAvatar(), url: selectedAvatarUrl });
+        rememberFriend(visitor);
         setGateError('');
         showFriendArea(visitor);
         await loadMessages();
@@ -339,9 +505,13 @@
         if (button) button.disabled = true;
         setStatus('正在把小纸条贴到留言板...');
         const deleteToken = await sha256(`sage-delete:${visitor.username}:${randomToken()}`);
+        const avatar = normalizeAvatar(visitor);
         const saved = await cloud().createGuestbookMessage({
           friend_username: visitor.username,
           display_name: visitor.name,
+          avatar_emoji: avatar.emoji,
+          avatar_color: avatar.color,
+          avatar_url: avatar.url,
           message,
           sticker: STICKERS[Math.floor(Math.random() * STICKERS.length)],
           note_color: COLORS[Math.floor(Math.random() * COLORS.length)],
@@ -409,6 +579,8 @@
     if (didInit) return;
     didInit = true;
     cleanSensitiveUrl();
+    hydrateRememberedFriend();
+    installAvatarPicker();
     installGate();
     installComposer();
     installDelete();

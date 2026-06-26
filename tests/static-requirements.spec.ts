@@ -32,7 +32,14 @@ test('Supabase 环境和 schema 文件已准备好', () => {
   expect(schema).toContain('p_username text default null');
   expect(schema).toContain('fp.password_hash = cleaned_hash');
   expect(schema).toContain('revoke select, insert, update, delete on friend_profiles from anon, authenticated');
-  expect(schema).toContain('grant select (id, user_id, friend_username, display_name, message, sticker, note_color, is_visible, created_at, updated_at)');
+  expect(schema).toContain('avatar_emoji text');
+  expect(schema).toContain('avatar_color text');
+  expect(schema).toContain('avatar_url text');
+  expect(schema).toContain("values ('friend-avatars', 'friend-avatars', true");
+  expect(schema).toContain('p_avatar_emoji text default');
+  expect(schema).toContain('p_avatar_url text default');
+  expect(schema).toContain('create function sage_friend_update_avatar');
+  expect(schema).toContain('grant select (id, user_id, friend_username, display_name, avatar_emoji, avatar_color, avatar_url, message, sticker, note_color, is_visible, created_at, updated_at)');
 });
 
 test('构建校验覆盖核心页面入口', () => {
@@ -58,9 +65,14 @@ test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
   const guestbook = readFileSync(path.join(root, 'guestbook.js'), 'utf8');
 
   expect(cloud).toContain(".rpc('sage_friend_enter'");
+  expect(cloud).toContain(".rpc('sage_friend_update_avatar'");
+  expect(cloud).toContain(".from('friend-avatars')");
   expect(cloud).toContain(".rpc('sage_hide_guestbook_message'");
   expect(guestbook).toContain('enterFriendProfile');
+  expect(guestbook).toContain('uploadFriendAvatar');
   expect(guestbook).toContain('hideGuestbookMessage');
+  expect(guestbook).toContain('REMEMBER_KEY');
+  expect(guestbook).toContain('friendAvatarButton');
   expect(guestbook).toContain('guest-delete');
   expect(guestbook).toContain('friend-entered');
   expect(guestbook).not.toContain('getFriendProfile(username)');

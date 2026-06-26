@@ -59,9 +59,20 @@
           <h2>Sage's friend</h2>
           <p>访客入口只用于留言，不会进入 Sage 的管理模式。</p>
           <form class="friend-form" id="friendGateForm" action="javascript:void(0)" onsubmit="return false">
+            <div class="avatar-picker" aria-label="朋友头像">
+              <button class="friend-avatar-choice" id="friendAvatarButton" type="button" aria-label="切换头像">
+                <span id="friendAvatarPreview">🌱</span>
+              </button>
+              <input id="friendAvatarInput" type="file" accept="image/*" hidden>
+              <span>点击头像上传图片</span>
+            </div>
             <input class="friend-field" id="friendName" name="friendName" autocomplete="name" maxlength="40" placeholder="昵称 例如 小林🌱 / Lin!" required>
             <input class="friend-field" id="friendUsername" name="friendUsername" autocomplete="username" maxlength="32" placeholder="用户名 仅英文/数字/符号" required>
             <input class="friend-field" id="friendPassword" name="friendPassword" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" minlength="4" placeholder="密码" required>
+            <label class="remember-line">
+              <input id="friendRemember" type="checkbox" checked>
+              <span>记住这台设备的昵称和用户名</span>
+            </label>
             <button class="friend-button" type="submit">进入留言板</button>
           </form>
           <p class="friend-error" id="friendGateError" role="status" aria-live="polite"></p>
@@ -73,7 +84,7 @@
           <div style="display:flex;align-items:start;justify-content:space-between;gap:12px;flex-wrap:wrap">
             <div>
               <h2>校园留言板</h2>
-              <p class="sub">欢迎你，<span id="friendVisitorName">朋友</span>。<span id="friendModeHint">写完后所有朋友都能看到。</span></p>
+              <p class="sub">欢迎你，<span class="friend-name-line"><span class="friend-inline-avatar" id="friendVisitorAvatar">🌱</span><span id="friendVisitorName">朋友</span></span>。<span id="friendModeHint">写完后所有朋友都能看到。</span></p>
             </div>
             <button class="friend-chip" id="friendSwitchName" type="button">退出当前账号</button>
           </div>

@@ -27,7 +27,7 @@ const MODULE_TABLES = {
 };
 
 const GUESTBOOK_PUBLIC_COLUMNS =
-  'id,user_id,friend_username,display_name,message,sticker,note_color,is_visible,created_at,updated_at';
+  'id,user_id,friend_username,display_name,avatar_emoji,avatar_color,avatar_url,message,sticker,note_color,is_visible,created_at,updated_at';
 
 const hasConfig = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const client = hasConfig ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -395,6 +395,9 @@ function toCloud(module, payload) {
   if (module === 'guestbook') {
     item.friend_username = String(item.friend_username || '').trim().slice(0, 64);
     item.display_name = String(item.display_name || '').trim().slice(0, 40);
+    item.avatar_emoji = String(item.avatar_emoji || '🌱').trim().slice(0, 8);
+    item.avatar_color = String(item.avatar_color || '#e6f2df').trim().slice(0, 24);
+    item.avatar_url = String(item.avatar_url || '').trim().slice(0, 500);
     item.message = String(item.message || '').trim().slice(0, 500);
     item.sticker = String(item.sticker || '').trim().slice(0, 16);
     item.note_color = String(item.note_color || '').trim().slice(0, 24);
@@ -468,6 +471,38 @@ async function enterFriendProfile(payload) {
       p_display_name: String(payload?.display_name || '').trim().slice(0, 40),
       p_username: String(payload?.username || '').trim().slice(0, 32),
       p_password_hash: String(payload?.password_hash || '').trim(),
+      p_avatar_emoji: String(payload?.avatar_emoji || '🌱').trim().slice(0, 8),
+      p_avatar_color: String(payload?.avatar_color || '#e6f2df').trim().slice(0, 24),
+      p_avatar_url: String(payload?.avatar_url || '').trim().slice(0, 500),
+    });
+  if (error) throw error;
+  return Array.isArray(data) ? data[0] || null : data;
+}
+
+async function uploadFriendAvatar(file, username) {
+  if (!client || !file) return '';
+  const safeUsername = String(username || 'friend').replace(/[^A-Za-z0-9._-]/g, '-').slice(0, 32) || 'friend';
+  const extension = String(file.name || '').split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+  const path = `${safeUsername}/avatar-${Date.now()}.${extension}`;
+  const { error } = await client.storage
+    .from('friend-avatars')
+    .upload(path, file, {
+      cacheControl: '3600',
+      contentType: file.type || 'image/jpeg',
+      upsert: false,
+    });
+  if (error) throw error;
+  const { data } = client.storage.from('friend-avatars').getPublicUrl(path);
+  return data?.publicUrl || '';
+}
+
+async function updateFriendAvatar(username, passwordHash, avatarUrl) {
+  if (!client) return null;
+  const { data, error } = await client
+    .rpc('sage_friend_update_avatar', {
+      p_username: String(username || '').trim().slice(0, 32),
+      p_password_hash: String(passwordHash || '').trim(),
+      p_avatar_url: String(avatarUrl || '').trim().slice(0, 500),
     });
   if (error) throw error;
   return Array.isArray(data) ? data[0] || null : data;
@@ -544,6 +579,8 @@ window.SageCloudData = {
   create,
   createGuestbookMessage,
   enterFriendProfile,
+  uploadFriendAvatar,
+  updateFriendAvatar,
   getFriendProfile,
   createFriendProfile,
   hideGuestbookMessage,

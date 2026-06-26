@@ -161,6 +161,25 @@ test('首页可以进入独立留言板分支', async ({ page }) => {
   await page.getByRole('link', { name: '留言板' }).first().click();
   await expect(page).toHaveURL(/friends\.html$/);
   await expect(page.getByRole('heading', { name: "Sage's friend" })).toBeVisible();
+  await expect(page.locator('body')).toHaveClass(/friend-page/);
+  await expect(page.locator('link[href="guestbook.css"]')).toHaveCount(1);
+});
+
+test('朋友入口可以上传头像预览并记住同设备资料', async ({ page }) => {
+  await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#friendAvatarButton')).toBeVisible();
+  await expect(page.locator('#friendAvatarInput')).toHaveAttribute('accept', 'image/*');
+  await expect(page.locator('#friendRemember')).toBeChecked();
+  await page.locator('#friendAvatarInput').setInputFiles({
+    name: 'avatar.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMB/azfTQAAAABJRU5ErkJggg==',
+      'base64'
+    ),
+  });
+  await expect(page.locator('#friendAvatarPreview img')).toBeVisible();
 });
 
 test('首页宽屏内容不会被侧边栏挤出屏幕', async ({ page }) => {
@@ -481,6 +500,6 @@ test('管理已解锁时留言板直接使用 Sage 身份', async ({ page }) => 
   await expect(page.locator('#friendGate')).toBeHidden();
   await expect(page.locator('.friend-hero')).toBeHidden();
   await expect(page.locator('#friendVisitorName')).toHaveText('Sage');
-  await expect(page.locator('#friendModeHint')).toContainText('当前是 Sage 身份');
+  await expect(page.locator('#friendModeHint')).toBeEmpty();
   await expect(page.getByRole('button', { name: '切换访客身份' })).toBeVisible();
 });
