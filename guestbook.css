@@ -73,6 +73,12 @@ body.friend-page{
 
 .friend-brand{display:flex;align-items:center;gap:12px;font-weight:900}
 .friend-brand .leaf{width:46px;height:46px;border-radius:18px}
+.friend-brand .leaf{
+  background-image:url("assets/sage-avatar.png")!important;
+  background-position:center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+}
 .friend-brand small{display:block;margin-top:2px;color:rgba(49,66,56,.56);font-weight:650}
 .friend-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .friend-nav a,.friend-chip{

@@ -500,6 +500,7 @@ test('管理已解锁时留言板直接使用 Sage 身份', async ({ page }) => 
   await expect(page.locator('#friendGate')).toBeHidden();
   await expect(page.locator('.friend-hero')).toBeHidden();
   await expect(page.locator('#friendVisitorName')).toHaveText('Sage');
+  await expect(page.locator('#friendVisitorAvatar img')).toBeVisible();
   await expect(page.locator('#friendModeHint')).toBeEmpty();
   await expect(page.getByRole('button', { name: '切换访客身份' })).toBeVisible();
 });

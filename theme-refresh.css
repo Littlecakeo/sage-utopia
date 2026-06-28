@@ -197,6 +197,12 @@ body,.desc,.sub,.hint,.task-meta,.task-note,.date-row,.unit-hint,.nav a,.mobile-
   font-family:var(--font-sans-cn)!important;
   font-weight:650!important;
 }
+.leaf{
+  background-image:url("assets/sage-avatar.png")!important;
+  background-position:center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+}
 h1,h2,h3,h4,.hero h1,.quote-card h1,.profile-title{
   font-family:var(--font-serif-cn)!important;
   font-weight:800!important;

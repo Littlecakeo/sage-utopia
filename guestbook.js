@@ -8,6 +8,7 @@
   const USERNAME_RE = /^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$/;
   const COLORS = ['#fff8cf', '#e6f2df', '#e5f0f1', '#f7eadf', '#eee6f6', '#f9f1c8'];
   const STICKERS = ['✦', '♡', '✧', '♪', '※', '⋆'];
+  const SAGE_SITE_AVATAR_URL = 'assets/sage-avatar.png';
   const AVATARS = [
     { emoji: '🌱', color: '#e6f2df' },
     { emoji: '🍵', color: '#dff0e2' },
@@ -23,6 +24,7 @@
   let selectedAvatarIndex = 0;
   let selectedAvatarFile = null;
   let selectedAvatarUrl = '';
+  let sageAvatarCache = null;
 
   const $ = (selector) => document.querySelector(selector);
 
@@ -46,11 +48,17 @@
   function normalizeAvatar(input) {
     const emoji = normalize(input?.emoji || input?.avatar_emoji || input?.avatarEmoji || '🌱', 8) || '🌱';
     const color = normalize(input?.color || input?.avatar_color || input?.avatarColor || '#e6f2df', 24);
-    const url = normalize(input?.url || input?.avatar_url || input?.avatarUrl || '', 500);
+    const rawUrl = String(input?.url || input?.avatar_url || input?.avatarUrl || '').trim();
     return {
       emoji,
       color: /^#[0-9a-fA-F]{3,8}$/.test(color) ? color : '#e6f2df',
-      url: /^https?:\/\//.test(url) || url.startsWith('blob:') ? url : '',
+      url:
+        /^https?:\/\//.test(rawUrl) ||
+        rawUrl.startsWith('blob:') ||
+        rawUrl.startsWith('data:image/') ||
+        /^assets\/[\w./-]+\.(png|jpe?g|webp|gif|svg)$/i.test(rawUrl)
+          ? rawUrl
+          : '',
     };
   }
 
@@ -189,15 +197,38 @@
     }
   }
 
-  function getSageVisitor() {
+  function extractCssUrl(value) {
+    const text = String(value || '').trim();
+    const match = text.match(/^url\((["']?)(.*)\1\)$/);
+    return match ? match[2] : '';
+  }
+
+  function getSiteBrandAvatarUrl() {
+    const leaf = document.querySelector('.friend-brand .leaf, .mobile .leaf, .side .leaf, .brand .leaf');
+    if (!leaf) return SAGE_SITE_AVATAR_URL;
+    return extractCssUrl(getComputedStyle(leaf).backgroundImage) || SAGE_SITE_AVATAR_URL;
+  }
+
+  async function getSageAvatar() {
+    if (sageAvatarCache) return sageAvatarCache;
+    sageAvatarCache = {
+      emoji: '🌱',
+      color: '#e6f2df',
+      url: getSiteBrandAvatarUrl() || SAGE_SITE_AVATAR_URL,
+    };
+    return sageAvatarCache;
+  }
+
+  async function getSageVisitor() {
     if (!isAdminUnlocked()) return null;
+    const avatar = await getSageAvatar();
     return {
       username: 'sage',
       name: 'Sage',
       passwordHash: '',
-      avatarEmoji: '🌱',
-      avatarColor: '#e6f2df',
-      avatarUrl: '',
+      avatarEmoji: avatar.emoji,
+      avatarColor: avatar.color,
+      avatarUrl: avatar.url,
       isSage: true,
       enteredAt: new Date().toISOString(),
     };
@@ -348,10 +379,11 @@
       const title = document.createElement('h3');
       const avatar = document.createElement('span');
       avatar.className = 'guest-avatar';
+      const sageAvatar = message.friend_username === 'sage' ? sageAvatarCache || normalizeAvatar({}) : null;
       applyAvatarToElement(avatar, {
         emoji: message.avatar_emoji,
         color: message.avatar_color,
-        url: message.avatar_url,
+        url: sageAvatar?.url || message.avatar_url || '',
       });
       const author = document.createElement('span');
       author.className = 'guest-author';
@@ -511,7 +543,7 @@
           display_name: visitor.name,
           avatar_emoji: avatar.emoji,
           avatar_color: avatar.color,
-          avatar_url: avatar.url,
+          avatar_url: visitor.isSage && avatar.url.startsWith('data:image/') ? '' : avatar.url,
           message,
           sticker: STICKERS[Math.floor(Math.random() * STICKERS.length)],
           note_color: COLORS[Math.floor(Math.random() * COLORS.length)],
@@ -575,7 +607,7 @@
     });
   }
 
-  function init() {
+  async function init() {
     if (didInit) return;
     didInit = true;
     cleanSensitiveUrl();
@@ -591,7 +623,7 @@
       return;
     }
     const visitor = getVisitor();
-    const sageVisitor = getSageVisitor();
+    const sageVisitor = await getSageVisitor();
     if (sageVisitor) {
       sessionStorage.setItem(VISITOR_KEY, JSON.stringify(sageVisitor));
       showFriendArea(sageVisitor);
