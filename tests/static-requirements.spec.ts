@@ -73,9 +73,16 @@ test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
   expect(guestbook).toContain('hideGuestbookMessage');
   expect(guestbook).toContain('REMEMBER_KEY');
   expect(guestbook).toContain('friendAvatarButton');
+  expect(guestbook).toContain("SAGE_SITE_AVATAR_URL = 'assets/sage-avatar.png'");
+  expect(guestbook).toContain('getSageAvatar');
+  expect(guestbook).toContain('getSiteBrandAvatarUrl');
   expect(guestbook).toContain('guest-delete');
   expect(guestbook).toContain('friend-entered');
   expect(guestbook).not.toContain('getFriendProfile(username)');
+
+  expect(existsSync(path.join(root, 'assets', 'sage-avatar.png'))).toBe(true);
+  const copyAssets = readFileSync(path.join(root, 'scripts', 'copy-static-assets.mjs'), 'utf8');
+  expect(copyAssets).toContain("cp('assets', 'dist/assets'");
 
   const friends = readFileSync(path.join(root, 'friends.html'), 'utf8');
   expect(friends).toContain('autocomplete="off"');

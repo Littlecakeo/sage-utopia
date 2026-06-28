@@ -40,6 +40,13 @@ button,
   max-width: 100%;
 }
 
+.leaf {
+  background-image: url("assets/sage-avatar.png") !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
 @media (max-width: 620px) {
   .quote-card h1 {
     overflow-wrap: anywhere;
