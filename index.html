@@ -11,13 +11,13 @@
   <link rel="stylesheet" href="edit-mode.css?v=10">
   <link rel="stylesheet" href="cloud-sync.css">
   <style>
-    .quote-card{position:relative;overflow:hidden;display:block;min-height:220px;padding:34px 38px;border-color:rgba(168,213,186,.46);background:linear-gradient(135deg,rgba(255,253,248,.94),rgba(235,247,239,.86))!important;box-shadow:0 22px 58px rgba(69,88,72,.10),inset 0 1px 0 rgba(255,255,255,.78)}
+    .quote-card{position:relative;overflow:hidden;display:flex;min-height:220px;padding:34px 38px;border-color:rgba(168,213,186,.46);background:linear-gradient(135deg,rgba(255,253,248,.94),rgba(235,247,239,.86))!important;box-shadow:0 22px 58px rgba(69,88,72,.10),inset 0 1px 0 rgba(255,255,255,.78)}
     .quote-card:before{content:"";position:absolute;right:34px;top:30px;width:78px;height:44px;border-radius:70% 30% 65% 35%;background:linear-gradient(135deg,rgba(168,213,186,.40),rgba(127,183,126,.22));transform:rotate(-18deg);box-shadow:-40px 34px 0 -18px rgba(158,216,219,.18);pointer-events:none}
     .quote-card:after{content:"";position:absolute;left:30px;right:30px;bottom:28px;height:1px;background:linear-gradient(90deg,transparent,rgba(143,190,156,.34),transparent);pointer-events:none}
-    .quote-copy{position:relative;z-index:1;max-width:820px}
+    .quote-copy{position:relative;z-index:1;display:flex;min-height:150px;width:100%;max-width:none;flex-direction:column}
     .quote-date{margin:0 0 18px;font-size:15px;color:#7a9a75;font-weight:900;letter-spacing:.03em}
     .quote-card h1{max-width:760px;margin:0;color:#304139;font-size:clamp(34px,5.3vw,64px);line-height:1.14;letter-spacing:0}
-    .quote-source{margin:24px 0 0;font-size:15px;color:#5e8c63;font-weight:900;text-align:left;line-height:1.6}
+    .quote-source{align-self:flex-end;margin:auto 0 0;font-size:15px;color:#5e8c63;font-weight:900;text-align:right;line-height:1.6}
     .compact-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
     .compact-stats .card{padding:10px 12px;border-radius:16px;box-shadow:0 8px 22px rgba(74,93,78,.08);display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;row-gap:2px;min-height:58px;background:rgba(255,253,248,.76)}
     .compact-stats .card p{margin:0;font-size:12px;font-weight:900;color:#60785d;line-height:1.15;white-space:nowrap}
@@ -45,7 +45,7 @@
     .guestbook-preview-note strong{display:block;margin-bottom:8px;color:#395047;font-size:15px}
     .guestbook-preview-note span{display:block;color:rgba(49,66,56,.62);font-size:13px;font-weight:720;line-height:1.6}
     @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}.guestbook-notes{grid-template-columns:1fr}}
-    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card{min-height:190px;padding:28px 22px;border-radius:28px}.quote-card h1{font-size:36px;line-height:1.18}.quote-source{text-align:left}.guestbook-home-head{display:grid}.guestbook-home-button{justify-self:start}.home-guestbook{padding:22px 18px}.home-guestbook:before{left:22px;right:22px}.guestbook-notes{gap:10px}}
+    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card{min-height:190px;padding:28px 22px;border-radius:28px}.quote-copy{min-height:134px}.quote-card h1{font-size:36px;line-height:1.18}.quote-source{font-size:13px;text-align:right}.guestbook-home-head{display:grid}.guestbook-home-button{justify-self:start}.home-guestbook{padding:22px 18px}.home-guestbook:before{left:22px;right:22px}.guestbook-notes{gap:10px}}
   </style>
 </head>
 <body>
