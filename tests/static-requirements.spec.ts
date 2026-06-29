@@ -79,6 +79,8 @@ test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
   expect(guestbook).toContain('encodeNoteChoice');
   expect(guestbook).toContain('decodeNoteChoice');
   expect(guestbook).toContain('installNoteCustomizer');
+  expect(guestbook).toContain('openNoteViewer');
+  expect(guestbook).toContain('createNoteViewer');
   expect(guestbook).toContain('guest-delete');
   expect(guestbook).toContain('friend-entered');
   expect(guestbook).not.toContain('getFriendProfile(username)');

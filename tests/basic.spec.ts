@@ -202,6 +202,49 @@ test('留言板可以自选便利贴颜色和形状', async ({ page }) => {
   await expect(form).toHaveCSS('--compose-note-bg', '#eee6f6');
 });
 
+test('留言板小纸条重叠展示并可点击放大查看', async ({ page }) => {
+  await page.route('**/sage-cloud-data.js', async (route) => {
+    await route.fulfill({
+      contentType: 'application/javascript',
+      body: `
+        window.SageCloudData = {
+          hasConfig: true,
+          list: async () => [{
+            id: 'demo-note-1',
+            friend_username: 'sage',
+            display_name: 'Sage',
+            message: '这是一张可以点开的校园小纸条，内容会在放大后完整显示。',
+            sticker: '✦',
+            note_color: '#eee6f6|folded',
+            avatar_url: 'assets/sage-avatar.png',
+            is_visible: true,
+            created_at: '2026-06-29T03:00:00.000Z'
+          }],
+          hideGuestbookMessage: async () => true
+        };
+      `,
+    });
+  });
+  await page.addInitScript(() => {
+    sessionStorage.setItem('sage.admin.unlocked.v1', '1');
+    sessionStorage.removeItem('sage.friend.visitor.v1');
+  });
+  await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  const note = page.locator('.guest-note').first();
+  await expect(note).toBeVisible();
+  await expect(note).toHaveClass(/note-style-folded/);
+  await expect(note).toHaveAttribute('role', 'button');
+  await expect(page.locator('.note-grid')).toHaveCSS('grid-template-columns', /px/);
+
+  await note.click();
+  const viewer = page.locator('.guest-note-viewer');
+  await expect(viewer).toBeVisible();
+  await expect(viewer.locator('.guest-note-viewer-card')).toContainText('这是一张可以点开的校园小纸条');
+  await page.getByRole('button', { name: '关闭留言' }).click();
+  await expect(viewer).toBeHidden();
+});
+
 test('首页宽屏内容不会被侧边栏挤出屏幕', async ({ page }) => {
   await page.setViewportSize({ width: 2048, height: 1152 });
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });

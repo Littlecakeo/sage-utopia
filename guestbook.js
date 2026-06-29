@@ -320,8 +320,102 @@
   }
 
   function noteTilt(index) {
-    const tilts = ['-1.2deg', '.8deg', '-.45deg', '1.1deg', '-.75deg', '.35deg'];
+    const tilts = ['-2.8deg', '1.6deg', '-.9deg', '2.2deg', '-1.7deg', '.8deg', '1.1deg', '-2.1deg'];
     return tilts[index % tilts.length];
+  }
+
+  function canDeleteMessage(message, visitor, tokens) {
+    return Boolean(
+      message.id &&
+        ((visitor?.isSage && message.friend_username === 'sage') ||
+          (visitor?.username === message.friend_username && (visitor.passwordHash || tokens[message.id])))
+    );
+  }
+
+  function createDeleteButton(message) {
+    const removeButton = document.createElement('button');
+    removeButton.className = 'guest-delete';
+    removeButton.type = 'button';
+    removeButton.dataset.messageId = message.id;
+    removeButton.textContent = '删除';
+    removeButton.setAttribute('aria-label', `删除 ${message.display_name || '朋友'} 的留言`);
+    return removeButton;
+  }
+
+  function closeNoteViewer() {
+    const viewer = $('.guest-note-viewer');
+    if (!viewer) return;
+    viewer.hidden = true;
+    viewer.classList.remove('is-open');
+    viewer.querySelector('.guest-note-viewer-card')?.replaceChildren();
+  }
+
+  function openNoteViewer(message, index) {
+    const note = decodeNoteChoice(message.note_color, index);
+    const viewer = $('.guest-note-viewer') || createNoteViewer();
+    const card = viewer.querySelector('.guest-note-viewer-card');
+    if (!card) return;
+    const tokens = getMessageTokens();
+    const visitor = getVisitor();
+
+    card.className = `guest-note-viewer-card note-style-${note.style}`;
+    card.style.setProperty('--note-bg', note.color);
+    card.replaceChildren();
+
+    const close = document.createElement('button');
+    close.className = 'guest-note-viewer-close';
+    close.type = 'button';
+    close.textContent = '×';
+    close.setAttribute('aria-label', '关闭留言');
+
+    const title = document.createElement('h3');
+    const avatar = document.createElement('span');
+    avatar.className = 'guest-avatar';
+    const sageAvatar = message.friend_username === 'sage' ? sageAvatarCache || normalizeAvatar({}) : null;
+    applyAvatarToElement(avatar, {
+      emoji: message.avatar_emoji,
+      color: message.avatar_color,
+      url: sageAvatar?.url || message.avatar_url || '',
+    });
+    const author = document.createElement('span');
+    author.textContent = `${message.sticker || STICKERS[index % STICKERS.length]} ${message.display_name || '朋友'}`;
+    title.append(avatar, author);
+
+    const text = document.createElement('p');
+    text.textContent = message.message || '';
+
+    const time = document.createElement('time');
+    time.dateTime = message.created_at || '';
+    time.textContent = formatTime(message.created_at);
+
+    card.append(close, title, text, time);
+    if (canDeleteMessage(message, visitor, tokens)) {
+      card.appendChild(createDeleteButton(message));
+    }
+
+    viewer.hidden = false;
+    requestAnimationFrame(() => viewer.classList.add('is-open'));
+    close.focus();
+  }
+
+  function createNoteViewer() {
+    const viewer = document.createElement('div');
+    viewer.className = 'guest-note-viewer';
+    viewer.hidden = true;
+    viewer.setAttribute('role', 'dialog');
+    viewer.setAttribute('aria-modal', 'true');
+    viewer.setAttribute('aria-label', '留言详情');
+    const card = document.createElement('article');
+    card.className = 'guest-note-viewer-card';
+    viewer.appendChild(card);
+    document.body.appendChild(viewer);
+    viewer.addEventListener('click', (event) => {
+      if (event.target === viewer || event.target.closest?.('.guest-note-viewer-close')) closeNoteViewer();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !viewer.hidden) closeNoteViewer();
+    });
+    return viewer;
   }
 
   function updateNoteCustomizer() {
@@ -436,6 +530,10 @@
       card.className = `guest-note note-style-${note.style}`;
       card.style.setProperty('--note-bg', note.color);
       card.style.setProperty('--tilt', noteTilt(index));
+      card.style.setProperty('--stack', String(index + 1));
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `查看 ${message.display_name || '朋友'} 的留言`);
 
       const pin = document.createElement('span');
       pin.className = 'pin';
@@ -463,19 +561,18 @@
       time.textContent = formatTime(message.created_at);
 
       card.append(pin, title, text, time);
-      if (
-        message.id &&
-        ((visitor?.isSage && message.friend_username === 'sage') ||
-          (visitor?.username === message.friend_username && (visitor.passwordHash || tokens[message.id])))
-      ) {
-        const removeButton = document.createElement('button');
-        removeButton.className = 'guest-delete';
-        removeButton.type = 'button';
-        removeButton.dataset.messageId = message.id;
-        removeButton.textContent = '删除';
-        removeButton.setAttribute('aria-label', `删除 ${message.display_name || '朋友'} 的留言`);
-        card.appendChild(removeButton);
+      if (canDeleteMessage(message, visitor, tokens)) {
+        card.appendChild(createDeleteButton(message));
       }
+      card.addEventListener('click', (event) => {
+        if (event.target.closest?.('.guest-delete')) return;
+        openNoteViewer(message, index);
+      });
+      card.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        openNoteViewer(message, index);
+      });
       list.appendChild(card);
     });
   }
@@ -629,9 +726,7 @@
   }
 
   function installDelete() {
-    const list = $('#guestbookList');
-    if (!list) return;
-    list.addEventListener('click', async (event) => {
+    document.addEventListener('click', async (event) => {
       const button = event.target.closest?.('.guest-delete');
       if (!button) return;
       const messageId = button.dataset.messageId || '';
@@ -652,6 +747,7 @@
         if (!ok) throw new Error('delete_denied');
         forgetMessageToken(messageId);
         setStatus('留言已删除。');
+        closeNoteViewer();
         await loadMessages();
       } catch (error) {
         console.warn('[guestbook] delete failed', error);
