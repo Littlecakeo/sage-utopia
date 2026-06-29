@@ -182,6 +182,26 @@ test('朋友入口可以上传头像预览并记住同设备资料', async ({ pa
   await expect(page.locator('#friendAvatarPreview img')).toBeVisible();
 });
 
+test('留言板可以自选便利贴颜色和形状', async ({ page }) => {
+  await page.addInitScript(() => {
+    sessionStorage.setItem('sage.admin.unlocked.v1', '1');
+    sessionStorage.removeItem('sage.friend.visitor.v1');
+  });
+  await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  const form = page.locator('#guestbookForm');
+  await expect(page.getByRole('button', { name: '桔梗紫' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '折角' })).toBeVisible();
+
+  await page.getByRole('button', { name: '桔梗紫' }).click();
+  await page.getByRole('button', { name: '折角' }).click();
+
+  await expect(page.getByRole('button', { name: '桔梗紫' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: '折角' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(form).toHaveAttribute('data-note-style', 'folded');
+  await expect(form).toHaveCSS('--compose-note-bg', '#eee6f6');
+});
+
 test('首页宽屏内容不会被侧边栏挤出屏幕', async ({ page }) => {
   await page.setViewportSize({ width: 2048, height: 1152 });
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });

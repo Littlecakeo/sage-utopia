@@ -95,6 +95,27 @@
                 留一张小纸条
                 <textarea class="friend-message" id="guestbookMessage" maxlength="500" placeholder="可以写祝福、近况、悄悄话、emoji、中文、英文或符号。" required></textarea>
               </label>
+              <fieldset class="note-customizer" aria-label="选择便利贴样式">
+                <legend>选一张纸</legend>
+                <div class="note-option-row" aria-label="便利贴颜色">
+                  <button class="note-choice note-color-choice is-selected" type="button" data-note-color="#fff8cf" aria-pressed="true"><span style="--swatch:#fff8cf"></span>奶油黄</button>
+                  <button class="note-choice note-color-choice" type="button" data-note-color="#e6f2df" aria-pressed="false"><span style="--swatch:#e6f2df"></span>抹茶绿</button>
+                  <button class="note-choice note-color-choice" type="button" data-note-color="#dff0ee" aria-pressed="false"><span style="--swatch:#dff0ee"></span>薄荷蓝</button>
+                  <button class="note-choice note-color-choice" type="button" data-note-color="#f7eadf" aria-pressed="false"><span style="--swatch:#f7eadf"></span>桃子米</button>
+                  <button class="note-choice note-color-choice" type="button" data-note-color="#eee6f6" aria-pressed="false"><span style="--swatch:#eee6f6"></span>桔梗紫</button>
+                  <button class="note-choice note-color-choice" type="button" data-note-color="#f9e6ea" aria-pressed="false"><span style="--swatch:#f9e6ea"></span>莓果粉</button>
+                  <button class="note-choice note-color-choice" type="button" data-note-color="#e9efd9" aria-pressed="false"><span style="--swatch:#e9efd9"></span>青柠纸</button>
+                  <button class="note-choice note-color-choice" type="button" data-note-color="#e9e4d4" aria-pressed="false"><span style="--swatch:#e9e4d4"></span>旧书页</button>
+                </div>
+                <div class="note-option-row note-style-row" aria-label="便利贴形状">
+                  <button class="note-choice note-style-choice is-selected" type="button" data-note-style="classic" aria-pressed="true"><span class="mini-note style-classic"></span>方角</button>
+                  <button class="note-choice note-style-choice" type="button" data-note-style="rounded" aria-pressed="false"><span class="mini-note style-rounded"></span>圆角</button>
+                  <button class="note-choice note-style-choice" type="button" data-note-style="tape" aria-pressed="false"><span class="mini-note style-tape"></span>胶带</button>
+                  <button class="note-choice note-style-choice" type="button" data-note-style="folded" aria-pressed="false"><span class="mini-note style-folded"></span>折角</button>
+                  <button class="note-choice note-style-choice" type="button" data-note-style="ticket" aria-pressed="false"><span class="mini-note style-ticket"></span>票根</button>
+                  <button class="note-choice note-style-choice" type="button" data-note-style="memo" aria-pressed="false"><span class="mini-note style-memo"></span>横线</button>
+                </div>
+              </fieldset>
               <button class="friend-button guestbook-submit" type="submit">贴上去</button>
             </form>
             <p class="friend-status" id="guestbookStatus" role="status" aria-live="polite"></p>

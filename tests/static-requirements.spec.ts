@@ -76,6 +76,9 @@ test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
   expect(guestbook).toContain("SAGE_SITE_AVATAR_URL = 'assets/sage-avatar.png'");
   expect(guestbook).toContain('getSageAvatar');
   expect(guestbook).toContain('getSiteBrandAvatarUrl');
+  expect(guestbook).toContain('encodeNoteChoice');
+  expect(guestbook).toContain('decodeNoteChoice');
+  expect(guestbook).toContain('installNoteCustomizer');
   expect(guestbook).toContain('guest-delete');
   expect(guestbook).toContain('friend-entered');
   expect(guestbook).not.toContain('getFriendProfile(username)');
@@ -86,5 +89,9 @@ test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
 
   const friends = readFileSync(path.join(root, 'friends.html'), 'utf8');
   expect(friends).toContain('autocomplete="off"');
+  expect(friends).toContain('note-customizer');
+  expect(friends).toContain('data-note-color="#eee6f6"');
+  expect(friends).toContain('data-note-style="ticket"');
+  expect(friends).toContain('data-note-style="memo"');
   expect(cloud).toContain('autocomplete="off"');
 });

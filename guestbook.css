@@ -318,6 +318,7 @@ body.friend-sage-mode #friendVisitorName{
 .guestbook-compose{
   position:relative;
   z-index:1;
+  --compose-note-bg:#fff8cf;
   display:grid;
   grid-template-columns:minmax(0,1fr);
   gap:14px;
@@ -325,11 +326,111 @@ body.friend-sage-mode #friendVisitorName{
   padding:24px;
   border:1px dashed rgba(120,147,114,.38);
   border-radius:24px;
-  background:rgba(255,253,247,.78);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.72),rgba(255,255,255,.24)),
+    var(--compose-note-bg);
   box-shadow:0 12px 30px rgba(86,72,47,.06);
 }
 .guestbook-compose label{display:grid;gap:12px;color:#5d765a;font-size:15px;font-weight:950}
 .guestbook-submit{justify-self:stretch;min-width:116px}
+
+.note-customizer{
+  display:grid;
+  gap:10px;
+  margin:0;
+  padding:12px;
+  border:1px solid rgba(120,147,114,.20);
+  border-radius:20px;
+  background:rgba(255,253,247,.48);
+}
+.note-customizer legend{
+  padding:0 6px;
+  color:#5d765a;
+  font-size:13px;
+  font-weight:950;
+}
+.note-option-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.note-choice{
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  border:1px solid rgba(120,147,114,.24);
+  border-radius:999px;
+  background:rgba(255,253,247,.72);
+  color:#5d765a;
+  padding:6px 10px;
+  font:inherit;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(51,65,57,.04);
+}
+.note-choice:hover{
+  transform:translateY(-1px);
+  border-color:rgba(120,147,114,.38);
+}
+.note-choice.is-selected,
+.note-choice[aria-pressed="true"]{
+  background:#789372;
+  border-color:#789372;
+  color:#fff;
+  box-shadow:0 10px 22px rgba(99,126,97,.18);
+}
+.note-color-choice > span{
+  width:16px;
+  height:16px;
+  border-radius:6px;
+  border:1px solid rgba(49,66,56,.16);
+  background:var(--swatch,#fff8cf);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72);
+}
+.mini-note{
+  position:relative;
+  width:22px;
+  height:18px;
+  display:inline-block;
+  border:1px solid rgba(49,66,56,.22);
+  background:#fff8cf;
+  box-shadow:0 3px 7px rgba(51,65,57,.08);
+}
+.style-classic{border-radius:3px}
+.style-rounded{border-radius:8px}
+.style-tape:before{
+  content:"";
+  position:absolute;
+  left:5px;
+  top:-5px;
+  width:12px;
+  height:5px;
+  border-radius:2px;
+  background:rgba(255,255,255,.62);
+}
+.style-folded:after{
+  content:"";
+  position:absolute;
+  right:-1px;
+  bottom:-1px;
+  width:8px;
+  height:8px;
+  border-radius:2px 0 2px 0;
+  background:rgba(120,147,114,.18);
+  clip-path:polygon(100% 0,100% 100%,0 100%);
+}
+.style-ticket{
+  border-radius:3px 9px 3px 9px;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+}
+.style-memo{
+  border-radius:4px;
+  background:
+    repeating-linear-gradient(180deg,transparent 0 5px,rgba(120,147,114,.18) 6px 7px),
+    #fff8cf;
+}
 
 .note-grid{
   position:relative;
@@ -348,6 +449,15 @@ body.friend-sage-mode #friendVisitorName{
   box-shadow:0 16px 26px rgba(78,69,47,.09);
   transform:rotate(var(--tilt,0deg));
 }
+.guest-note.note-style-classic{
+  border-radius:16px 18px 24px 14px;
+}
+.guest-note.note-style-rounded{
+  border-radius:30px;
+}
+.guest-note.note-style-tape{
+  border-radius:16px 18px 24px 14px;
+}
 .guest-note:before{
   content:"";
   position:absolute;
@@ -360,6 +470,41 @@ body.friend-sage-mode #friendVisitorName{
   border:1px solid rgba(120,147,114,.16);
   transform:translateX(-50%) rotate(-2deg);
   box-shadow:0 4px 10px rgba(51,65,57,.06);
+}
+.guest-note.note-style-tape:before{
+  top:-12px;
+  width:86px;
+  height:24px;
+  transform:translateX(-50%) rotate(1.5deg);
+}
+.guest-note.note-style-folded{
+  border-radius:16px 18px 10px 16px;
+  overflow:hidden;
+}
+.guest-note.note-style-folded:after{
+  content:"";
+  position:absolute;
+  right:0;
+  bottom:0;
+  width:38px;
+  height:38px;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.64),rgba(120,147,114,.14));
+  border-left:1px solid rgba(145,120,82,.14);
+  border-top:1px solid rgba(145,120,82,.14);
+  clip-path:polygon(100% 0,100% 100%,0 100%);
+  box-shadow:-5px -5px 12px rgba(78,69,47,.05);
+}
+.guest-note.note-style-ticket{
+  border-radius:18px;
+  clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,22px 100%,0 calc(100% - 22px));
+}
+.guest-note.note-style-memo{
+  border-radius:16px;
+  background:
+    linear-gradient(90deg,rgba(120,147,114,.16) 0 1px,transparent 1px 100%) 22px 0/1px 100% no-repeat,
+    repeating-linear-gradient(180deg,transparent 0 32px,rgba(120,147,114,.16) 33px 34px),
+    var(--note-bg,#fff8cf);
 }
 .guest-note .pin{
   position:absolute;

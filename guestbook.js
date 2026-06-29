@@ -6,7 +6,17 @@
   const MESSAGE_TOKEN_KEY = 'sage.friend.message.tokens.v1';
   const REMEMBER_KEY = 'sage.friend.remembered.v1';
   const USERNAME_RE = /^[A-Za-z0-9._@!#$%&*+=?^-]{3,32}$/;
-  const COLORS = ['#fff8cf', '#e6f2df', '#e5f0f1', '#f7eadf', '#eee6f6', '#f9f1c8'];
+  const NOTE_COLORS = [
+    '#fff8cf',
+    '#e6f2df',
+    '#dff0ee',
+    '#f7eadf',
+    '#eee6f6',
+    '#f9e6ea',
+    '#e9efd9',
+    '#e9e4d4',
+  ];
+  const NOTE_STYLES = ['classic', 'rounded', 'tape', 'folded', 'ticket', 'memo'];
   const STICKERS = ['✦', '♡', '✧', '♪', '※', '⋆'];
   const SAGE_SITE_AVATAR_URL = 'assets/sage-avatar.png';
   const AVATARS = [
@@ -24,6 +34,8 @@
   let selectedAvatarIndex = 0;
   let selectedAvatarFile = null;
   let selectedAvatarUrl = '';
+  let selectedNoteColor = NOTE_COLORS[0];
+  let selectedNoteStyle = NOTE_STYLES[0];
   let sageAvatarCache = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -284,14 +296,66 @@
     }).format(date);
   }
 
-  function noteColor(index, explicit) {
-    if (explicit && /^#[0-9a-fA-F]{3,8}$/.test(explicit)) return explicit;
-    return COLORS[index % COLORS.length];
+  function normalizeNoteColor(color, fallback) {
+    const value = String(color || '').trim();
+    if (/^#[0-9a-fA-F]{3,8}$/.test(value)) return value;
+    return fallback || NOTE_COLORS[0];
+  }
+
+  function normalizeNoteStyle(style) {
+    return NOTE_STYLES.includes(style) ? style : NOTE_STYLES[0];
+  }
+
+  function encodeNoteChoice(color, style) {
+    return `${normalizeNoteColor(color)}|${normalizeNoteStyle(style)}`;
+  }
+
+  function decodeNoteChoice(value, index) {
+    const fallback = NOTE_COLORS[index % NOTE_COLORS.length];
+    const [color, style] = String(value || '').split('|');
+    return {
+      color: normalizeNoteColor(color, fallback),
+      style: normalizeNoteStyle(style),
+    };
   }
 
   function noteTilt(index) {
     const tilts = ['-1.2deg', '.8deg', '-.45deg', '1.1deg', '-.75deg', '.35deg'];
     return tilts[index % tilts.length];
+  }
+
+  function updateNoteCustomizer() {
+    const form = $('#guestbookForm');
+    if (form) {
+      form.style.setProperty('--compose-note-bg', selectedNoteColor);
+      form.dataset.noteStyle = selectedNoteStyle;
+    }
+    document.querySelectorAll('.note-color-choice').forEach((button) => {
+      const active = button.dataset.noteColor === selectedNoteColor;
+      button.classList.toggle('is-selected', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    document.querySelectorAll('.note-style-choice').forEach((button) => {
+      const active = button.dataset.noteStyle === selectedNoteStyle;
+      button.classList.toggle('is-selected', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+  }
+
+  function installNoteCustomizer() {
+    document.querySelectorAll('.note-color-choice').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectedNoteColor = normalizeNoteColor(button.dataset.noteColor, selectedNoteColor);
+        updateNoteCustomizer();
+      });
+    });
+    document.querySelectorAll('.note-style-choice').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectedNoteStyle = normalizeNoteStyle(button.dataset.noteStyle);
+        updateNoteCustomizer();
+      });
+    });
+    updateNoteCustomizer();
   }
 
   function showFriendArea(visitor) {
@@ -367,9 +431,10 @@
     const tokens = getMessageTokens();
     const visitor = getVisitor();
     messages.forEach((message, index) => {
+      const note = decodeNoteChoice(message.note_color, index);
       const card = document.createElement('article');
-      card.className = 'guest-note';
-      card.style.setProperty('--note-bg', noteColor(index, message.note_color));
+      card.className = `guest-note note-style-${note.style}`;
+      card.style.setProperty('--note-bg', note.color);
       card.style.setProperty('--tilt', noteTilt(index));
 
       const pin = document.createElement('span');
@@ -546,7 +611,7 @@
           avatar_url: visitor.isSage && avatar.url.startsWith('data:image/') ? '' : avatar.url,
           message,
           sticker: STICKERS[Math.floor(Math.random() * STICKERS.length)],
-          note_color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          note_color: encodeNoteChoice(selectedNoteColor, selectedNoteStyle),
           delete_token: deleteToken,
           is_visible: true,
         });
@@ -613,6 +678,7 @@
     cleanSensitiveUrl();
     hydrateRememberedFriend();
     installAvatarPicker();
+    installNoteCustomizer();
     installGate();
     installComposer();
     installDelete();
