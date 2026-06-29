@@ -11,21 +11,13 @@
   <link rel="stylesheet" href="edit-mode.css?v=10">
   <link rel="stylesheet" href="cloud-sync.css">
   <style>
-    .quote-card{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,300px);gap:22px;align-items:center;min-height:278px;padding:34px 38px;border-color:rgba(255,255,255,.92);background:radial-gradient(circle at 8% 15%,rgba(255,225,233,.54),transparent 280px),radial-gradient(circle at 78% 0,rgba(173,220,235,.50),transparent 310px),radial-gradient(circle at 92% 88%,rgba(199,229,184,.58),transparent 300px),linear-gradient(135deg,#fff8fb 0%,#eef8f2 58%,#f8fff9 100%)!important;box-shadow:0 26px 70px rgba(69,88,72,.13),inset 0 1px 0 rgba(255,255,255,.78)}
-    .quote-card:before{content:"";position:absolute;inset:28px;border-radius:28px;background:linear-gradient(135deg,rgba(255,253,248,.70),rgba(255,255,255,.34));border:1px solid rgba(255,255,255,.72);box-shadow:inset 0 1px 0 rgba(255,255,255,.8);pointer-events:none}
-    .quote-card:after{content:"";position:absolute;right:42px;bottom:30px;width:190px;height:126px;border:3px solid rgba(108,138,168,.28);border-top-color:transparent;border-left-color:rgba(241,157,181,.22);border-radius:50%;transform:rotate(-7deg);pointer-events:none}
-    .quote-copy,.quote-calendar{position:relative;z-index:1}
-    .quote-kicker{margin:0 0 16px;color:#6c8aa8;font-size:13px;font-weight:950;letter-spacing:.10em;text-transform:uppercase}
-    .quote-date{margin:0 0 14px;font-size:15px;color:#7a9a75;font-weight:900;letter-spacing:.03em}
+    .quote-card{position:relative;overflow:hidden;display:block;min-height:220px;padding:34px 38px;border-color:rgba(168,213,186,.46);background:linear-gradient(135deg,rgba(255,253,248,.94),rgba(235,247,239,.86))!important;box-shadow:0 22px 58px rgba(69,88,72,.10),inset 0 1px 0 rgba(255,255,255,.78)}
+    .quote-card:before{content:"";position:absolute;right:34px;top:30px;width:78px;height:44px;border-radius:70% 30% 65% 35%;background:linear-gradient(135deg,rgba(168,213,186,.40),rgba(127,183,126,.22));transform:rotate(-18deg);box-shadow:-40px 34px 0 -18px rgba(158,216,219,.18);pointer-events:none}
+    .quote-card:after{content:"";position:absolute;left:30px;right:30px;bottom:28px;height:1px;background:linear-gradient(90deg,transparent,rgba(143,190,156,.34),transparent);pointer-events:none}
+    .quote-copy{position:relative;z-index:1;max-width:820px}
+    .quote-date{margin:0 0 18px;font-size:15px;color:#7a9a75;font-weight:900;letter-spacing:.03em}
     .quote-card h1{max-width:760px;margin:0;color:#304139;font-size:clamp(34px,5.3vw,64px);line-height:1.14;letter-spacing:0}
-    .quote-source{margin:24px 0 0;font-size:15px;color:#8c6f76;font-weight:900;text-align:left;line-height:1.6}
-    .quote-calendar{justify-self:end;width:min(100%,260px);min-height:190px;display:grid;align-content:end;justify-items:end;padding:18px;color:#6c7890}
-    .quote-month{margin:0 0 -6px;font-family:Georgia,"Times New Roman",serif;font-size:22px;color:#8c6f76}
-    .quote-day{font-family:Georgia,"Times New Roman",serif;font-size:112px;line-height:.86;color:rgba(69,88,117,.72);font-weight:800}
-    .quote-doodle{position:absolute;right:86px;bottom:44px;width:86px;height:94px;border:3px solid rgba(241,157,181,.45);border-top:0;border-radius:12px 12px 18px 18px;transform:rotate(4deg);opacity:.78}
-    .quote-doodle:before{content:"";position:absolute;left:36px;top:-62px;width:3px;height:70px;background:rgba(108,138,168,.36);box-shadow:-22px 18px 0 -1px rgba(241,157,181,.38),20px 14px 0 -1px rgba(219,190,92,.38);transform:rotate(-8deg)}
-    .quote-doodle:after{content:"";position:absolute;left:18px;top:-48px;width:76px;height:42px;border-top:3px solid rgba(108,138,168,.28);border-radius:50%;transform:rotate(-18deg)}
-    .quote-squiggle{position:absolute;right:58px;top:42px;width:150px;height:44px;border-top:3px solid rgba(241,157,181,.34);border-radius:50%;transform:rotate(11deg);z-index:1}
+    .quote-source{margin:24px 0 0;font-size:15px;color:#5e8c63;font-weight:900;text-align:left;line-height:1.6}
     .compact-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
     .compact-stats .card{padding:10px 12px;border-radius:16px;box-shadow:0 8px 22px rgba(74,93,78,.08);display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;row-gap:2px;min-height:58px;background:rgba(255,253,248,.76)}
     .compact-stats .card p{margin:0;font-size:12px;font-weight:900;color:#60785d;line-height:1.15;white-space:nowrap}
@@ -52,8 +44,8 @@
     .guestbook-preview-note:before{content:"";position:absolute;left:50%;top:-8px;width:62px;height:18px;border-radius:6px;background:rgba(255,255,255,.48);border:1px solid rgba(120,147,114,.16);transform:translateX(-50%) rotate(-2deg)}
     .guestbook-preview-note strong{display:block;margin-bottom:8px;color:#395047;font-size:15px}
     .guestbook-preview-note span{display:block;color:rgba(49,66,56,.62);font-size:13px;font-weight:720;line-height:1.6}
-    @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-card{grid-template-columns:1fr;min-height:0}.quote-calendar{justify-self:start;width:100%;min-height:118px;align-content:start;justify-items:start;padding:8px 0 0}.quote-day{font-size:72px}.quote-source{font-size:14px}.guestbook-notes{grid-template-columns:1fr}}
-    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card{padding:28px 22px;border-radius:28px}.quote-card:before{inset:16px;border-radius:22px}.quote-card h1{font-size:36px;line-height:1.18}.quote-calendar{min-height:92px}.quote-day{font-size:58px}.quote-doodle{right:28px;bottom:24px;transform:scale(.72) rotate(4deg);transform-origin:right bottom}.quote-squiggle{display:none}.quote-source{text-align:left}.guestbook-home-head{display:grid}.guestbook-home-button{justify-self:start}.home-guestbook{padding:22px 18px}.home-guestbook:before{left:22px;right:22px}.guestbook-notes{gap:10px}}
+    @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}.guestbook-notes{grid-template-columns:1fr}}
+    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card{min-height:190px;padding:28px 22px;border-radius:28px}.quote-card h1{font-size:36px;line-height:1.18}.quote-source{text-align:left}.guestbook-home-head{display:grid}.guestbook-home-button{justify-self:start}.home-guestbook{padding:22px 18px}.home-guestbook:before{left:22px;right:22px}.guestbook-notes{gap:10px}}
   </style>
 </head>
 <body>
@@ -72,17 +64,10 @@
     </aside>
     <main>
       <section class="hero quote-card" aria-label="每日女性文学">
-        <span class="quote-squiggle" aria-hidden="true"></span>
         <div class="quote-copy">
-          <p class="quote-kicker">Women Writers</p>
           <p class="quote-date" id="dailyQuoteDate">26/06/14</p>
           <h1 id="dailyQuoteText">夏乃声音的季节</h1>
           <p class="quote-source" id="dailyQuoteMeta">——简媜《夏之绝句》</p>
-        </div>
-        <div class="quote-calendar" aria-hidden="true">
-          <p class="quote-month" id="dailyQuoteMonth">Jun</p>
-          <div class="quote-day" id="dailyQuoteDay">14</div>
-          <span class="quote-doodle"></span>
         </div>
       </section>
 
@@ -179,7 +164,6 @@
       ];
       const d=new Date();
       const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
-      const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const dayKey=yy+mm+dd;
       const storageKey='sage.daily.quote.rotation.v4';
       let state={day:'',used:[]};
@@ -198,10 +182,6 @@
       t.textContent=q.text;
       m.textContent='——'+q.author+'《'+q.source.replace(/^《|》$/g,'')+'》';
       if(dlabel)dlabel.textContent=yy+'/'+mm+'/'+dd;
-      const month=document.getElementById('dailyQuoteMonth');
-      const day=document.getElementById('dailyQuoteDay');
-      if(month)month.textContent=monthNames[d.getMonth()];
-      if(day)day.textContent=String(d.getDate());
     }
     applyQuoteNow();
 
