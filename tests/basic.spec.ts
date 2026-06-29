@@ -6,6 +6,8 @@ test('首页可以正常打开并显示主要内容', async ({ page }) => {
   await expect(page).toHaveTitle(/Sage Utopia/i);
   await expect(page.getByRole('link', { name: /Sage Utopia/ }).first()).toBeVisible();
   await expect(page.getByRole('link', { name: '首页' }).first()).toBeVisible();
+  await expect(page.locator('.quote-card')).toContainText('Women Writers');
+  await expect(page.locator('.quote-card')).not.toContainText('孔子');
   await expect(page.locator('#quickAdd')).toHaveCount(0);
   await expect(page.getByRole('link', { name: '快速新增' })).toHaveCount(0);
 });
