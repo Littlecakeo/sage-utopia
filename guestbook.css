@@ -435,20 +435,21 @@ body.friend-sage-mode #friendVisitorName{
 .note-grid{
   position:relative;
   z-index:1;
-  display:grid;
-  grid-template-columns:repeat(12,56px);
-  justify-content:center;
-  gap:0;
-  min-height:360px;
-  padding:34px 8px 24px;
+  display:block;
+  width:min(100%,var(--note-board-width,760px));
+  min-height:var(--note-board-height,540px);
+  margin:0 auto;
+  padding:0;
   isolation:isolate;
 }
 .guest-note{
-  position:relative;
-  grid-column:span 5;
-  aspect-ratio:1.08 / 1;
+  position:absolute;
+  left:var(--note-left,0);
+  top:var(--note-top,0);
+  width:var(--note-size,250px);
+  height:var(--note-size,250px);
   min-height:0;
-  margin:0 -18px -34px;
+  margin:0;
   padding:24px 18px 42px;
   border:1px solid rgba(145,120,82,.18);
   border-radius:18px 18px 24px 16px;
@@ -468,28 +469,22 @@ body.friend-sage-mode #friendVisitorName{
   outline:none;
 }
 .guest-note:nth-child(6n+1){
-  grid-column:1 / span 5;
-  margin-top:6px;
+  margin-top:0;
 }
 .guest-note:nth-child(6n+2){
-  grid-column:4 / span 5;
-  margin-top:72px;
+  margin-top:0;
 }
 .guest-note:nth-child(6n+3){
-  grid-column:7 / span 5;
-  margin-top:18px;
+  margin-top:0;
 }
 .guest-note:nth-child(6n+4){
-  grid-column:2 / span 5;
-  margin-top:-12px;
+  margin-top:0;
 }
 .guest-note:nth-child(6n+5){
-  grid-column:5 / span 5;
-  margin-top:48px;
+  margin-top:0;
 }
 .guest-note:nth-child(6n){
-  grid-column:8 / span 5;
-  margin-top:-24px;
+  margin-top:0;
 }
 .guest-note.note-style-classic{
   border-radius:12px 20px 18px 10px;
@@ -766,23 +761,12 @@ body.friend-sage-mode #friendVisitorName{
   .guestbook-compose{grid-template-columns:1fr}
   .guestbook-submit{min-height:52px}
   .note-grid{
-    grid-template-columns:repeat(6,minmax(42px,58px));
-    justify-content:center;
+    width:min(100%,var(--note-board-width,540px));
     min-height:0;
-    padding:28px 2px 18px;
   }
   .guest-note,
   .guest-note:nth-child(n){
-    grid-column:span 4;
-    aspect-ratio:1 / 1;
-    margin:0 -16px -32px;
-  }
-  .guest-note:nth-child(odd){
-    grid-column:1 / span 4;
-  }
-  .guest-note:nth-child(even){
-    grid-column:3 / span 4;
-    margin-top:-14px;
+    margin:0;
   }
 }
 

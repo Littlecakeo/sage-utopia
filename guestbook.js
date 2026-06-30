@@ -524,13 +524,20 @@
     }
     const tokens = getMessageTokens();
     const visitor = getVisitor();
+    const boardLayout = getNoteBoardLayout(messages.length);
+    list.style.setProperty('--note-board-width', `${boardLayout.width}px`);
+    list.style.setProperty('--note-board-height', `${boardLayout.height}px`);
     messages.forEach((message, index) => {
       const note = decodeNoteChoice(message.note_color, index);
+      const placement = boardLayout.items[index];
       const card = document.createElement('article');
       card.className = `guest-note note-style-${note.style}`;
       card.style.setProperty('--note-bg', note.color);
       card.style.setProperty('--tilt', noteTilt(index));
       card.style.setProperty('--stack', String(index + 1));
+      card.style.setProperty('--note-left', `${placement.left}px`);
+      card.style.setProperty('--note-top', `${placement.top}px`);
+      card.style.setProperty('--note-size', `${boardLayout.size}px`);
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
       card.setAttribute('aria-label', `查看 ${message.display_name || '朋友'} 的留言`);
@@ -575,6 +582,68 @@
       });
       list.appendChild(card);
     });
+  }
+
+  function getNoteBoardLayout(count) {
+    const viewport = window.innerWidth || 1024;
+    const isMobile = viewport <= 560;
+    const isTablet = viewport <= 900;
+    const config = isMobile
+      ? {
+          width: 340,
+          size: 208,
+          advance: 540,
+          pattern: [
+            [0, 0],
+            [116, 108],
+            [18, 226],
+            [130, 336],
+            [0, 446],
+            [118, 556],
+          ],
+        }
+      : isTablet
+        ? {
+            width: 532,
+            size: 258,
+            advance: 690,
+            pattern: [
+              [8, 0],
+              [198, 106],
+              [70, 230],
+              [250, 342],
+              [18, 456],
+              [184, 568],
+            ],
+          }
+        : {
+            width: 760,
+            size: 252,
+            advance: 540,
+            pattern: [
+              [28, 0],
+              [250, 92],
+              [468, 22],
+              [116, 244],
+              [336, 330],
+              [20, 414],
+            ],
+          };
+    const total = Math.max(count, 1);
+    const items = Array.from({ length: total }, (_, index) => {
+      const patternIndex = index % config.pattern.length;
+      const row = Math.floor(index / config.pattern.length);
+      const [left, top] = config.pattern[patternIndex];
+      return {
+        left,
+        top: top + row * config.advance,
+      };
+    });
+    const height = Math.max(
+      360,
+      ...items.map((item) => item.top + config.size + 28),
+    );
+    return { ...config, height, items };
   }
 
   async function loadMessages() {

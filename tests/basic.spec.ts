@@ -212,17 +212,29 @@ test('留言板小纸条重叠展示并可点击放大查看', async ({ page }) 
       body: `
         window.SageCloudData = {
           hasConfig: true,
-          list: async () => [{
-            id: 'demo-note-1',
-            friend_username: 'sage',
-            display_name: 'Sage',
-            message: '这是一张可以点开的校园小纸条，内容会在放大后完整显示。',
-            sticker: '✦',
-            note_color: '#eee6f6|folded',
-            avatar_url: 'assets/sage-avatar.png',
-            is_visible: true,
-            created_at: '2026-06-29T03:00:00.000Z'
-          }],
+          list: async () => [
+            {
+              id: 'demo-note-1',
+              friend_username: 'sage',
+              display_name: 'Sage',
+              message: '这是一张可以点开的校园小纸条，内容会在放大后完整显示。',
+              sticker: '✦',
+              note_color: '#eee6f6|folded',
+              avatar_url: 'assets/sage-avatar.png',
+              is_visible: true,
+              created_at: '2026-06-29T03:00:00.000Z'
+            },
+            {
+              id: 'demo-note-2',
+              friend_username: 'wren',
+              display_name: 'Wren',
+              message: '第二张小纸条要靠近第一张，像真实留言板。',
+              sticker: '♡',
+              note_color: '#dff0ee|tape',
+              is_visible: true,
+              created_at: '2026-06-29T04:00:00.000Z'
+            }
+          ],
           hideGuestbookMessage: async () => true
         };
       `,
@@ -238,7 +250,13 @@ test('留言板小纸条重叠展示并可点击放大查看', async ({ page }) 
   await expect(note).toBeVisible();
   await expect(note).toHaveClass(/note-style-folded/);
   await expect(note).toHaveAttribute('role', 'button');
-  await expect(page.locator('.note-grid')).toHaveCSS('grid-template-columns', /px/);
+  await expect(page.locator('.note-grid')).toHaveCSS('display', 'block');
+  await expect(note).toHaveCSS('position', 'absolute');
+  const boardBox = await page.locator('.note-grid').boundingBox();
+  const firstBox = await page.locator('.guest-note').nth(0).boundingBox();
+  const secondBox = await page.locator('.guest-note').nth(1).boundingBox();
+  expect(boardBox?.height || 0).toBeLessThan(700);
+  expect(Math.abs((secondBox?.x || 0) - (firstBox?.x || 0))).toBeLessThan(260);
 
   await note.click();
   const viewer = page.locator('.guest-note-viewer');
