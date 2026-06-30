@@ -194,14 +194,14 @@ test('留言板可以自选便利贴颜色和形状', async ({ page }) => {
 
   const form = page.locator('#guestbookForm');
   await expect(page.getByRole('button', { name: '桔梗紫' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '折角' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '爱心' })).toBeVisible();
 
   await page.getByRole('button', { name: '桔梗紫' }).click();
-  await page.getByRole('button', { name: '折角' }).click();
+  await page.getByRole('button', { name: '爱心' }).click();
 
   await expect(page.getByRole('button', { name: '桔梗紫' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('button', { name: '折角' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(form).toHaveAttribute('data-note-style', 'folded');
+  await expect(page.getByRole('button', { name: '爱心' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(form).toHaveAttribute('data-note-style', 'heart');
   await expect(form).toHaveCSS('--compose-note-bg', '#eee6f6');
 });
 
@@ -219,7 +219,7 @@ test('留言板小纸条重叠展示并可点击放大查看', async ({ page }) 
               display_name: 'Sage',
               message: '这是一张可以点开的校园小纸条，内容会在放大后完整显示。',
               sticker: '✦',
-              note_color: '#eee6f6|folded',
+              note_color: '#eee6f6|heart',
               avatar_url: 'assets/sage-avatar.png',
               is_visible: true,
               created_at: '2026-06-29T03:00:00.000Z'
@@ -230,7 +230,7 @@ test('留言板小纸条重叠展示并可点击放大查看', async ({ page }) 
               display_name: 'Wren',
               message: '第二张小纸条要靠近第一张，像真实留言板。',
               sticker: '♡',
-              note_color: '#dff0ee|tape',
+              note_color: '#dff0ee|circle',
               is_visible: true,
               created_at: '2026-06-29T04:00:00.000Z'
             }
@@ -248,7 +248,7 @@ test('留言板小纸条重叠展示并可点击放大查看', async ({ page }) 
 
   const note = page.locator('.guest-note').first();
   await expect(note).toBeVisible();
-  await expect(note).toHaveClass(/note-style-folded/);
+  await expect(note).toHaveClass(/note-style-heart/);
   await expect(note).toHaveAttribute('role', 'button');
   await expect(page.locator('.note-grid')).toHaveCSS('display', 'block');
   await expect(note).toHaveCSS('position', 'absolute');

@@ -93,7 +93,8 @@ test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
   expect(friends).toContain('autocomplete="off"');
   expect(friends).toContain('note-customizer');
   expect(friends).toContain('data-note-color="#eee6f6"');
-  expect(friends).toContain('data-note-style="ticket"');
-  expect(friends).toContain('data-note-style="memo"');
+  expect(friends).toContain('data-note-style="circle"');
+  expect(friends).toContain('data-note-style="heart"');
+  expect(friends).toContain('data-note-style="scallop"');
   expect(cloud).toContain('autocomplete="off"');
 });

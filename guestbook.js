@@ -16,7 +16,14 @@
     '#e9efd9',
     '#e9e4d4',
   ];
-  const NOTE_STYLES = ['classic', 'rounded', 'tape', 'folded', 'ticket', 'memo'];
+  const NOTE_STYLES = ['square', 'rounded', 'circle', 'heart', 'pill', 'scallop'];
+  const NOTE_STYLE_ALIASES = {
+    classic: 'square',
+    tape: 'pill',
+    folded: 'rounded',
+    ticket: 'scallop',
+    memo: 'square',
+  };
   const STICKERS = ['✦', '♡', '✧', '♪', '※', '⋆'];
   const SAGE_SITE_AVATAR_URL = 'assets/sage-avatar.png';
   const AVATARS = [
@@ -303,7 +310,9 @@
   }
 
   function normalizeNoteStyle(style) {
-    return NOTE_STYLES.includes(style) ? style : NOTE_STYLES[0];
+    const value = String(style || '').trim();
+    const mapped = NOTE_STYLE_ALIASES[value] || value;
+    return NOTE_STYLES.includes(mapped) ? mapped : NOTE_STYLES[0];
   }
 
   function encodeNoteChoice(color, style) {
@@ -590,43 +599,43 @@
     const isTablet = viewport <= 900;
     const config = isMobile
       ? {
-          width: 340,
-          size: 208,
-          advance: 540,
+          width: 336,
+          size: 158,
+          advance: 330,
           pattern: [
-            [0, 0],
-            [116, 108],
-            [18, 226],
-            [130, 336],
-            [0, 446],
-            [118, 556],
+            [10, 0],
+            [168, 56],
+            [42, 154],
+            [166, 238],
+            [8, 294],
+            [164, 382],
           ],
         }
       : isTablet
         ? {
-            width: 532,
-            size: 258,
-            advance: 690,
+            width: 520,
+            size: 206,
+            advance: 500,
             pattern: [
-              [8, 0],
-              [198, 106],
-              [70, 230],
-              [250, 342],
-              [18, 456],
-              [184, 568],
+              [18, 0],
+              [252, 44],
+              [88, 178],
+              [292, 230],
+              [30, 362],
+              [244, 414],
             ],
           }
         : {
-            width: 760,
-            size: 252,
-            advance: 540,
+            width: 720,
+            size: 212,
+            advance: 420,
             pattern: [
-              [28, 0],
-              [250, 92],
-              [468, 22],
-              [116, 244],
-              [336, 330],
-              [20, 414],
+              [18, 0],
+              [254, 38],
+              [490, 10],
+              [88, 206],
+              [322, 246],
+              [474, 220],
             ],
           };
     const total = Math.max(count, 1);
