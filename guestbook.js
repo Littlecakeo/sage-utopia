@@ -16,13 +16,17 @@
     '#e9efd9',
     '#e9e4d4',
   ];
-  const NOTE_STYLES = ['square', 'rounded', 'circle', 'heart', 'pill', 'scallop'];
+  const NOTE_STYLES = ['square', 'rounded'];
   const NOTE_STYLE_ALIASES = {
     classic: 'square',
-    tape: 'pill',
+    tape: 'square',
     folded: 'rounded',
-    ticket: 'scallop',
+    ticket: 'rounded',
     memo: 'square',
+    circle: 'rounded',
+    heart: 'rounded',
+    pill: 'rounded',
+    scallop: 'rounded',
   };
   const STICKERS = ['✦', '♡', '✧', '♪', '※', '⋆'];
   const SAGE_SITE_AVATAR_URL = 'assets/sage-avatar.png';
@@ -329,7 +333,7 @@
   }
 
   function noteTilt(index) {
-    const tilts = ['-2.8deg', '1.6deg', '-.9deg', '2.2deg', '-1.7deg', '.8deg', '1.1deg', '-2.1deg'];
+    const tilts = ['-.8deg', '.6deg', '-.35deg', '.45deg', '-.55deg', '.25deg'];
     return tilts[index % tilts.length];
   }
 
@@ -533,20 +537,12 @@
     }
     const tokens = getMessageTokens();
     const visitor = getVisitor();
-    const boardLayout = getNoteBoardLayout(messages.length);
-    list.style.setProperty('--note-board-width', `${boardLayout.width}px`);
-    list.style.setProperty('--note-board-height', `${boardLayout.height}px`);
     messages.forEach((message, index) => {
       const note = decodeNoteChoice(message.note_color, index);
-      const placement = boardLayout.items[index];
       const card = document.createElement('article');
       card.className = `guest-note note-style-${note.style}`;
       card.style.setProperty('--note-bg', note.color);
       card.style.setProperty('--tilt', noteTilt(index));
-      card.style.setProperty('--stack', String(index + 1));
-      card.style.setProperty('--note-left', `${placement.left}px`);
-      card.style.setProperty('--note-top', `${placement.top}px`);
-      card.style.setProperty('--note-size', `${boardLayout.size}px`);
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
       card.setAttribute('aria-label', `查看 ${message.display_name || '朋友'} 的留言`);
@@ -591,68 +587,6 @@
       });
       list.appendChild(card);
     });
-  }
-
-  function getNoteBoardLayout(count) {
-    const viewport = window.innerWidth || 1024;
-    const isMobile = viewport <= 560;
-    const isTablet = viewport <= 900;
-    const config = isMobile
-      ? {
-          width: 336,
-          size: 158,
-          advance: 330,
-          pattern: [
-            [10, 0],
-            [168, 56],
-            [42, 154],
-            [166, 238],
-            [8, 294],
-            [164, 382],
-          ],
-        }
-      : isTablet
-        ? {
-            width: 520,
-            size: 206,
-            advance: 500,
-            pattern: [
-              [18, 0],
-              [252, 44],
-              [88, 178],
-              [292, 230],
-              [30, 362],
-              [244, 414],
-            ],
-          }
-        : {
-            width: 720,
-            size: 212,
-            advance: 420,
-            pattern: [
-              [18, 0],
-              [254, 38],
-              [490, 10],
-              [88, 206],
-              [322, 246],
-              [474, 220],
-            ],
-          };
-    const total = Math.max(count, 1);
-    const items = Array.from({ length: total }, (_, index) => {
-      const patternIndex = index % config.pattern.length;
-      const row = Math.floor(index / config.pattern.length);
-      const [left, top] = config.pattern[patternIndex];
-      return {
-        left,
-        top: top + row * config.advance,
-      };
-    });
-    const height = Math.max(
-      360,
-      ...items.map((item) => item.top + config.size + 28),
-    );
-    return { ...config, height, items };
   }
 
   async function loadMessages() {

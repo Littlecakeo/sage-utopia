@@ -402,64 +402,43 @@ body.friend-sage-mode #friendVisitorName{
 .style-square{border-radius:4px}
 .style-classic{border-radius:4px}
 .style-rounded{border-radius:8px}
-.style-circle{border-radius:999px}
-.style-heart{border-radius:10px;clip-path:polygon(50% 92%,8% 52%,2% 28%,14% 8%,35% 8%,50% 22%,65% 8%,86% 8%,98% 28%,92% 52%)}
-.style-pill{border-radius:999px;width:25px}
-.style-scallop{border-radius:9px;clip-path:polygon(8% 0,92% 0,100% 12%,100% 88%,92% 100%,8% 100%,0 88%,0 12%)}
 
 .note-grid{
   position:relative;
   z-index:1;
-  display:block;
-  width:min(100%,var(--note-board-width,760px));
-  min-height:var(--note-board-height,540px);
-  margin:0 auto;
-  padding:20px 0 0;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:18px;
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:8px 0 0;
   isolation:isolate;
 }
 .guest-note{
-  position:absolute;
-  left:var(--note-left,0);
-  top:var(--note-top,0);
-  width:var(--note-size,250px);
-  height:var(--note-size,250px);
-  min-height:0;
+  position:relative;
+  width:100%;
+  height:220px;
+  min-height:220px;
   margin:0;
   padding:24px 18px 42px;
   border:1px solid rgba(145,120,82,.18);
-  border-radius:18px 18px 24px 16px;
+  border-radius:18px 20px 24px 16px;
   background:var(--note-bg,#fff8cf);
   box-shadow:0 16px 26px rgba(78,69,47,.09);
   transform:rotate(var(--tilt,0deg));
-  z-index:var(--stack,1);
+  z-index:1;
   cursor:zoom-in;
+  overflow:hidden;
   transition:transform .22s ease,box-shadow .22s ease,filter .22s ease;
 }
 .guest-note:hover,
 .guest-note:focus-visible{
   filter:saturate(1.02);
   box-shadow:0 22px 38px rgba(78,69,47,.14);
-  transform:translateY(-8px) scale(1.045) rotate(var(--tilt,0deg));
+  transform:translateY(-4px) scale(1.02) rotate(var(--tilt,0deg));
   z-index:30;
   outline:none;
-}
-.guest-note:nth-child(6n+1){
-  margin-top:0;
-}
-.guest-note:nth-child(6n+2){
-  margin-top:0;
-}
-.guest-note:nth-child(6n+3){
-  margin-top:0;
-}
-.guest-note:nth-child(6n+4){
-  margin-top:0;
-}
-.guest-note:nth-child(6n+5){
-  margin-top:0;
-}
-.guest-note:nth-child(6n){
-  margin-top:0;
 }
 .guest-note.note-style-square,
 .guest-note.note-style-classic{
@@ -468,29 +447,9 @@ body.friend-sage-mode #friendVisitorName{
 .guest-note.note-style-rounded{
   border-radius:34px 24px 36px;
 }
-.guest-note.note-style-circle{
-  border-radius:999px;
-  padding:34px 28px 56px;
-}
-.guest-note.note-style-heart{
-  border-radius:46% 46% 50% 50%;
-  clip-path:polygon(50% 96%,11% 58%,4% 34%,15% 11%,36% 7%,50% 23%,64% 7%,85% 11%,96% 34%,89% 58%);
-  padding:58px 30px 48px;
-}
-.guest-note.note-style-pill{
-  width:var(--note-size,250px);
-  height:calc(var(--note-size,250px) * .76);
-  border-radius:999px;
-  padding:30px 30px 42px;
-}
-.guest-note.note-style-scallop,
-.guest-note.note-style-ticket{
-  border-radius:24px;
-  clip-path:polygon(7% 0,93% 0,100% 7%,100% 93%,93% 100%,7% 100%,0 93%,0 7%);
-}
 .guest-note:before{
   content:"";
-  display:none;
+  display:block;
   position:absolute;
   left:50%;
   top:-10px;
@@ -503,7 +462,7 @@ body.friend-sage-mode #friendVisitorName{
   box-shadow:0 4px 10px rgba(51,65,57,.06);
 }
 .guest-note.note-style-tape:before{
-  display:none;
+  display:block;
 }
 .guest-note.note-style-folded{
   border-radius:34px 24px 36px;
@@ -511,7 +470,7 @@ body.friend-sage-mode #friendVisitorName{
 .guest-note.note-style-folded:after{
   content:none;
 }
-.guest-note.note-style-tape{border-radius:999px}
+.guest-note.note-style-tape{border-radius:18px 20px 24px 16px}
 .guest-note.note-style-memo{
   border-radius:24px;
 }
@@ -533,6 +492,8 @@ body.friend-sage-mode #friendVisitorName{
   font-size:18px;
   line-height:1.35;
   word-break:break-word;
+  max-height:50px;
+  overflow:hidden;
 }
 .guest-avatar{
   width:34px;
@@ -552,7 +513,7 @@ body.friend-sage-mode #friendVisitorName{
   display:-webkit-box;
   overflow:hidden;
   -webkit-box-orient:vertical;
-  -webkit-line-clamp:4;
+  -webkit-line-clamp:3;
 }
 .guest-note time{
   position:absolute;
@@ -562,6 +523,10 @@ body.friend-sage-mode #friendVisitorName{
   color:rgba(49,66,56,.46);
   font-size:12px;
   font-weight:800;
+  max-width:calc(100% - 96px);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .guest-delete{
   position:absolute;
@@ -732,14 +697,8 @@ body.friend-sage-mode #friendVisitorName{
   .guestbook-board{padding:18px;border-radius:24px}
   .guestbook-compose{grid-template-columns:1fr}
   .guestbook-submit{min-height:52px}
-  .note-grid{
-    width:min(100%,var(--note-board-width,540px));
-    min-height:var(--note-board-height,520px);
-  }
-  .guest-note,
-  .guest-note:nth-child(n){
-    margin:0;
-  }
+  .note-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+  .guest-note{height:210px;min-height:210px}
 }
 
 @media(max-width:560px){
@@ -749,7 +708,8 @@ body.friend-sage-mode #friendVisitorName{
   .friend-nav a,.friend-chip{padding:8px 10px;font-size:12px}
   .friend-title-card,.friend-gate-card{border-radius:24px;padding:22px}
   .friend-title-card h1{font-size:38px;line-height:1.08}
-  .guest-note{padding:22px 16px 42px}
+  .note-grid{grid-template-columns:1fr;gap:12px}
+  .guest-note{height:196px;min-height:196px;padding:22px 16px 42px}
   .guestbook-compose{padding:20px}
   .note-option-row{gap:7px}
   .note-choice{font-size:11px;padding:6px 9px}

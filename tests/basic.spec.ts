@@ -185,7 +185,7 @@ test('朋友入口可以上传头像预览并记住同设备资料', async ({ pa
   await expect(page.locator('#friendAvatarPreview img')).toBeVisible();
 });
 
-test('留言板可以自选便利贴颜色和形状', async ({ page }) => {
+test('留言板可以自选便利贴颜色且不再出现夸张形状', async ({ page }) => {
   await page.addInitScript(() => {
     sessionStorage.setItem('sage.admin.unlocked.v1', '1');
     sessionStorage.removeItem('sage.friend.visitor.v1');
@@ -194,18 +194,16 @@ test('留言板可以自选便利贴颜色和形状', async ({ page }) => {
 
   const form = page.locator('#guestbookForm');
   await expect(page.getByRole('button', { name: '桔梗紫' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '爱心' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '爱心' })).toHaveCount(0);
 
   await page.getByRole('button', { name: '桔梗紫' }).click();
-  await page.getByRole('button', { name: '爱心' }).click();
 
   await expect(page.getByRole('button', { name: '桔梗紫' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('button', { name: '爱心' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(form).toHaveAttribute('data-note-style', 'heart');
+  await expect(form).toHaveAttribute('data-note-style', 'square');
   await expect(form).toHaveCSS('--compose-note-bg', '#eee6f6');
 });
 
-test('留言板小纸条重叠展示并可点击放大查看', async ({ page }) => {
+test('留言板小纸条顺序排列并可点击放大查看', async ({ page }) => {
   await page.route('**/sage-cloud-data.js', async (route) => {
     await route.fulfill({
       contentType: 'application/javascript',
@@ -248,15 +246,15 @@ test('留言板小纸条重叠展示并可点击放大查看', async ({ page }) 
 
   const note = page.locator('.guest-note').first();
   await expect(note).toBeVisible();
-  await expect(note).toHaveClass(/note-style-heart/);
+  await expect(note).toHaveClass(/note-style-rounded/);
   await expect(note).toHaveAttribute('role', 'button');
-  await expect(page.locator('.note-grid')).toHaveCSS('display', 'block');
-  await expect(note).toHaveCSS('position', 'absolute');
-  const boardBox = await page.locator('.note-grid').boundingBox();
+  await expect(page.locator('.note-grid')).toHaveCSS('display', 'grid');
+  await expect(note).toHaveCSS('position', 'relative');
   const firstBox = await page.locator('.guest-note').nth(0).boundingBox();
   const secondBox = await page.locator('.guest-note').nth(1).boundingBox();
-  expect(boardBox?.height || 0).toBeLessThan(700);
-  expect(Math.abs((secondBox?.x || 0) - (firstBox?.x || 0))).toBeLessThan(260);
+  expect(firstBox?.height || 0).toBeGreaterThan(180);
+  expect(firstBox?.height || 999).toBeLessThan(240);
+  expect(Math.abs((secondBox?.height || 0) - (firstBox?.height || 0))).toBeLessThan(2);
 
   await note.click();
   const viewer = page.locator('.guest-note-viewer');
