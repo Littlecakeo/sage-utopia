@@ -9,13 +9,11 @@
     home:{file:'index.html',label:'首页',branches:[['#homeGuestbook','留言板'],['#taskBoard','操作区']]},
     study:{file:'study.html',label:'学习中心',branches:[['#planner','课程'],['#assignments','作业'],['#links','官方链接'],['#sync','同步']]},
     career:{file:'career.html',label:'求职中心',branches:[['#careerOverview','概览'],['#careerFormSection','新增机会'],['#careerListSection','求职列表']]},
-    finance:{file:'finance.html',label:'财务中心',branches:[['main .grid.three','概览'],['#expenseFormSection','记支出'],['#expenseListSection','支出列表']]},
-    growth:{file:'growth.html',label:'成长记录',branches:[['main .grid.three','概览'],['main .section','时间轴']]},
     friends:{file:'friends.html',label:'留言板',branches:[['#guestbook','留言板']]},
     resume:{file:'resume.html',label:'关于 Sage',branches:[['#resume-about','关于'],['#resume-portfolio','作品集'],['#resume-contact','联系'],['#data-management','数据']]},
     about:{file:'about.html',label:'关于 Sage',branches:[['#resume-about','关于'],['#resume-portfolio','作品集'],['#resume-contact','联系']]},
   };
-  const primary=['home','study','career','finance','growth','friends','resume'];let loading=false;
+  const primary=['home','study','career','friends','resume'];let loading=false;
   let shellInited=false;
   let openPageId=0;
   function keyFromPath(){let f=location.pathname.split('/').pop()||'index.html';return Object.keys(PAGES).find(k=>PAGES[k].file===f)||'home'}

@@ -4,8 +4,6 @@ const pages = [
   'dist/index.html',
   'dist/study.html',
   'dist/career.html',
-  'dist/finance.html',
-  'dist/growth.html',
   'dist/resume.html',
   'dist/about.html',
   'dist/friends.html',

@@ -52,14 +52,14 @@
   <div class="mobile">
     <a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a>
     <div class="mobile-scroll">
-      <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="friends.html">留言板</a><a href="resume.html">关于 Sage</a>
+      <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="friends.html">留言板</a><a href="resume.html">关于 Sage</a>
     </div>
   </div>
   <div class="shell">
     <aside class="side">
       <a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a>
       <nav class="nav">
-        <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="finance.html">财务中心</a><a href="growth.html">成长记录</a><a href="friends.html">留言板</a><a href="resume.html">关于 Sage</a>
+        <a class="active" href="index.html">首页</a><a href="study.html">学习中心</a><a href="career.html">求职中心</a><a href="friends.html">留言板</a><a href="resume.html">关于 Sage</a>
       </nav>
     </aside>
     <main>
@@ -80,10 +80,9 @@
 
       <section class="card section dashboard-summary" aria-label="数据总览">
         <h2 class="home-section-title">数据总览</h2>
-        <p class="section-note">这里汇总求职、成长记录和作品集的云端数据，新增内容后会自动更新。</p>
+        <p class="section-note">这里汇总求职和作品集的云端数据，新增内容后会自动更新。</p>
         <div class="overview-grid">
           <div class="overview-card peach"><div class="stat" id="dashCareer">0</div><p>求职进展</p><p class="hint">已申请和面试中的机会</p></div>
-          <div class="overview-card soft"><div class="stat" id="dashGrowth">0</div><p>成长记录</p><p class="hint">已保存的成长条数</p></div>
           <div class="overview-card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集项目</p><p class="hint">已保存的公开项目</p></div>
         </div>
       </section>
@@ -191,11 +190,10 @@
       if(!SD) return;
 
       // 求职：面试中 + 已申请
-      let jobs=[], entries=[], projects=[];
+      let jobs=[], projects=[];
       try{
-        [jobs, entries, projects] = await Promise.all([
+        [jobs, projects] = await Promise.all([
           SD.loadAsync('career'),
-          SD.loadAsync('growth'),
           SD.loadAsync('portfolio')
         ]);
       }catch(err){
@@ -204,10 +202,6 @@
       const careerActive = jobs.filter(j => ['面试中','已申请'].includes(j.status)).length;
       const el1 = document.getElementById('dashCareer');
       if(el1) el1.textContent = careerActive;
-
-      // 成长记录数
-      const el3 = document.getElementById('dashGrowth');
-      if(el3) el3.textContent = entries.length;
 
       // 作品集项目数
       const el4 = document.getElementById('dashPortfolio');

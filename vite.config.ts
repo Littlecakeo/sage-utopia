@@ -17,8 +17,6 @@ export default defineConfig(({ mode }) => {
           index: 'index.html',
           study: 'study.html',
           career: 'career.html',
-          finance: 'finance.html',
-          growth: 'growth.html',
           resume: 'resume.html',
           about: 'about.html',
           friends: 'friends.html',

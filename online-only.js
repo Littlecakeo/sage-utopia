@@ -7,8 +7,6 @@
     'index.html',
     'study.html',
     'career.html',
-    'finance.html',
-    'growth.html',
     'friends.html',
     'resume.html',
     'about.html',

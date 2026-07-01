@@ -44,7 +44,7 @@ test('Supabase 环境和 schema 文件已准备好', () => {
 
 test('构建校验覆盖核心页面入口', () => {
   const validator = readFileSync(path.join(root, 'scripts', 'validate-static-site.mjs'), 'utf8');
-  for (const page of ['study.html', 'career.html', 'finance.html', 'portfolio.html', 'about.html', 'friends.html']) {
+  for (const page of ['study.html', 'career.html', 'portfolio.html', 'about.html', 'friends.html']) {
     expect(validator).toContain(page);
   }
 });
@@ -54,7 +54,7 @@ test('所有页面都会从本地文件自动跳到线上版本', () => {
   expect(redirectScript).toContain("location.protocol !== 'file:'");
   expect(redirectScript).toContain('https://sage-utopia.vercel.app/');
 
-  for (const page of ['index.html', 'study.html', 'career.html', 'finance.html', 'growth.html', 'resume.html', 'friends.html']) {
+  for (const page of ['index.html', 'study.html', 'career.html', 'resume.html', 'friends.html']) {
     const html = readFileSync(path.join(root, page), 'utf8');
     expect(html).toContain('online-only.js');
   }

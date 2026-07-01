@@ -332,7 +332,7 @@ test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
 
 test('移动端所有主要页面顶部导航不遮挡内容', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 714 });
-  const pages = ['/index.html', '/study.html', '/career.html', '/finance.html', '/growth.html', '/resume.html', '/friends.html'];
+  const pages = ['/index.html', '/study.html', '/career.html', '/resume.html', '/friends.html'];
 
   for (const url of pages) {
     await page.goto(url, { waitUntil: 'domcontentloaded' });
@@ -371,8 +371,6 @@ test('各分支页面顶部只保留简洁标题', async ({ page }) => {
   const pages = [
     { url: '/study.html', title: '学习中心' },
     { url: '/career.html', title: '求职中心' },
-    { url: '/finance.html', title: '财务中心' },
-    { url: '/growth.html', title: '成长记录' },
     { url: '/resume.html', title: '关于 Sage' },
   ];
 
@@ -389,7 +387,6 @@ test('各页面本页分支会停在对应板块而不是回到顶部', async ({
     { url: '/index.html', label: '操作区', hash: 'taskBoard' },
     { url: '/study.html', label: '作业', hash: 'assignments' },
     { url: '/career.html', label: '求职列表', hash: 'careerListSection' },
-    { url: '/finance.html', label: '支出列表', hash: 'expenseListSection' },
     { url: '/resume.html', label: '数据', hash: 'data-management' },
   ];
 
@@ -438,14 +435,6 @@ test('点击本页分支时左侧导航保持不动', async ({ page }) => {
 
   const after = await page.evaluate(() => document.querySelector('.side')?.scrollTop ?? 0);
   expect(after).toBe(before);
-});
-
-test('财务中心页面可以打开并显示支出记录入口', async ({ page }) => {
-  await page.goto('/finance.html', { waitUntil: 'domcontentloaded' });
-
-  await expect(page).toHaveTitle(/财务中心/);
-  await expect(page.getByRole('heading', { name: /财务中心/ }).first()).toBeVisible();
-  await expect(page.getByRole('button', { name: /保存支出/ })).toBeVisible();
 });
 
 test('求职表单按钮保持正常尺寸', async ({ page }) => {
