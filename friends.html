@@ -50,13 +50,16 @@
     <main>
       <section class="friend-hero">
         <div class="friend-title-card">
-          <p class="friend-kicker">SAGE'S FRIEND</p>
-          <h1>写一张小纸条，贴在 Sage 的校园留言板上。</h1>
-          <p>这里是朋友入口。第一次进入时设置昵称、用户名和密码；之后用同一组用户名密码回来继续留言。</p>
+          <h1>Sage 的留言板</h1>
+          <ul class="friend-rules" aria-label="留言板规则">
+            <li>第一次进入时设置昵称、用户名和密码。</li>
+            <li>之后用同一组用户名密码回来继续留言。</li>
+            <li>这里是朋友入口，只用于留言，不会进入 Sage 的管理模式。</li>
+          </ul>
         </div>
 
         <section class="friend-gate-card" id="friendGate" aria-label="朋友入口">
-          <h2>Sage's friend</h2>
+          <h2>Sage</h2>
           <p>访客入口只用于留言，不会进入 Sage 的管理模式。</p>
           <form class="friend-form" id="friendGateForm" action="javascript:void(0)" onsubmit="return false">
             <div class="avatar-picker" aria-label="朋友头像">

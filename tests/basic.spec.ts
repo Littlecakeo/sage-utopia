@@ -163,7 +163,7 @@ test('首页可以进入独立留言板分支', async ({ page }) => {
 
   await page.getByRole('link', { name: '留言板' }).first().click();
   await expect(page).toHaveURL(/friends\.html$/);
-  await expect(page.getByRole('heading', { name: "Sage's friend" })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sage', exact: true })).toBeVisible();
   await expect(page.locator('body')).toHaveClass(/friend-page/);
   await expect(page.locator('link[href="guestbook.css"]')).toHaveCount(1);
 });
@@ -503,7 +503,7 @@ test('朋友留言板使用独立入口且不会出现管理操作', async ({ pa
   await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
 
   await expect(page).toHaveTitle(/朋友留言板/);
-  await expect(page.getByRole('heading', { name: "Sage's friend" })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sage', exact: true })).toBeVisible();
   await expect(page.getByPlaceholder('昵称 例如 小林🌱 / Lin!')).toBeVisible();
   await expect(page.getByPlaceholder('用户名 仅英文/数字/符号')).toBeVisible();
   await expect(page.getByPlaceholder('密码')).toBeVisible();
