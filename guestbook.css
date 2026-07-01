@@ -6,6 +6,9 @@
   --guest-ink:#314238;
   --guest-line:rgba(120,147,114,.24);
   --guest-shadow:0 22px 60px rgba(51,65,57,.10);
+  --font-editorial:'EB Garamond','Noto Serif SC',serif;
+  --font-serif-cn:'Noto Serif SC','Source Han Serif SC','Songti SC','SimSun',serif;
+  --font-sans-cn:'Noto Sans SC','Source Han Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
 }
 
 body.friend-page{
@@ -16,7 +19,27 @@ body.friend-page{
     radial-gradient(circle at 92% 6%,rgba(239,229,198,.48),transparent 340px),
     linear-gradient(180deg,#f8f6ee 0%,#edf4ea 100%);
   color:var(--guest-ink);
-  font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  font-family:var(--font-sans-cn);
+}
+
+body.friend-page input,
+body.friend-page textarea,
+body.friend-page select,
+body.friend-page button,
+body.friend-page .friend-nav a,
+body.friend-page .friend-chip,
+body.friend-page .friend-rules,
+body.friend-page .guest-note p,
+body.friend-page .guest-note time,
+body.friend-page .guest-empty{
+  font-family:var(--font-sans-cn);
+}
+
+body.friend-page h1,
+body.friend-page h2,
+body.friend-page h3,
+body.friend-page .friend-title-card h1{
+  font-family:var(--font-serif-cn);
 }
 
 .file-mode-banner{
@@ -72,6 +95,10 @@ body.friend-page{
 }
 
 .friend-brand{display:flex;align-items:center;gap:12px;font-weight:900}
+.friend-brand > span{
+  font-family:var(--font-editorial);
+  font-weight:800;
+}
 .friend-brand .leaf{width:46px;height:46px;border-radius:18px}
 .friend-brand .leaf{
   background-image:url("assets/sage-avatar.png")!important;
@@ -79,7 +106,13 @@ body.friend-page{
   background-size:cover!important;
   background-repeat:no-repeat!important;
 }
-.friend-brand small{display:block;margin-top:2px;color:rgba(49,66,56,.56);font-weight:650}
+.friend-brand small{
+  display:block;
+  margin-top:2px;
+  color:rgba(49,66,56,.56);
+  font-family:var(--font-sans-cn);
+  font-weight:650;
+}
 .friend-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .friend-nav a,.friend-chip{
   border:1px solid var(--guest-line);
@@ -133,7 +166,6 @@ body.friend-entered .friend-hero{
 .friend-title-card h1{
   margin:0;
   max-width:720px;
-  font-family:Georgia,"Times New Roman","Songti SC","Noto Serif SC",serif;
   font-size:clamp(40px,5.2vw,66px);
   font-weight:800;
   line-height:1.08;
@@ -186,7 +218,7 @@ body.friend-entered .friend-hero{
   border-radius:999px;
   background:rgba(185,205,183,.28);
 }
-.friend-gate-card h2{position:relative;margin:0 0 8px;font-size:22px}
+.friend-gate-card h2{position:relative;margin:0 0 8px;font-size:22px;font-weight:800}
 .friend-gate-card p{position:relative;margin:0 0 18px;color:rgba(49,66,56,.62);line-height:1.65}
 .friend-form{position:relative;display:grid;gap:10px}
 .avatar-picker{
