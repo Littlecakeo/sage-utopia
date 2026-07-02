@@ -112,6 +112,12 @@
   let openAddTerm = null;    // 替代原来的 addOpen/addTerm
   let openRemoveTerm = null;  // 新增：控制删除面板
 
+  function ensurePlan() {
+    if (!Array.isArray(plan) || plan.length === 0) {
+      plan = defaultPlan.map(item => Object.assign({}, item));
+    }
+  }
+
   // ── 计划操作函数 ───────────────────────────────────
   function save() {
     if (window.SageData) {
@@ -179,6 +185,7 @@
   function render() {
     const board = document.getElementById('planBoard');
     if (!board) return;
+    ensurePlan();
 
     board.innerHTML = Object.entries(grouped()).map(([term, items]) => {
       const uoc = items.reduce((s, i) => s + c(i.code).uoc, 0);
@@ -470,22 +477,30 @@
     if (window.__studyInited) return;
     window.__studyInited = true;
 
-    await loadCloudStudyData();
-
-    // 初始化选课规划
+    // 先显示本地默认课程，避免云端请求慢时页面短暂空白。
     render();
     renderAssignments();
     bindAssignmentActions();
-
-    // 初始化 Sage 面板
     initSagePanel();
+
+    await loadCloudStudyData();
+
+    // 云端数据回来后再覆盖刷新。
+    render();
+    renderAssignments();
 
     // 初始化同步功能（委托给 sage-sync.js 独立模块）
     if (window.SageSync) { window.SageSync.init(); }
+    requestAnimationFrame(() => {
+      render();
+      renderAssignments();
+    });
   }
 
   // 暴露刷新接口供 SPA 切换时调用
   window.__sageStudyRefresh = function () { render(); renderAssignments(); };
+  setTimeout(window.__sageStudyRefresh, 0);
+  setTimeout(window.__sageStudyRefresh, 450);
 
   // 执行初始化
   if (document.readyState === 'loading') {

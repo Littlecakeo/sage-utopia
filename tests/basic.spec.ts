@@ -155,8 +155,7 @@ test('移动端顶部导航把作品集合并进关于 Sage', async ({ page }) =
 
   await mobileNav.locator('.mobile-scroll').getByRole('link', { name: '关于 Sage' }).click();
   await expect(page).toHaveURL(/resume\.html$/);
-  await expect(page.locator('.mobile-scroll').getByRole('link', { name: '作品集' })).toBeVisible();
-  await expect(page.locator('.mobile-branches')).toBeHidden();
+  await expect(page.locator('.mobile-branches').getByRole('link', { name: '作品集' })).toBeVisible();
 });
 
 test('首页可以进入独立留言板分支', async ({ page }) => {
@@ -289,28 +288,52 @@ test('首页宽屏内容不会被侧边栏挤出屏幕', async ({ page }) => {
   expect(layout.guestbookRight).toBeLessThanOrEqual(layout.clientWidth);
 });
 
-test('移动端首页导航保持单行且操作区分支可点击', async ({ page }) => {
+test('移动端首页主导航和次级分支分两行且尺寸正常', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 714 });
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(120);
 
-  const branch = page.locator('.mobile-scroll').getByRole('link', { name: '操作区' });
+  const branch = page.locator('.mobile-branches').getByRole('link', { name: '操作区' });
   await expect(branch).toBeVisible();
-  const layout = await page.locator('.mobile-scroll a').evaluateAll((links) => {
-    const rects = links.map((el) => el.getBoundingClientRect());
+  const layout = await page.evaluate(() => {
+    const primaryRects = [...document.querySelectorAll('.mobile-scroll a')].map((el) => el.getBoundingClientRect());
+    const branchRects = [...document.querySelectorAll('.mobile-branches a')].map((el) => el.getBoundingClientRect());
     return {
-      minTop: Math.min(...rects.map((rect) => rect.top)),
-      maxTop: Math.max(...rects.map((rect) => rect.top)),
-      firstHeight: rects[0]?.height ?? 0,
+      primaryMinTop: Math.min(...primaryRects.map((rect) => rect.top)),
+      primaryMaxTop: Math.max(...primaryRects.map((rect) => rect.top)),
+      branchTop: branchRects[0]?.top ?? 0,
+      primaryTop: primaryRects[0]?.top ?? 0,
+      primaryHeight: primaryRects[0]?.height ?? 0,
+      branchHeight: branchRects[0]?.height ?? 0,
     };
   });
-  expect(layout.maxTop - layout.minTop).toBeLessThan(4);
-  expect(layout.firstHeight).toBeLessThan(48);
-  expect(layout.firstHeight).toBeGreaterThan(28);
+  expect(layout.primaryMaxTop - layout.primaryMinTop).toBeLessThan(4);
+  expect(layout.branchTop).toBeGreaterThan(layout.primaryTop + 20);
+  expect(layout.primaryHeight).toBeLessThan(48);
+  expect(layout.branchHeight).toBeLessThan(44);
 
   await branch.click();
   await expect(page).toHaveURL(/index\.html#taskBoard$/);
   await expect(page.locator('#taskBoard')).toBeInViewport();
+});
+
+test('学习中心小按钮不会被撑成过大的圆形', async ({ page }) => {
+  await page.setViewportSize({ width: 667, height: 714 });
+  await page.goto('/study.html', { waitUntil: 'domcontentloaded' });
+  await page.locator('.tiny-link').first().waitFor();
+  await page.locator('.term-mini').first().waitFor();
+  const measurements = await page.evaluate(() => {
+    const detail = document.querySelector('.tiny-link')?.getBoundingClientRect();
+    const termButton = document.querySelector('.term-mini')?.getBoundingClientRect();
+    return {
+      detailHeight: detail?.height ?? 999,
+      termHeight: termButton?.height ?? 999,
+      termWidth: termButton?.width ?? 999,
+    };
+  });
+  expect(measurements.detailHeight).toBeLessThanOrEqual(34);
+  expect(measurements.termHeight).toBeLessThanOrEqual(36);
+  expect(measurements.termWidth).toBeLessThanOrEqual(38);
 });
 
 test('关于页等待云端资料和编辑文案完成后再显示内容', async ({ page }) => {
