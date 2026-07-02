@@ -219,3 +219,172 @@ h1,h2,h3,h4,.hero h1,.quote-card h1,.profile-title{
 #data-management{
   margin-bottom:180px;
 }
+
+/* Layout quality layer: 8px rhythm, steadier reading width, and predictable breakpoints. */
+:root{
+  --space-1:8px;
+  --space-2:16px;
+  --space-3:24px;
+  --space-4:32px;
+  --space-5:40px;
+  --space-6:48px;
+  --content-max:1120px;
+  --text-measure:38em;
+  --touch-target:44px;
+}
+
+html{
+  text-size-adjust:100%;
+}
+
+body{
+  font-family:var(--font-sans-cn)!important;
+}
+
+main{
+  min-width:0!important;
+}
+
+main > section,
+main > .section,
+main > .card,
+main > .hero{
+  width:min(100%,var(--content-max))!important;
+}
+
+.hero,
+.card,
+.work-zone,
+.term-group,
+.friend-section{
+  overflow-wrap:break-word;
+}
+
+.hero,
+.card{
+  padding:clamp(20px,2.4vw,32px)!important;
+}
+
+.section{
+  margin-top:var(--space-3)!important;
+}
+
+.desc,
+.sub,
+.hint,
+.section-note,
+.task-meta,
+.task-note,
+.unit-hint,
+.resume-copy,
+.profile-list p,
+.link-card .tag,
+.overview-card .hint{
+  max-width:var(--text-measure);
+  line-height:1.7!important;
+}
+
+h1,
+.hero h1,
+.quote-card h1{
+  line-height:1.08!important;
+  text-wrap:balance;
+}
+
+h2,
+h3{
+  line-height:1.18!important;
+}
+
+button,
+.button,
+.field,
+input,
+select,
+textarea,
+.nav a,
+.mobile-scroll a,
+.mobile-branches a,
+.mobile-more a,
+.link-card,
+.tiny-link,
+.chip,
+.metric-pill{
+  min-height:var(--touch-target);
+}
+
+.grid,
+.links,
+.stats,
+.three,
+.two,
+.task-columns,
+.section-split,
+.zone-grid,
+.overview-grid{
+  gap:var(--space-2)!important;
+  min-width:0;
+}
+
+.compact-stats{
+  gap:var(--space-2)!important;
+}
+
+@media (min-width:901px){
+  main{
+    padding:var(--space-4)!important;
+  }
+}
+
+@media (max-width:1024px){
+  :root{
+    --content-max:920px;
+  }
+  main{
+    padding:var(--space-3)!important;
+  }
+  .two,
+  .decision-grid{
+    grid-template-columns:1fr!important;
+  }
+}
+
+@media (max-width:768px){
+  :root{
+    --content-max:100%;
+    --text-measure:34em;
+  }
+  main{
+    padding:var(--space-3) var(--space-2)!important;
+  }
+  .hero,
+  .card{
+    padding:var(--space-3)!important;
+    border-radius:22px!important;
+  }
+  .links,
+  .overview-grid,
+  .guestbook-notes,
+  .stats,
+  .three{
+    grid-template-columns:1fr!important;
+  }
+}
+
+@media (max-width:375px){
+  :root{
+    --text-measure:30em;
+  }
+  main{
+    padding:var(--space-2) 12px!important;
+  }
+  .hero,
+  .card{
+    padding:18px!important;
+  }
+  h1,
+  .hero h1,
+  .quote-card h1{
+    font-size:clamp(30px,10vw,36px)!important;
+  }
+}

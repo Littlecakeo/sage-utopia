@@ -515,6 +515,28 @@ test('朋友留言板使用独立入口且不会出现管理操作', async ({ pa
   await expect(page.locator('#friend-about')).toHaveCount(0);
 });
 
+test('朋友留言板字体与首页体系一致', async ({ page }) => {
+  await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  const styles = await page.evaluate(() => {
+    const title = document.querySelector('.friend-title-card h1');
+    const field = document.querySelector('#friendName');
+    const rules = document.querySelector('.friend-rules');
+    const button = document.querySelector('.friend-button');
+    return {
+      title: title ? getComputedStyle(title).fontFamily : '',
+      field: field ? getComputedStyle(field).fontFamily : '',
+      rules: rules ? getComputedStyle(rules).fontFamily : '',
+      button: button ? getComputedStyle(button).fontFamily : '',
+    };
+  });
+
+  expect(styles.title).toMatch(/Noto Serif SC|Songti SC|SimSun|serif/i);
+  expect(styles.field).toMatch(/Noto Sans SC|PingFang SC|Microsoft YaHei|sans-serif/i);
+  expect(styles.rules).toMatch(/Noto Sans SC|PingFang SC|Microsoft YaHei|sans-serif/i);
+  expect(styles.button).toMatch(/Noto Sans SC|PingFang SC|Microsoft YaHei|sans-serif/i);
+});
+
 test('朋友用户名禁止中文并保留昵称 emoji 输入', async ({ page }) => {
   await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
 
