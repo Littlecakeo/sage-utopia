@@ -3,6 +3,24 @@
 
   const MODULE = 'portfolio';
   let profile = null;
+  let resumeDataReady = false;
+
+  function revealResume(force) {
+    if (!document.body.classList.contains('resume-hydrating')) return;
+    const editExpected = Boolean(document.querySelector('script[src*="edit-mode.js"]') || window.initSageEditMode);
+    const editsReady = document.body.classList.contains('sage-edits-ready');
+    if (!force && (!resumeDataReady || (editExpected && !editsReady))) return;
+    document.body.classList.remove('resume-hydrating');
+    document.body.classList.add('resume-ready');
+  }
+
+  function markResumeDataReady() {
+    resumeDataReady = true;
+    revealResume(false);
+  }
+
+  document.addEventListener('sage:edits-loaded', function () { revealResume(false); });
+  window.setTimeout(function () { revealResume(true); }, 1800);
 
   let projects = [];
   function save(list) { projects = list; window.SageData?.saveLocalOnly(MODULE, list); }
@@ -150,8 +168,9 @@
     renderProfile();
     renderPortfolio();
     if (window.SageCloudSync) window.SageCloudSync.renderSyncUI();
+    markResumeDataReady();
   }
 
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
-  window.__sageResumeRefresh = function () { renderPortfolio(); };
+  window.__sageResumeRefresh = function () { renderProfile(); renderPortfolio(); markResumeDataReady(); };
 })();

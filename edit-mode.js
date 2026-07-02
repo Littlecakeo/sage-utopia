@@ -221,8 +221,15 @@
 
   async function initSageEditMode() {
     addSectionIndex();
-    await loadEdits();
-    addSaveDock();
+    document.body.classList.add('sage-edits-loading');
+    try {
+      await loadEdits();
+    } finally {
+      addSaveDock();
+      document.body.classList.remove('sage-edits-loading');
+      document.body.classList.add('sage-edits-ready');
+      document.dispatchEvent(new CustomEvent('sage:edits-loaded'));
+    }
   }
 
   /* ── 事件绑定 ── */

@@ -127,17 +127,6 @@ main > .compact-stats{
   --success:#C9EBD4;
   --focus:rgba(143,190,156,.22);
 }
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Microsoft YaHei",sans-serif !important;
-}
-h1,.hero h1,.quote-card h1{
-  font-family:Georgia,"Times New Roman","Songti SC","Noto Serif SC",serif !important;
-  font-weight:760 !important;
-  letter-spacing:0 !important;
-}
-h2,h3,.term-head strong{
-  font-family:Georgia,"Times New Roman","Songti SC","Noto Serif SC",serif !important;
-}
 button,.button{
   background:#DDF3E8 !important;
   color:#2F3A35 !important;
@@ -302,15 +291,36 @@ button,
 input,
 select,
 textarea,
+.link-card,
+.tiny-link{
+  min-height:var(--touch-target);
+}
+
 .nav a,
 .mobile-scroll a,
 .mobile-branches a,
 .mobile-more a,
-.link-card,
-.tiny-link,
 .chip,
 .metric-pill{
-  min-height:var(--touch-target);
+  position:relative;
+  min-height:auto!important;
+}
+
+.mobile-scroll a,
+.mobile-branches a,
+.mobile-more a{
+  align-items:center;
+  display:inline-flex!important;
+  line-height:1.18!important;
+}
+
+.mobile-scroll a::before,
+.mobile-branches a::before,
+.mobile-more a::before{
+  content:"";
+  position:absolute;
+  inset:-6px -4px;
+  border-radius:999px;
 }
 
 .grid,
@@ -346,6 +356,35 @@ textarea,
   .two,
   .decision-grid{
     grid-template-columns:1fr!important;
+  }
+}
+
+@media (max-width:900px){
+  .mobile{
+    overflow:hidden!important;
+  }
+  .mobile-scroll{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    gap:8px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    max-width:100%!important;
+    padding:0 2px 8px!important;
+    scrollbar-width:none;
+  }
+  .mobile-scroll::-webkit-scrollbar{
+    display:none;
+  }
+  .mobile-scroll a{
+    flex:0 0 auto!important;
+    white-space:nowrap!important;
+    padding:8px 12px!important;
+    border-radius:999px!important;
+  }
+  .mobile-branches{
+    display:none!important;
   }
 }
 

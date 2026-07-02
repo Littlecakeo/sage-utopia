@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="edit-mode.css?v=10">
   <style>
     .resume-editable{display:grid;gap:18px;padding-bottom:240px}
+    body.resume-hydrating .resume-editable{opacity:0;pointer-events:none}
+    body.resume-ready .resume-editable{opacity:1;transition:opacity .18s ease}
     .resume-hero{position:relative;overflow:hidden;padding:22px 26px}
     .resume-hero:after{content:"";position:absolute;right:28px;top:24px;width:86px;height:46px;border-radius:50%;background:rgba(185,205,183,.38);transform:rotate(-24deg)}
     .resume-hero h1{font-size:clamp(32px,4.4vw,52px)}
@@ -39,7 +41,7 @@
     }
   </style>
 </head>
-<body>
+<body class="resume-hydrating">
 <div class="mobile">
   <a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a>
   <div class="mobile-scroll">

@@ -155,7 +155,8 @@ test('移动端顶部导航把作品集合并进关于 Sage', async ({ page }) =
 
   await mobileNav.locator('.mobile-scroll').getByRole('link', { name: '关于 Sage' }).click();
   await expect(page).toHaveURL(/resume\.html$/);
-  await expect(page.locator('.mobile-branches').getByRole('link', { name: '作品集' })).toBeVisible();
+  await expect(page.locator('.mobile-scroll').getByRole('link', { name: '作品集' })).toBeVisible();
+  await expect(page.locator('.mobile-branches')).toBeHidden();
 });
 
 test('首页可以进入独立留言板分支', async ({ page }) => {
@@ -288,22 +289,34 @@ test('首页宽屏内容不会被侧边栏挤出屏幕', async ({ page }) => {
   expect(layout.guestbookRight).toBeLessThanOrEqual(layout.clientWidth);
 });
 
-test('移动端首页分支导航可点击并进入留言板板块', async ({ page }) => {
+test('移动端首页导航保持单行且操作区分支可点击', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 714 });
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(120);
 
-  const branch = page.locator('.mobile-branches').getByRole('link', { name: '留言板' });
+  const branch = page.locator('.mobile-scroll').getByRole('link', { name: '操作区' });
   await expect(branch).toBeVisible();
-  const hitTarget = await branch.evaluate((el) => {
-    const rect = el.getBoundingClientRect();
-    return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2) === el;
+  const layout = await page.locator('.mobile-scroll a').evaluateAll((links) => {
+    const rects = links.map((el) => el.getBoundingClientRect());
+    return {
+      minTop: Math.min(...rects.map((rect) => rect.top)),
+      maxTop: Math.max(...rects.map((rect) => rect.top)),
+      firstHeight: rects[0]?.height ?? 0,
+    };
   });
-  expect(hitTarget).toBe(true);
+  expect(layout.maxTop - layout.minTop).toBeLessThan(4);
+  expect(layout.firstHeight).toBeLessThan(48);
+  expect(layout.firstHeight).toBeGreaterThan(28);
 
   await branch.click();
-  await expect(page).toHaveURL(/index\.html#homeGuestbook$/);
-  await expect(page.locator('#homeGuestbook')).toBeInViewport();
+  await expect(page).toHaveURL(/index\.html#taskBoard$/);
+  await expect(page.locator('#taskBoard')).toBeInViewport();
+});
+
+test('关于页等待云端资料和编辑文案完成后再显示内容', async ({ page }) => {
+  await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('body')).toHaveClass(/resume-ready/);
+  await expect(page.locator('body')).not.toHaveClass(/resume-hydrating/);
 });
 
 test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
