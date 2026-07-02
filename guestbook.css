@@ -19,7 +19,7 @@ body.friend-page{
     radial-gradient(circle at 92% 6%,rgba(239,229,198,.48),transparent 340px),
     linear-gradient(180deg,#f8f6ee 0%,#edf4ea 100%);
   color:var(--guest-ink);
-  font-family:var(--font-sans-cn);
+  font-family:var(--font-serif-cn);
 }
 
 body.friend-page input,
@@ -32,7 +32,7 @@ body.friend-page .friend-rules,
 body.friend-page .guest-note p,
 body.friend-page .guest-note time,
 body.friend-page .guest-empty{
-  font-family:var(--font-sans-cn);
+  font-family:var(--font-serif-cn);
 }
 
 body.friend-page h1,
@@ -110,7 +110,7 @@ body.friend-page .friend-title-card h1{
   display:block;
   margin-top:2px;
   color:rgba(49,66,56,.56);
-  font-family:var(--font-sans-cn);
+  font-family:var(--font-serif-cn);
   font-weight:650;
 }
 .friend-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
