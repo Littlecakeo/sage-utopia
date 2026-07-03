@@ -342,6 +342,28 @@ test('关于页等待云端资料和编辑文案完成后再显示内容', async
   await expect(page.locator('body')).not.toHaveClass(/resume-hydrating/);
 });
 
+test('站内进入关于页时不会先露出旧的静态资料', async ({ page }) => {
+  await page.route('**/resume.js', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    await route.continue();
+  });
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+  await page.getByRole('link', { name: '关于 Sage' }).first().click();
+  await expect(page).toHaveURL(/resume\.html$/);
+  await expect(page.locator('#profileHeadline')).toBeAttached();
+
+  const hydration = await page.evaluate(() => {
+    const main = document.querySelector('.resume-editable');
+    return {
+      bodyClass: document.body.className,
+      mainOpacity: main ? getComputedStyle(main).opacity : '',
+    };
+  });
+  expect(hydration.bodyClass).toContain('resume-hydrating');
+  expect(hydration.mainOpacity).toBe('0');
+});
+
 test('关于页移动端顶部导航不会遮住标题', async ({ page }) => {
   await page.setViewportSize({ width: 667, height: 714 });
   await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
