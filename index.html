@@ -112,20 +112,24 @@
         </div>
       </section>
 
-      <section class="card section" id="taskBoard">
-        <h2>我的操作区</h2>
-        <p class="sub">进度 习惯 任务分开管理 比如一本书用页数 习惯用天数 普通待办用项目数</p>
+      <section class="card section task-workbench" id="taskBoard">
+        <div class="task-board-head">
+          <div>
+            <h2>我的操作区</h2>
+            <p class="sub">新增一件事，选好类型，之后直接记录进度或勾选完成。</p>
+          </div>
+        </div>
         <form class="task-form progress-form" id="itemForm">
           <input class="field" id="itemTitle" placeholder="名称 例如 读完一本书" required>
           <select class="field" id="itemSection"><option value="progress">进度追踪</option><option value="habit">习惯养成</option><option value="task">任务清单</option></select>
-          <input class="field" id="itemType" placeholder="类型">
+          <input class="field" id="itemType" placeholder="类型 例如 阅读">
           <input class="field" id="itemStart" type="date" title="开始日期">
           <input class="field" id="itemDue" type="date" title="计划截止日期">
-          <input class="field" id="itemCurrent" type="number" min="0" placeholder="当前">
-          <input class="field" id="itemTotal" type="number" min="1" placeholder="总额度">
+          <input class="field" id="itemCurrent" type="number" min="0" placeholder="当前数">
+          <input class="field" id="itemTotal" type="number" min="1" placeholder="目标数">
           <button type="submit">添加</button>
         </form>
-        <p class="unit-hint">例子 阅读用页 习惯用天 作品集用步 普通任务用项</p>
+        <p class="unit-hint">不用填单位：阅读按页，习惯按天，待办按项。</p>
         <div class="section-split">
           <div class="work-zone"><div class="work-zone-head"><div><h3>进度追踪</h3><p class="hint">适合长期目标 阅读 作品集 课程项目 申请准备</p></div><div class="zone-metrics"><span class="metric-pill">进行中 <b id="progressCount">0</b></span><span class="metric-pill">平均 <b id="progressAvg">0%</b></span></div></div><div class="zone-grid"><div class="zone-col"><h4>正在推进</h4><div id="progressList"></div></div><div class="zone-col"><h4>已完成</h4><div id="progressDone"></div></div></div></div>
           <div class="work-zone"><div class="work-zone-head"><div><h3>习惯养成</h3><p class="hint">适合重复记录 每天读书 每周复盘 定期更新作品集</p></div><div class="zone-metrics"><span class="metric-pill">进行中 <b id="habitCount">0</b></span><span class="metric-pill">平均 <b id="habitAvg">0%</b></span></div></div><div class="zone-grid"><div class="zone-col"><h4>正在坚持</h4><div id="habitList"></div></div><div class="zone-col"><h4>已完成</h4><div id="habitDone"></div></div></div></div>

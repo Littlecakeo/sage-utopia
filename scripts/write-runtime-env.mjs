@@ -9,7 +9,7 @@ const env = {
 await mkdir('dist', { recursive: true });
 await writeFile(
   'dist/sage-env.js',
-  `window.__SAGE_ENV__ = ${JSON.stringify(env, null, 2)};\n`,
+  `window.__SAGE_ENV__ = Object.assign({}, ${JSON.stringify(env, null, 2)}, window.__SAGE_ENV__ || {});\n`,
   'utf8',
 );
 

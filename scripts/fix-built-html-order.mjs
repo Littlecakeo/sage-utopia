@@ -16,6 +16,9 @@ for (const page of pages) {
     /(<script type="module"[^>]+src="\/sage-cloud-data\.js"><\/script>)/,
     '  <script src="/sage-env.js"></script>\n  $1',
   );
+  if (page.endsWith('/friends.html') && !html.includes('href="guestbook.css"')) {
+    html = html.replace('</head>', '  <link rel="stylesheet" href="guestbook.css">\n</head>');
+  }
   await writeFile(page, html, 'utf8');
 }
 

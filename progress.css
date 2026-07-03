@@ -35,34 +35,64 @@
   box-shadow: none;
 }
 
+.task-workbench {
+  background:
+    linear-gradient(135deg, rgba(255, 253, 248, .92), rgba(239, 247, 236, .82)) !important;
+}
+
+.task-board-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+
+.task-board-head h2 {
+  margin: 0 0 6px;
+}
+
+.task-board-head .sub {
+  margin: 0;
+  max-width: none;
+}
+
 .task-form.progress-form {
-  grid-template-columns: repeat(4, minmax(130px, 1fr));
-  gap: 10px;
-  margin-top: 12px;
-  align-items: start;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr)) auto;
+  gap: 8px;
+  margin-top: 0;
+  padding: 12px;
+  align-items: center;
+  border: 1px solid rgba(168, 213, 186, .42);
+  border-radius: 20px;
+  background: rgba(255, 253, 248, .78);
+  box-shadow: 0 10px 26px rgba(74, 93, 78, .055);
 }
 
 .task-form.progress-form .field {
-  padding: 10px 12px;
+  min-height: 42px;
+  padding: 9px 12px;
   border-radius: 14px;
+  font-size: 14px;
 }
 
 .task-form.progress-form button[type=submit] {
   width: auto;
-  min-width: 92px;
+  min-width: 76px;
   min-height: 42px;
-  padding: 10px 14px;
-  justify-self: start;
+  padding: 9px 14px;
+  justify-self: end;
   align-self: center;
 }
 
 .task-form.progress-form #itemTitle {
-  grid-column: 1 / -1;
+  grid-column: 1 / 3;
+  min-width: 0;
 }
 
-.task-form.progress-form #itemSection,
-.task-form.progress-form #itemType {
-  grid-column: span 2;
+.task-form.progress-form button[type=submit] {
+  grid-column: auto;
 }
 
 .task-form.progress-form #itemStart,
@@ -219,7 +249,7 @@
 .unit-hint {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 8px;
+  margin: 8px 4px 0;
 }
 
 .task-row.done .progress-fill {
@@ -275,15 +305,16 @@
 
 .section-split {
   display: grid;
-  gap: 18px;
-  margin-top: 18px;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 16px;
 }
 
 .work-zone {
-  border: 1px solid rgba(222, 216, 201, .66);
-  border-radius: 24px;
-  background: rgba(255, 253, 248, .68);
-  padding: 16px;
+  border: 1px solid rgba(168, 213, 186, .42);
+  border-radius: 22px;
+  background: rgba(255, 253, 248, .72);
+  padding: 14px;
 }
 
 .work-zone-head {
@@ -298,6 +329,12 @@
   margin: 0;
   font-size: 18px;
   color: #465845;
+}
+
+.work-zone .hint {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .zone-metrics {
@@ -317,15 +354,15 @@
 
 .zone-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(220px, .75fr);
+  gap: 12px;
 }
 
 .zone-col {
-  border-radius: 20px;
-  background: rgba(238, 243, 234, .55);
-  padding: 12px;
-  min-height: 160px;
+  border-radius: 18px;
+  background: rgba(238, 243, 234, .48);
+  padding: 10px;
+  min-height: 118px;
 }
 
 .zone-col h4 {
@@ -385,13 +422,13 @@
   }
 
   .task-form.progress-form {
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     gap: 8px;
-    margin-top: 10px;
+    padding: 10px;
+    margin-top: 0;
   }
 
-  .task-form.progress-form #itemTitle,
-  .task-form.progress-form button[type=submit] {
+  .task-form.progress-form #itemTitle {
     grid-column: 1 / -1;
   }
 
@@ -419,9 +456,15 @@
     grid-column: 2 / 3;
   }
 
+  .task-form.progress-form button[type=submit] {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
   .task-form.progress-form .field {
     padding: 9px 11px;
     min-height: 42px;
+    font-size: 14px;
   }
 
   .task-form.progress-form button[type=submit] {
@@ -434,7 +477,8 @@
   }
 
   .work-zone-head {
-    display: block;
+    display: flex;
+    align-items: flex-start;
   }
 
   .zone-metrics {
@@ -452,5 +496,27 @@
   .task-form.progress-form #itemTotal,
   .task-form.progress-form #itemCurrent {
     grid-column: auto;
+  }
+
+  .task-form.progress-form button[type=submit] {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+
+  .task-board-head {
+    display: block;
+  }
+
+  .work-zone {
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .work-zone-head {
+    display: block;
+  }
+
+  .zone-col {
+    min-height: 104px;
   }
 }
