@@ -345,13 +345,13 @@
   function assignmentCard(a) {
     const course = plan.find(item => (item.id || item.code) === a.course_id);
     const courseText = course ? `${course.code} ${c(course.code).name}` : '未关联课程';
+    const dueText = a.due_date ? `截止 ${a.due_date}` : '未设置截止';
     return `<div class="task-row" data-id="${a.id}">
       <div class="task-card-top">
         <div>
           <div class="task-title">${escapeHTML(a.title || '')}</div>
-          <div class="task-meta">${escapeHTML(courseText)} · ${escapeHTML(a.status || '未开始')} · ${escapeHTML(a.due_date || '未设置截止')}</div>
+          <div class="task-meta">${escapeHTML(courseText)} · ${escapeHTML(dueText)}</div>
         </div>
-        <span class="task-badge soft">${Number(a.progress || 0)}%</span>
       </div>
       ${a.notes ? `<div class="task-note">${escapeHTML(a.notes)}</div>` : ''}
       <div class="task-actions">
@@ -371,7 +371,7 @@
     hydrateCourseSelect();
     const list = document.getElementById('assignmentList');
     if (list) {
-      list.innerHTML = assignments.length ? assignments.map(assignmentCard).join('') : '<div class="empty">还没有作业。新增一条后，这里会显示截止日期和进度。</div>';
+      list.innerHTML = assignments.length ? assignments.map(assignmentCard).join('') : '<div class="empty">还没有作业。新增一条后，这里会显示课程和截止日期。</div>';
     }
     const hint = document.getElementById('studySyncHint');
     if (hint) hint.textContent = window.SageCloudData?.localModeMessage?.() || '本地模式';
@@ -381,6 +381,10 @@
     document.getElementById('assignmentForm')?.reset();
     const id = document.getElementById('assignmentId');
     if (id) id.value = '';
+    const status = document.getElementById('assignmentStatus');
+    if (status) status.value = '未开始';
+    const progress = document.getElementById('assignmentProgress');
+    if (progress) progress.value = '0';
   }
 
   function editAssignment(id) {

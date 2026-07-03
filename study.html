@@ -12,7 +12,7 @@
     .study-hero{padding:16px 20px;margin-bottom:12px}
     .study-hero h1{font-size:clamp(28px,3.8vw,42px)}
     .study-hero .desc{max-width:760px;font-size:14px;line-height:1.55;margin:10px 0 0}
-    .study-top-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+    .study-top-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
     .study-top-stats .card{padding:10px 12px;border-radius:16px;display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;row-gap:2px;min-height:56px;box-shadow:var(--shadow-soft);background:rgba(255,253,248,.74)}
     .study-top-stats .card p{margin:0;font-size:12px;font-weight:900;color:#60785d;line-height:1.15;white-space:nowrap}
     .study-top-stats .stat{grid-row:1/3;font-size:22px;line-height:1;margin:0;min-width:34px;text-align:left}
@@ -59,13 +59,21 @@
     .sage-answer{margin-top:10px;padding:12px;border-radius:14px;background:#EEF3EA;color:var(--text);font-size:13px;line-height:1.65}
     .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#334139;color:#fff;border-radius:999px;padding:10px 14px;font-size:13px;opacity:0;pointer-events:none;transition:.18s ease;z-index:20}
     .toast.show{opacity:1}
+    .assignment-form{grid-template-columns:minmax(190px,1.3fr) minmax(180px,1fr) 150px auto auto;align-items:center}
+    .assignment-form .assignment-date-field{max-width:150px}
+    .assignment-form .assignment-note-field{grid-column:1 / 4}
     @media(max-width:900px){
       .compact-links,.note-strip{grid-template-columns:1fr}
-      .study-top-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+      .study-top-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
       .study-top-stats .card{padding:9px 10px;min-height:52px}
       .study-top-stats .stat{font-size:20px;min-width:28px}
       .study-top-stats .card p{font-size:11px}
       .study-top-stats .hint{font-size:10px}
+      .assignment-form{grid-template-columns:minmax(0,1fr) 140px auto auto;gap:8px}
+      .assignment-form .assignment-title-field{grid-column:1 / -1}
+      .assignment-form .assignment-course-field{grid-column:1 / 2}
+      .assignment-form .assignment-date-field{grid-column:2 / 3;max-width:none}
+      .assignment-form .assignment-note-field{grid-column:1 / 3}
       .mobile-branches{display:flex;gap:8px;overflow:auto;margin-top:10px}
       .mobile-branches a{flex:0 0 auto;border-radius:999px;background:#fff;padding:8px 11px;font-size:12px;font-weight:800;color:#60785d;border:1px solid #D9E4D5}
       .study-hero{padding:14px 16px}
@@ -75,6 +83,12 @@
     @media(max-width:620px){
       .study-top-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
       .study-hero h1{font-size:32px}
+      .assignment-form{grid-template-columns:1fr 128px}
+      .assignment-form .assignment-title-field,
+      .assignment-form .assignment-course-field,
+      .assignment-form .assignment-note-field{grid-column:1 / -1}
+      .assignment-form .assignment-date-field{grid-column:1 / 2}
+      .assignment-form button{grid-column:auto}
     }
   </style>
 </head>
@@ -141,16 +155,6 @@
           <div class="stat" id="plannedUoc">72</div>
           <p class="hint">自动计算 UOC</p>
         </div>
-        <div class="card peach">
-          <p>偏好</p>
-          <div class="stat">实践</div>
-          <p class="hint">策略 / 社媒 / 实习</p>
-        </div>
-        <div class="card soft">
-          <p>课程数</p>
-          <div class="stat" id="courseCount">11</div>
-          <p class="hint">避免重复选课</p>
-        </div>
       </section>
 
       <!-- 换课规划器 -->
@@ -175,15 +179,15 @@
 
       <section class="card section" id="assignments">
         <h2>作业管理</h2>
-        <p class="sub">记录每门课的作业、截止日期和完成进度。配置 Supabase 后，作业会保存到云端。</p>
-        <form id="assignmentForm" class="task-form">
+        <p class="sub">记录每门课的作业和截止日期。配置 Supabase 后，作业会保存到云端。</p>
+        <form id="assignmentForm" class="task-form assignment-form">
           <input type="hidden" id="assignmentId">
-          <input class="field" id="assignmentTitle" placeholder="作业名称（必填）" required>
-          <select class="field" id="assignmentCourse"></select>
-          <input class="field" id="assignmentDue" type="date">
-          <select class="field" id="assignmentStatus"><option value="未开始">未开始</option><option value="进行中">进行中</option><option value="已完成">已完成</option></select>
-          <input class="field" id="assignmentProgress" type="number" min="0" max="100" placeholder="进度 %">
-          <input class="field note-field" id="assignmentNotes" placeholder="备注">
+          <input type="hidden" id="assignmentStatus" value="未开始">
+          <input type="hidden" id="assignmentProgress" value="0">
+          <input class="field assignment-title-field" id="assignmentTitle" placeholder="作业名称（必填）" required>
+          <select class="field assignment-course-field" id="assignmentCourse"></select>
+          <input class="field assignment-date-field" id="assignmentDue" type="date" aria-label="截止日期">
+          <input class="field note-field assignment-note-field" id="assignmentNotes" placeholder="备注">
           <button type="submit" class="mini">保存作业</button>
           <button type="button" class="mini ghost" id="assignmentCancelEdit">取消编辑</button>
         </form>
