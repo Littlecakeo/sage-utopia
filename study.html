@@ -40,8 +40,10 @@
     .swap-option.duplicate{opacity:.72;background:#F7F4EC}
     .swap-title{font-weight:850;font-size:14px}
     .swap-summary{margin-top:4px;font-size:12px;line-height:1.5;color:var(--muted)}
-    .tiny-link{display:inline-flex;border:1px solid #D9E4D5;border-radius:999px;background:#fff;color:#60785d;padding:6px 9px;font-size:12px;font-weight:850}
-    .tiny-link:hover{background:#EEF3EA}
+    .course-slot .slot-actions{margin-top:10px;gap:12px}
+    .course-slot .tiny-link{display:inline-flex;align-items:center;min-height:auto;border:0;border-radius:0;background:transparent;color:#5d795f;padding:0 0 2px;font-size:12px;font-weight:850;line-height:1.25;box-shadow:none;text-decoration:none;border-bottom:1px solid rgba(93,121,95,.38)}
+    .course-slot .tiny-link::after{content:"↗";font-size:10px;margin-left:4px;transform:translateY(-1px);opacity:.72}
+    .course-slot .tiny-link:hover{background:transparent;color:#2F3A35;border-bottom-color:#2F3A35}
     .compact-links{grid-template-columns:repeat(4,1fr)}
     .note-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .note-strip .task{margin-top:0}

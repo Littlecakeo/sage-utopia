@@ -354,6 +354,42 @@ label.mini{
   border-radius:999px!important;
 }
 
+.course-slot .slot-actions{
+  margin-top:10px!important;
+  gap:12px!important;
+}
+
+.course-slot .tiny-link{
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:auto!important;
+  border:0!important;
+  border-bottom:1px solid rgba(93,121,95,.38)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#5d795f!important;
+  padding:0 0 2px!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  line-height:1.25!important;
+  box-shadow:none!important;
+  text-decoration:none!important;
+}
+
+.course-slot .tiny-link::after{
+  content:"↗";
+  margin-left:4px;
+  font-size:10px;
+  opacity:.72;
+  transform:translateY(-1px);
+}
+
+.course-slot .tiny-link:hover{
+  background:transparent!important;
+  color:#2F3A35!important;
+  border-bottom-color:#2F3A35!important;
+}
+
 .term-mini{
   width:34px!important;
   height:34px!important;
