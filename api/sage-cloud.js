@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const dns = require('node:dns/promises');
 
 const MODULE_TABLES = {
   guestbook: 'guestbook_messages',
@@ -55,6 +56,25 @@ function createSupabaseClient() {
   });
 }
 
+function supabaseConfig() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    '';
+  return { url, key };
+}
+
+function errorDetails(error) {
+  return {
+    message: error?.message || String(error || 'Unknown error'),
+    code: error?.code || error?.cause?.code || '',
+    name: error?.name || error?.cause?.name || '',
+    cause: error?.cause?.message || '',
+  };
+}
+
 async function readBody(req) {
   if (req.body && typeof req.body === 'object') return req.body;
   const chunks = [];
@@ -72,6 +92,38 @@ module.exports = async function handler(req, res) {
   try {
     const body = await readBody(req);
     const action = String(body.action || '');
+    if (action === 'health') {
+      const { url, key } = supabaseConfig();
+      const host = url ? new URL(url).hostname : '';
+      const health = {
+        hasUrl: Boolean(url),
+        hasKey: Boolean(key),
+        host,
+        addresses: [],
+        fetchOk: false,
+        fetchStatus: 0,
+        error: null,
+      };
+      try {
+        health.addresses = host ? await dns.lookup(host, { all: true }) : [];
+      } catch (error) {
+        health.error = errorDetails(error);
+      }
+      if (url) {
+        try {
+          const response = await fetch(`${url.replace(/\/$/, '')}/auth/v1/health`, {
+            headers: { apikey: key },
+            signal: AbortSignal.timeout(8000),
+          });
+          health.fetchOk = response.ok;
+          health.fetchStatus = response.status;
+        } catch (error) {
+          health.error = errorDetails(error);
+        }
+      }
+      json(res, 200, { data: health });
+      return;
+    }
     const supabase = createSupabaseClient();
     let data = null;
     let error = null;
@@ -132,12 +184,12 @@ module.exports = async function handler(req, res) {
     }
 
     if (error) {
-      json(res, 502, { error: error.message || 'Supabase request failed.' });
+      json(res, 502, { error: error.message || 'Supabase request failed.', details: errorDetails(error) });
       return;
     }
 
     json(res, 200, { data });
   } catch (error) {
-    json(res, 500, { error: error.message || 'Cloud proxy failed.' });
+    json(res, 500, { error: error.message || 'Cloud proxy failed.', details: errorDetails(error) });
   }
 };
