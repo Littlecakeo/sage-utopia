@@ -432,7 +432,38 @@ function fromCloud(module, payload) {
   return item;
 }
 
+function canUseCloudProxy() {
+  return typeof location !== 'undefined' && location.protocol !== 'file:';
+}
+
+async function proxyCloud(action, payload = {}) {
+  if (!canUseCloudProxy()) throw new Error('Cloud proxy is unavailable in file mode.');
+  const response = await fetch('/api/sage-cloud', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Sage-Cloud-Proxy': '1',
+    },
+    credentials: 'same-origin',
+    cache: 'no-store',
+    body: JSON.stringify({ action, ...payload }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.error) {
+    throw new Error(result.error || `Cloud proxy failed with ${response.status}`);
+  }
+  return result.data;
+}
+
 async function list(module, orderField = 'created_at') {
+  if (module === 'guestbook') {
+    try {
+      const rows = await proxyCloud('listGuestbook', { orderField });
+      return (rows || []).map((item) => fromCloud(module, item));
+    } catch (error) {
+      console.warn('[sage-cloud] guestbook proxy list failed, trying direct Supabase', error);
+    }
+  }
   if (!client) return null;
   const columns = module === 'guestbook' ? GUESTBOOK_PUBLIC_COLUMNS : '*';
   const { data, error } = await client.from(tableFor(module)).select(columns).order(orderField, { ascending: false });
@@ -449,6 +480,12 @@ async function create(module, payload) {
 }
 
 async function createGuestbookMessage(payload) {
+  try {
+    const data = await proxyCloud('createGuestbookMessage', { payload });
+    return fromCloud('guestbook', data);
+  } catch (error) {
+    console.warn('[sage-cloud] guestbook proxy create failed, trying direct Supabase', error);
+  }
   if (!client) return null;
   const { data, error } = await client
     .from(tableFor('guestbook'))
@@ -460,6 +497,11 @@ async function createGuestbookMessage(payload) {
 }
 
 async function getFriendProfile(username) {
+  try {
+    return await proxyCloud('getFriendProfile', { username });
+  } catch (error) {
+    console.warn('[sage-cloud] friend profile proxy get failed, trying direct Supabase', error);
+  }
   if (!client) return null;
   const { data, error } = await client
     .from(tableFor('friendProfiles'))
@@ -471,6 +513,11 @@ async function getFriendProfile(username) {
 }
 
 async function enterFriendProfile(payload) {
+  try {
+    return await proxyCloud('enterFriendProfile', { payload });
+  } catch (error) {
+    console.warn('[sage-cloud] friend profile proxy enter failed, trying direct Supabase', error);
+  }
   if (!client) return null;
   const { data, error } = await client
     .rpc('sage_friend_enter', {
@@ -503,6 +550,11 @@ async function uploadFriendAvatar(file, username) {
 }
 
 async function updateFriendAvatar(username, passwordHash, avatarUrl) {
+  try {
+    return await proxyCloud('updateFriendAvatar', { username, passwordHash, avatarUrl });
+  } catch (error) {
+    console.warn('[sage-cloud] friend avatar proxy update failed, trying direct Supabase', error);
+  }
   if (!client) return null;
   const { data, error } = await client
     .rpc('sage_friend_update_avatar', {
@@ -515,6 +567,11 @@ async function updateFriendAvatar(username, passwordHash, avatarUrl) {
 }
 
 async function createFriendProfile(payload) {
+  try {
+    return await proxyCloud('createFriendProfile', { payload });
+  } catch (error) {
+    console.warn('[sage-cloud] friend profile proxy create failed, trying direct Supabase', error);
+  }
   if (!client) return null;
   const { data, error } = await client
     .from(tableFor('friendProfiles'))
@@ -526,6 +583,11 @@ async function createFriendProfile(payload) {
 }
 
 async function hideGuestbookMessage(id, deleteToken, username, passwordHash) {
+  try {
+    return Boolean(await proxyCloud('hideGuestbookMessage', { id, deleteToken, username, passwordHash }));
+  } catch (error) {
+    console.warn('[sage-cloud] guestbook proxy hide failed, trying direct Supabase', error);
+  }
   if (!client) return false;
   const { data, error } = await client
     .rpc('sage_hide_guestbook_message', {
