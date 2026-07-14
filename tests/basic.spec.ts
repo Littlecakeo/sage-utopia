@@ -172,6 +172,26 @@ test('云端空任务不会覆盖本地已有首页内容', async ({ page }) => 
   await expect(page.getByText('本地保留的主页任务')).toBeVisible();
 });
 
+test('留言板云端模块同时暴露新旧全局名', async ({ page }) => {
+  await page.goto('/friends.html#guestbook', { waitUntil: 'domcontentloaded' });
+
+  await expect
+    .poll(async () =>
+      page.evaluate(() => ({
+        hasData: Boolean(window.SageCloudData),
+        hasLegacy: Boolean(window.SageCloud),
+        sameApi: window.SageCloudData === window.SageCloud,
+      })),
+    )
+    .toEqual({ hasData: true, hasLegacy: true, sameApi: true });
+});
+
+test('朋友留言板脚本带版本号避免旧缓存继续误判云端', async ({ page }) => {
+  await page.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('script[src="guestbook.js?v=2"]')).toHaveCount(1);
+});
+
 test('主页编辑文案使用旧 key 也能恢复', async ({ page }) => {
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('body')).toHaveClass(/sage-edits-ready/);

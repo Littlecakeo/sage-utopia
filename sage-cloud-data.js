@@ -572,7 +572,7 @@ async function upsertBy(module, column, value, payload) {
   return fromCloud(module, data);
 }
 
-window.SageCloudData = {
+const cloudApi = {
   hasConfig,
   client,
   adminPasscodeConfigured: Boolean(ADMIN_PASSCODE),
@@ -594,6 +594,9 @@ window.SageCloudData = {
   remove,
   upsertBy,
 };
+
+window.SageCloudData = cloudApi;
+window.SageCloud = cloudApi;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', installAdminDock);
