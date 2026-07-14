@@ -11,7 +11,7 @@
     "format": "prettier --write \"*.{json,md,cjs,mjs,ts}\" \".github/**/*.yml\" \"tests/**/*.ts\" \"scripts/**/*.mjs\"",
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
-    "build": "vite build && node scripts/fix-built-html-order.mjs && node scripts/write-runtime-env.mjs && node scripts/copy-static-assets.mjs && node scripts/validate-static-site.mjs",
+    "build": "vite build && node scripts/fix-built-html-order.mjs && node scripts/write-runtime-env.mjs && node scripts/copy-static-assets.mjs && node scripts/write-sites-worker.mjs && node scripts/validate-static-site.mjs",
     "check:vercel": "node scripts/check-vercel-deployment.mjs",
     "serve": "vite --host 127.0.0.1 --port 4173",
     "preview": "vite preview --host 127.0.0.1 --port 4173"
