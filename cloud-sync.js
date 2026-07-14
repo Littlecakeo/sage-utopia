@@ -50,7 +50,7 @@
           window.__pendingImport = data;
         }
       } catch (err) {
-        alert('文件格式错误：' + err.message);
+        showToast('文件格式错误：' + err.message);
       }
     };
     reader.readAsText(file);

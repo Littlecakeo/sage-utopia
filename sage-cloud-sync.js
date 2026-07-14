@@ -549,5 +549,4 @@
   };
 
   window.__sageCloudSyncInited = true;
-  console.log('[sage-cloud-sync] v1.0 loaded');
 })();

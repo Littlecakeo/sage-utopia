@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800;900&family=Noto+Serif+SC:wght@500;600;700;900&display=swap');
+
 :root{
   --guest-mint:#dcecdf;
   --guest-mint-dark:#6f8d70;
@@ -19,7 +21,7 @@
 }
 
 body.friend-page{
-  min-height:100vh;
+  min-height:100dvh;
   margin:0;
   background:
     radial-gradient(circle at 12% 10%,rgba(206,225,205,.58),transparent 360px),
@@ -666,7 +668,7 @@ body.friend-sage-mode #friendVisitorName{
   position:relative;
   width:min(540px,calc(100vw - 42px));
   min-height:300px;
-  max-height:min(720px,calc(100vh - 70px));
+  max-height:min(720px,calc(100dvh - 70px));
   overflow:auto;
   padding:42px 36px 78px;
   border:1px solid rgba(145,120,82,.22);

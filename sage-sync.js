@@ -272,5 +272,4 @@
   };
 
   window.__sageSyncLoaded = true;
-  console.log('[sage-sync] v1.0 loaded');
 })();

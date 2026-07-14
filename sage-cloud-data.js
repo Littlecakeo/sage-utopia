@@ -47,7 +47,11 @@ function localModeMessage() {
 function isAdminUnlocked() {
   if (!ADMIN_PASSCODE) return true;
   try {
-    return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+    const unlocked =
+      sessionStorage.getItem(ADMIN_SESSION_KEY) === '1' ||
+      localStorage.getItem(ADMIN_SESSION_KEY) === '1';
+    if (unlocked) sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+    return unlocked;
   } catch {
     return false;
   }
@@ -62,12 +66,14 @@ function unlockAdmin(passcode) {
   if (!ADMIN_PASSCODE) return true;
   if (String(passcode || '') !== ADMIN_PASSCODE) return false;
   sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+  localStorage.setItem(ADMIN_SESSION_KEY, '1');
   window.dispatchEvent(new CustomEvent('sage-admin-changed', { detail: { unlocked: true } }));
   return true;
 }
 
 function lockAdmin() {
   sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  localStorage.removeItem(ADMIN_SESSION_KEY);
   window.dispatchEvent(new CustomEvent('sage-admin-changed', { detail: { unlocked: false } }));
 }
 

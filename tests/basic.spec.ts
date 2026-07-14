@@ -130,6 +130,68 @@ test('首页新增目标表单保持正常宽度不拥挤', async ({ page }) => 
   expect(addBox?.height ?? 999).toBeLessThan(70);
 });
 
+test('云端空任务不会覆盖本地已有首页内容', async ({ page }) => {
+  await page.route('**/sage-cloud-data.js**', async (route) => {
+    await route.fulfill({
+      contentType: 'application/javascript',
+      body: `
+        window.SageCloudData = {
+          hasConfig: true,
+          list: async () => [],
+          create: async (_module, item) => item,
+          update: async (_module, _id, updates) => updates,
+          remove: async () => true,
+          upsertBy: async (_module, _column, _value, item) => item
+        };
+      `,
+    });
+  });
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'sage.progress.items.v2',
+      JSON.stringify([
+        {
+          id: 'local-home-task',
+          section: 'task',
+          title: '本地保留的主页任务',
+          type: '重要待办',
+          start: '',
+          due: '',
+          total: 1,
+          current: 0,
+          unit: '项',
+          done: false,
+          note: '',
+        },
+      ]),
+    );
+  });
+
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.getByText('本地保留的主页任务')).toBeVisible();
+});
+
+test('主页编辑文案使用旧 key 也能恢复', async ({ page }) => {
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('body')).toHaveClass(/sage-edits-ready/);
+
+  const target = page.locator('#taskBoard .sub').first();
+  await expect(target).toBeVisible();
+  const stableKey = await target.evaluate((el) => (el as HTMLElement).dataset.editKey || '');
+  expect(stableKey).toContain('sage.edit.v2.index.html');
+
+  await page.evaluate((key) => {
+    localStorage.removeItem(key);
+    localStorage.setItem(`${key}旧文案`, '这是旧 key 保存下来的主页留言板说明');
+  }, stableKey);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#taskBoard .sub').first()).toHaveText(
+    '这是旧 key 保存下来的主页留言板说明',
+  );
+});
+
 test('顶部导航在窄屏滚动时固定不跟随页面内容滑走', async ({ page }) => {
   await page.setViewportSize({ width: 651, height: 714 });
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
@@ -204,7 +266,7 @@ test('留言板可以自选便利贴颜色且不再出现夸张形状', async ({
 });
 
 test('留言板小纸条顺序排列并可点击放大查看', async ({ page }) => {
-  await page.route('**/sage-cloud-data.js', async (route) => {
+  await page.route('**/sage-cloud-data.js**', async (route) => {
     await route.fulfill({
       contentType: 'application/javascript',
       body: `
@@ -654,4 +716,25 @@ test('管理已解锁时留言板直接使用 Sage 身份', async ({ page }) => 
   await expect(page.locator('#friendVisitorAvatar img')).toBeVisible();
   await expect(page.locator('#friendModeHint')).toBeEmpty();
   await expect(page.getByRole('button', { name: '切换访客身份' })).toBeVisible();
+});
+
+test('Sage 管理登录状态跨标签进入留言板仍然生效', async ({ browser }) => {
+  const context = await browser.newContext();
+  const adminPage = await context.newPage();
+  await adminPage.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  await adminPage.evaluate(() => {
+    localStorage.setItem('sage.admin.unlocked.v1', '1');
+    sessionStorage.removeItem('sage.admin.unlocked.v1');
+    sessionStorage.removeItem('sage.friend.visitor.v1');
+  });
+
+  const friendPage = await context.newPage();
+  await friendPage.goto('/friends.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(friendPage.locator('#friendGate')).toBeHidden();
+  await expect(friendPage.locator('#friendArea')).toBeVisible();
+  await expect(friendPage.locator('#friendVisitorName')).toHaveText('Sage');
+  await expect(friendPage.locator('body')).toHaveClass(/friend-sage-mode/);
+
+  await context.close();
 });

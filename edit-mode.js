@@ -49,6 +49,20 @@
     return EDIT_PREFIX + pathKey() + '.' + index + '.' + tag + cls + text;
   }
 
+  function stableEditableKey(index, el) {
+    if (el && el.matches && el.matches('.brand .tag')) return BRAND_TAG_KEY;
+    var tag = el ? el.tagName.toLowerCase() : '';
+    var cls = el && el.className ? String(el.className).replace(/[^a-zA-Z0-9]/g, '').slice(0, 12) : '';
+    return EDIT_PREFIX + pathKey() + '.' + index + '.' + tag + cls;
+  }
+
+  function legacyKeyPrefix(index, el) {
+    if (el && el.matches && el.matches('.brand .tag')) return BRAND_TAG_KEY;
+    var tag = el ? el.tagName.toLowerCase() : '';
+    var cls = el && el.className ? String(el.className).replace(/[^a-zA-Z0-9]/g, '').slice(0, 12) : '';
+    return EDIT_PREFIX + pathKey() + '.' + index + '.' + tag + cls;
+  }
+
   function savedBrandTag() {
     var saved = localStorage.getItem(BRAND_TAG_KEY);
     if (saved !== null) return saved;
@@ -90,17 +104,39 @@
     }
   }
 
+  function savedForKey(key, legacyKey) {
+    if (siteContentCache.has(key)) return siteContentCache.get(key);
+    if (legacyKey && siteContentCache.has(legacyKey)) return siteContentCache.get(legacyKey);
+    var prefix = legacyKey || key;
+    for (const [contentKey, html] of siteContentCache.entries()) {
+      if (contentKey.indexOf(prefix) === 0) return html || '';
+    }
+    var saved = localStorage.getItem(key);
+    if (saved !== null) return saved;
+    if (legacyKey) {
+      saved = localStorage.getItem(legacyKey);
+      if (saved !== null) return saved;
+      for (var i = 0; i < localStorage.length; i += 1) {
+        var storedKey = localStorage.key(i);
+        if (storedKey && storedKey.indexOf(legacyKey) === 0) return localStorage.getItem(storedKey);
+      }
+    }
+    return null;
+  }
+
   async function loadEdits() {
     await loadSiteContent();
     getEditables().forEach(function (el, index) {
-      var key = editableKey(index, el);
+      var key = stableEditableKey(index, el);
+      var legacyKey = editableKey(index, el);
       el.dataset.editable = 'true';
       el.dataset.editKey = key;
+      el.dataset.legacyEditKey = legacyKey;
       el.dataset.original = el.innerHTML;
       el.contentEditable = 'true';
       el.spellcheck = false;
-      var saved = siteContentCache.has(key) ? siteContentCache.get(key) : localStorage.getItem(key);
-      if (el.matches('.brand .tag') && !siteContentCache.has(key)) saved = savedBrandTag();
+      var saved = savedForKey(key, legacyKeyPrefix(index, el));
+      if (el.matches('.brand .tag') && saved === null) saved = savedBrandTag();
       if (saved !== null) {
         el.innerHTML = saved;
         el.dataset.original = saved;
@@ -138,7 +174,7 @@
     var editables = getEditables();
     try {
       await Promise.all(editables.map(function (el, index) {
-        var key = el.dataset.editKey || editableKey(index, el);
+        var key = el.dataset.editKey || stableEditableKey(index, el);
         el.dataset.editKey = key;
         localStorage.setItem(key, el.innerHTML);
         if (el.matches('.brand .tag')) localStorage.setItem(BRAND_TAG_KEY, el.innerHTML);

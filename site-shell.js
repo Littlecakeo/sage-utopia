@@ -1,7 +1,7 @@
 (function(){
   if(window.__sageShellSingleton)return;
   window.__sageShellSingleton=true;
-  function loadCss(href,key){const old=document.querySelector(`link[data-${key}]`);if(old){old.href=href;return}const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='true';document.head.appendChild(l)}
+  function loadCss(href,key){const normalize=path=>path.split('?')[0].replace(/^\//,'');const base=normalize(href);const existing=Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(link=>normalize(link.getAttribute('href')||'')===base);if(existing){existing.dataset[key]='true';return}const old=document.querySelector(`link[data-${key}]`);if(old){old.href=href;return}const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='true';document.head.appendChild(l)}
   function loadScript(src,key){if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.dataset[key]='true';document.body.appendChild(s)}
   function loadHelpers(){loadCss('theme-refresh.css?v=8','sageTheme');loadScript('sage-ui.js?v=1','sageUI');loadScript('brand-edit-fix.js?v=2','brandEditFix')}
   loadHelpers();

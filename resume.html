@@ -5,14 +5,27 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="online-only.js"></script>
   <title>Sage Utopia｜关于 Sage</title>
+  <link rel="icon" href="assets/sage-avatar.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="mobile-fix.css">
+  <link rel="stylesheet" href="theme-refresh.css?v=9">
   <link rel="stylesheet" href="cloud-sync.css">
   <link rel="stylesheet" href="edit-mode.css?v=10">
   <style>
     .resume-editable{display:grid;gap:18px;padding-bottom:240px}
     body.resume-hydrating .resume-editable{opacity:0;pointer-events:none}
     body.resume-ready .resume-editable{opacity:1;transition:opacity .18s ease}
+    .resume-loading-shell{display:none}
+    body.resume-hydrating .resume-loading-shell{position:fixed;inset:0 0 0 280px;z-index:2;display:grid;align-items:start;justify-items:center;padding:32px 32px 240px;pointer-events:none}
+    body.resume-ready .resume-loading-shell{display:none}
+    .resume-loading-card{position:relative;overflow:hidden;border:1px solid rgba(168,213,186,.46);border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(234,247,238,.80));box-shadow:0 18px 46px rgba(47,58,53,.08);padding:28px}
+    .resume-loading-card:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.54),transparent);transform:translateX(-100%);animation:resumeLoadingSweep 1.4s ease-in-out infinite}
+    .resume-loading-card h1{margin:0 0 12px;font-size:clamp(30px,4vw,48px)}
+    .resume-loading-card p{margin:0;color:#6d7a73;font-weight:750;line-height:1.7}
+    .resume-loading-line{height:14px;margin-top:18px;border-radius:999px;background:rgba(143,190,156,.24)}
+    .resume-loading-line.short{width:min(340px,68%)}
+    .resume-loading-line.long{width:min(620px,92%)}
+    @keyframes resumeLoadingSweep{to{transform:translateX(100%)}}
     .resume-hero{position:relative;overflow:hidden;padding:22px 26px}
     .resume-hero:after{content:"";position:absolute;right:28px;top:24px;width:86px;height:46px;border-radius:50%;background:rgba(185,205,183,.38);transform:rotate(-24deg)}
     .resume-hero h1{font-size:clamp(32px,4.4vw,52px)}
@@ -38,6 +51,7 @@
     @media(max-width:900px){
       .resume-intro,.resume-section-grid{grid-template-columns:1fr}
       .resume-hero{padding:20px}
+      body.resume-hydrating .resume-loading-shell{inset:0;align-items:start;padding:calc(var(--sage-mobile-nav-height, 180px) + 18px) 16px 180px}
     }
   </style>
 </head>
@@ -70,6 +84,14 @@
       <a href="#data-management">数据</a>
     </div>
   </aside>
+  <div class="resume-loading-shell" role="status" aria-live="polite">
+    <section class="resume-loading-card">
+      <h1>关于 Sage</h1>
+      <p>正在同步公开资料和编辑内容。</p>
+      <div class="resume-loading-line short"></div>
+      <div class="resume-loading-line long"></div>
+    </section>
+  </div>
   <main class="resume-editable">
     <section class="hero page-title resume-hero">
       <h1>关于 Sage</h1>

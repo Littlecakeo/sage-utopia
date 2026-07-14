@@ -214,7 +214,11 @@
 
   function isAdminUnlocked() {
     try {
-      return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+      const unlocked =
+        sessionStorage.getItem(ADMIN_SESSION_KEY) === '1' ||
+        localStorage.getItem(ADMIN_SESSION_KEY) === '1';
+      if (unlocked) sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+      return unlocked;
     } catch {
       return false;
     }

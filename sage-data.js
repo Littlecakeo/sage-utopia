@@ -84,6 +84,8 @@
     if (window.SageCloudData && window.SageCloudData.hasConfig) {
       const cloud = await window.SageCloudData.list(module);
       if (Array.isArray(cloud)) {
+        const local = load(module);
+        if (cloud.length === 0 && local.length > 0) return local;
         saveLocalOnly(module, cloud);
         return cloud;
       }
@@ -229,5 +231,4 @@
     load, loadAsync, save, saveLocalOnly, uid, getAll, getById, add, update, remove, query,
     cloudAdd, cloudUpdate, cloudRemove, cloudUpsertBy, KEYS, SCHEMAS, validate: validateData
   };
-  console.log('[sage-data] v1.1 loaded — modules:', Object.keys(KEYS).join(', '), '(+schema validation)');
 })();

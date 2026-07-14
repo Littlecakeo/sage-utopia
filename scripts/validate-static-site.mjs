@@ -9,6 +9,7 @@ const requiredFiles = [
   'resume.html',
   'friends.html',
   'sage-cloud-data.js',
+  'sage-env.js',
   'style.css',
   'mobile-fix.css',
   'theme-refresh.css',
@@ -35,6 +36,24 @@ const requiredAnchors = [
 for (const anchor of requiredAnchors) {
   if (!index.includes(anchor)) {
     throw new Error(`index.html 缺少关键页面入口：${anchor}`);
+  }
+}
+
+const styledPages = [
+  'index.html',
+  'study.html',
+  'career.html',
+  'resume.html',
+  'about.html',
+  'growth.html',
+  'finance.html',
+  'portfolio.html',
+];
+
+for (const page of styledPages) {
+  const html = await readFile(page, 'utf8');
+  if (!html.includes('theme-refresh.css')) {
+    throw new Error(`${page} 必须直接加载 theme-refresh.css，避免首屏样式闪烁。`);
   }
 }
 
