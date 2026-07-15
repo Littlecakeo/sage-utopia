@@ -8,7 +8,7 @@
   <link rel="icon" href="assets/sage-avatar.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="mobile-fix.css">
-  <link rel="stylesheet" href="theme-refresh.css?v=9">
+  <link rel="stylesheet" href="theme-refresh.css?v=10">
   <link rel="stylesheet" href="cloud-sync.css">
   <link rel="stylesheet" href="edit-mode.css?v=10">
   <style>
@@ -29,6 +29,9 @@
     .resume-hero{position:relative;overflow:hidden;padding:22px 26px}
     .resume-hero:after{content:"";position:absolute;right:28px;top:24px;width:86px;height:46px;border-radius:50%;background:rgba(185,205,183,.38);transform:rotate(-24deg)}
     .resume-hero h1{font-size:clamp(32px,4.4vw,52px)}
+    .resume-hero .public-card-kicker{margin:0 0 8px;color:#5e8c63;font-size:13px;font-weight:950;letter-spacing:.04em}
+    .resume-hero .public-card-subtitle{margin:12px 0 0;max-width:620px;color:#5f766d;font-size:16px;font-weight:760;line-height:1.75}
+    .resume-hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
     .resume-intro{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);gap:18px;align-items:stretch}
     .profile-card,.keyword-card,.editor-card,.timeline-card{border-radius:20px}
     .profile-card{display:grid;gap:16px;padding:24px}
@@ -55,7 +58,7 @@
     }
   </style>
 </head>
-<body class="resume-hydrating">
+<body class="resume-hydrating" data-public-page="resume">
 <div class="mobile">
   <a class="brand" href="index.html"><span class="leaf"></span><span>Sage Utopia<span class="tag">柔软有序的成长小屋</span></span></a>
   <div class="mobile-scroll">
@@ -81,7 +84,7 @@
       <a href="#resume-about">关于</a>
       <a href="#resume-portfolio">作品集</a>
       <a href="#resume-contact">联系</a>
-      <a href="#data-management">数据</a>
+      <a class="admin-only" href="#data-management">数据</a>
     </div>
   </aside>
   <div class="resume-loading-shell" role="status" aria-live="polite">
@@ -94,7 +97,13 @@
   </div>
   <main class="resume-editable">
     <section class="hero page-title resume-hero">
+      <p class="public-card-kicker">公开名片</p>
       <h1>关于 Sage</h1>
+      <p class="public-card-subtitle">UNSW MPRA 学生，关注 PR、Advertising、Social Media 和品牌传播。这里保留可公开查看的经历、关键词和作品集入口。</p>
+      <div class="resume-hero-actions">
+        <a class="button mini" href="#resume-portfolio">作品集</a>
+        <a class="button mini ghost" href="#resume-contact">联系方式</a>
+      </div>
     </section>
 
     <section class="resume-intro" id="resume-about">
@@ -116,7 +125,7 @@
       </div>
     </section>
 
-    <section class="card section editor-card">
+    <section class="card section editor-card admin-only">
       <h2>编辑公开资料</h2>
       <p class="sub">这些内容会用于关于页和未来的公开展示。配置 Supabase 后会保存到云端。</p>
       <form id="profileForm" class="task-form">
@@ -168,7 +177,7 @@
     <section class="card section" id="resume-portfolio">
       <h2>作品集</h2>
       <p class="sub">把做过的项目整理成可以被看见的故事。</p>
-      <details class="add-toggle" style="margin-bottom:12px">
+      <details class="add-toggle admin-only" style="margin-bottom:12px">
         <summary class="mini" style="cursor:pointer;display:inline-block">新增项目</summary>
         <form id="portfolioForm" class="task-form" style="margin-top:10px">
           <input class="field" id="portfolioTitle" type="text" placeholder="项目名称（必填）" required>
@@ -207,7 +216,7 @@
       </div>
     </section>
 
-    <section class="card section" id="data-management">
+    <section class="card section admin-only" id="data-management">
       <h2>数据管理</h2>
       <p class="sub">导出你的所有数据为 JSON 文件，或从备份恢复。适合多设备间迁移数据。</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">

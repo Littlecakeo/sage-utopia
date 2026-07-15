@@ -6,6 +6,9 @@ test('首页可以正常打开并显示主要内容', async ({ page }) => {
   await expect(page).toHaveTitle(/Sage Utopia/i);
   await expect(page.getByRole('link', { name: /Sage Utopia/ }).first()).toBeVisible();
   await expect(page.getByRole('link', { name: '首页' }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: '今天先照顾最重要的一件事。' })).toBeVisible();
+  await expect(page.locator('#todayCloudStatus')).toBeVisible();
+  await expect(page.locator('#todayDeadlineList')).toBeVisible();
   await expect(page.locator('.quote-card')).not.toContainText('Women Writers');
   await expect(page.locator('.quote-calendar')).toHaveCount(0);
   await expect(page.locator('.quote-card')).not.toContainText('孔子');
@@ -210,11 +213,14 @@ test('留言板云端模块同时暴露新旧全局名', async ({ page }) => {
 
   await expect
     .poll(async () =>
-      page.evaluate(() => ({
-        hasData: Boolean(window.SageCloudData),
-        hasLegacy: Boolean(window.SageCloud),
-        sameApi: window.SageCloudData === window.SageCloud,
-      })),
+      page.evaluate(() => {
+        const win = window as Window & { SageCloudData?: unknown; SageCloud?: unknown };
+        return {
+          hasData: Boolean(win.SageCloudData),
+          hasLegacy: Boolean(win.SageCloud),
+          sameApi: win.SageCloudData === win.SageCloud,
+        };
+      }),
     )
     .toEqual({ hasData: true, hasLegacy: true, sameApi: true });
 });
@@ -663,13 +669,49 @@ test('保存更改按钮会出现在当前编辑内容旁边', async ({ page }) 
 });
 
 test('移动端首页没有横向溢出', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+  for (const width of [390, 430, 768]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 
-  const hasOverflow = await page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2,
-  );
-  expect(hasOverflow).toBe(false);
+    const hasOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 2,
+    );
+    expect(hasOverflow, `width ${width}`).toBe(false);
+    await expect(page.locator('#todayPanel')).toBeVisible();
+  }
+});
+
+test('关于页公开模式隐藏后台编辑和数据管理', async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as Window & { __SAGE_ENV__?: Record<string, string> }).__SAGE_ENV__ = {
+      NEXT_PUBLIC_ADMIN_PASSCODE: 'admin-test',
+      NEXT_PUBLIC_SUPABASE_URL: '',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: '',
+    };
+    localStorage.removeItem('sage.admin.unlocked.v1');
+    sessionStorage.removeItem('sage.admin.unlocked.v1');
+  });
+  await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.getByRole('heading', { name: '关于 Sage' }).first()).toBeVisible();
+  await expect(page.locator('#profileForm')).toBeHidden();
+  await expect(page.locator('#data-management')).toBeHidden();
+  await expect(page.getByRole('button', { name: /管理模式|管理已解锁/ })).toHaveCount(0);
+});
+
+test('管理解锁后关于页显示编辑和数据管理', async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as Window & { __SAGE_ENV__?: Record<string, string> }).__SAGE_ENV__ = {
+      NEXT_PUBLIC_ADMIN_PASSCODE: 'admin-test',
+      NEXT_PUBLIC_SUPABASE_URL: '',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: '',
+    };
+    sessionStorage.setItem('sage.admin.unlocked.v1', '1');
+  });
+  await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#profileForm')).toBeVisible();
+  await expect(page.locator('#data-management')).toBeVisible();
 });
 
 test('朋友留言板使用独立入口且不会出现管理操作', async ({ page }) => {

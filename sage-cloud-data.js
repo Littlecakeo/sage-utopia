@@ -77,8 +77,16 @@ function lockAdmin() {
   window.dispatchEvent(new CustomEvent('sage-admin-changed', { detail: { unlocked: false } }));
 }
 
+function applyAdminStateClasses() {
+  if (!document.body) return;
+  const unlocked = isAdminUnlocked();
+  document.body.classList.toggle('sage-admin-locked', !unlocked);
+  document.body.classList.toggle('sage-admin-unlocked', unlocked);
+}
+
 function installAdminDock() {
-  if (document.body?.dataset.publicPage === 'friends') return;
+  applyAdminStateClasses();
+  if (document.body?.dataset.publicPage === 'friends' || document.body?.dataset.publicPage === 'resume') return;
   if (document.querySelector('.sage-admin-dock')) return;
   installAdminGateStyles();
   const dock = document.createElement('div');
@@ -98,8 +106,7 @@ function installAdminDock() {
   }
   function render() {
     const unlocked = isAdminUnlocked();
-    document.body.classList.toggle('sage-admin-locked', !unlocked);
-    document.body.classList.toggle('sage-admin-unlocked', unlocked);
+    applyAdminStateClasses();
     toggle.textContent = unlocked ? '管理已解锁' : '管理模式';
     form.hidden = unlocked || !dock.classList.contains('open');
     renderAdminGate();
@@ -665,4 +672,5 @@ if (document.readyState === 'loading') {
 } else {
   installAdminDock();
 }
+window.addEventListener('sage-admin-changed', applyAdminStateClasses);
 window.dispatchEvent(new CustomEvent('sage-cloud-ready'));

@@ -43,9 +43,9 @@
           ${p.result ? `<p class="hint"><strong>成果：</strong>${esc(p.result)}</p>` : ''}
           <p class="hint">${p.is_public === false ? '仅自己可见' : '公开展示'}</p>
           ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener" class="mini" style="margin-top:6px;display:inline-block">查看项目</a>` : ''}
-          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="mini ghost" data-action="portfolio-edit" data-id="${p.id}">编辑</button><button class="mini danger" data-action="portfolio-delete" data-id="${p.id}">删除</button></div>
+          <div class="admin-only admin-flex" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="mini ghost" data-action="portfolio-edit" data-id="${p.id}">编辑</button><button class="mini danger" data-action="portfolio-delete" data-id="${p.id}">删除</button></div>
         </div>`).join('')
-      : '<div class="empty">还没有项目，点击上方「新增项目」添加。</div>';
+      : '<div class="empty">作品集还在整理中，之后会把适合公开展示的项目放在这里。</div>';
     /* ── 事件委托 ── */
     if (!container.dataset._sagePortfolioBound) {
       container.addEventListener('click', function (e) {

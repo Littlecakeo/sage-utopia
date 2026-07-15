@@ -209,6 +209,36 @@ h1,h2,h3,h4,.hero h1,.quote-card h1,.profile-title{
   margin-bottom:180px;
 }
 
+body:not(.sage-admin-unlocked) .admin-only{
+  display:none!important;
+}
+
+body.sage-admin-unlocked .admin-only{
+  display:block!important;
+}
+
+body.sage-admin-unlocked form.admin-only,
+body.sage-admin-unlocked .admin-only.task-form,
+body.sage-admin-unlocked .admin-only.grid{
+  display:grid!important;
+}
+
+body.sage-admin-unlocked .admin-only.admin-flex{
+  display:flex!important;
+}
+
+.empty,
+.state-note,
+.guest-empty{
+  border:1px dashed rgba(143,190,156,.44)!important;
+  border-radius:18px!important;
+  background:rgba(255,253,248,.72)!important;
+  color:#60785d!important;
+  font-weight:780!important;
+  line-height:1.7!important;
+  padding:16px!important;
+}
+
 /* Layout quality layer: 8px rhythm, steadier reading width, and predictable breakpoints. */
 :root{
   --space-1:8px;

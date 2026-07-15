@@ -413,6 +413,27 @@ body.friend-sage-mode #friendVisitorName{
     var(--compose-note-bg);
   box-shadow:0 12px 30px rgba(86,72,47,.06);
 }
+.guestbook-context{
+  position:relative;
+  z-index:1;
+  display:grid;
+  gap:6px;
+  margin:0 0 var(--space-2);
+  border:1px solid rgba(120,147,114,.24);
+  border-radius:20px;
+  background:rgba(255,253,247,.58);
+  padding:14px 16px;
+}
+.guestbook-context strong{
+  color:#385044;
+  font-size:15px;
+}
+.guestbook-context span{
+  color:rgba(49,66,56,.64);
+  font-size:13px;
+  font-weight:760;
+  line-height:1.7;
+}
 .guestbook-compose label{display:grid;gap:10px;color:#5d765a;font-size:15px;font-weight:950}
 .guestbook-compose textarea{min-height:124px}
 .guestbook-submit{justify-self:stretch;min-width:116px}

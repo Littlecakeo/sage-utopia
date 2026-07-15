@@ -8,7 +8,7 @@
   <link rel="icon" href="assets/sage-avatar.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="mobile-fix.css">
-  <link rel="stylesheet" href="theme-refresh.css?v=9">
+  <link rel="stylesheet" href="theme-refresh.css?v=10">
   <link rel="stylesheet" href="progress.css">
   <link rel="stylesheet" href="edit-mode.css?v=10">
   <link rel="stylesheet" href="cloud-sync.css">
@@ -46,8 +46,45 @@
     .guestbook-preview-note:before{content:"";position:absolute;left:50%;top:-8px;width:62px;height:18px;border-radius:6px;background:rgba(255,255,255,.48);border:1px solid rgba(120,147,114,.16);transform:translateX(-50%) rotate(-2deg)}
     .guestbook-preview-note strong{display:block;margin-bottom:8px;color:#395047;font-size:15px}
     .guestbook-preview-note span{display:block;color:rgba(49,66,56,.62);font-size:13px;font-weight:720;line-height:1.6}
+    .today-hero{display:grid!important;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:18px;align-items:stretch;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible}
+    .today-hero:after{display:none}
+    .today-primary,.today-side-card{position:relative;overflow:hidden;border:1px solid rgba(168,213,186,.46);border-radius:24px;background:linear-gradient(135deg,rgba(255,253,248,.94),rgba(235,247,239,.86));box-shadow:0 18px 46px rgba(47,58,53,.08);padding:28px}
+    .today-primary:before{content:"";position:absolute;right:28px;top:26px;width:74px;height:42px;border-radius:70% 30% 65% 35%;background:linear-gradient(135deg,rgba(168,213,186,.40),rgba(127,183,126,.20));transform:rotate(-18deg);pointer-events:none}
+    .today-primary h1{position:relative;z-index:1;margin:0;max-width:720px;font-size:clamp(34px,4.6vw,58px);line-height:1.1}
+    .today-lead{position:relative;z-index:1;margin:14px 0 0;max-width:680px;color:#5f766d;font-size:16px;font-weight:750;line-height:1.8}
+    .today-focus-card{position:relative;z-index:1;margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid rgba(143,190,156,.32);border-radius:18px;background:rgba(255,255,255,.70);padding:16px}
+    .today-focus-card p{margin:0;color:#60785d;font-size:13px;font-weight:900}
+    .today-focus-card strong{display:block;margin-top:5px;font-size:20px;line-height:1.35;overflow-wrap:anywhere}
+    .today-focus-card span{color:#6d7a73;font-size:13px;font-weight:750}
+    .today-side{display:grid;gap:12px;min-width:0}
+    .today-side-card{padding:18px 20px}
+    .today-side-card h2,.today-side-card h3{margin:0 0 8px;font-size:17px}
+    .today-side-card p{margin:0;color:#6d7a73;font-size:13px;font-weight:750;line-height:1.7}
+    .today-date{display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .today-date strong{font-size:26px;line-height:1;color:#34483e}
+    .sync-dot{display:inline-flex;align-items:center;gap:8px;font-weight:900;color:#496b50}
+    .sync-dot:before{content:"";width:9px;height:9px;border-radius:999px;background:#8fbe9c;box-shadow:0 0 0 5px rgba(143,190,156,.16)}
+    .sync-dot.is-warn:before{background:#d4a94c;box-shadow:0 0 0 5px rgba(245,230,168,.24)}
+    .sync-dot.is-error:before{background:#b86a62;box-shadow:0 0 0 5px rgba(184,106,98,.16)}
+    .quote-mini #dailyQuoteText{display:block;margin:2px 0 4px;font-family:var(--font-serif-cn);font-size:22px;font-weight:800;color:#304139;line-height:1.25}
+    .overview-head{display:flex;justify-content:space-between;gap:16px;align-items:end;flex-wrap:wrap;margin-bottom:14px}
+    .overview-head h2{margin:0;font-size:24px;color:#506b58}
+    .deadline-panel{margin-top:18px;border:1px solid rgba(143,190,156,.28);border-radius:18px;background:rgba(255,253,248,.76);padding:16px}
+    .deadline-panel h3{margin:0 0 10px;font-size:17px}
+    .deadline-list{display:grid;gap:8px}
+    .deadline-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border-bottom:1px solid rgba(222,232,215,.72);padding:8px 0}
+    .deadline-item:last-child{border-bottom:0}
+    .deadline-item strong{font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+    .deadline-item span{font-size:12px;color:#6d7a73;font-weight:780}
+    .quick-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .quick-action-card{display:flex;min-height:160px;flex-direction:column;justify-content:space-between;border:1px solid rgba(168,213,186,.46);border-radius:22px;background:rgba(255,255,255,.86);box-shadow:var(--shadow-soft);padding:22px;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+    .quick-action-card:hover{transform:translateY(-2px);border-color:rgba(127,183,126,.68);box-shadow:0 16px 34px rgba(47,58,53,.10)}
+    .quick-action-card strong{font-size:20px}
+    .quick-action-card span{margin-top:8px;color:#6d7a73;font-size:13px;font-weight:760;line-height:1.7}
+    .quick-action-card em{font-style:normal;color:#5e8c63;font-size:13px;font-weight:950}
     @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}.guestbook-notes{grid-template-columns:1fr}}
-    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card{min-height:190px;padding:28px 22px;border-radius:28px}.quote-copy{min-height:134px}.quote-card h1{font-size:36px;line-height:1.18}.quote-source{font-size:13px;text-align:right}.guestbook-home-head{display:grid}.guestbook-home-button{justify-self:start}.home-guestbook{padding:22px 18px}.home-guestbook:before{left:22px;right:22px}.guestbook-notes{gap:10px}}
+    @media(max-width:900px){.today-hero{grid-template-columns:1fr}.quick-action-grid{grid-template-columns:1fr 1fr}.today-primary,.today-side-card{padding:22px}.today-focus-card{grid-template-columns:1fr}}
+    @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card{min-height:190px;padding:28px 22px;border-radius:28px}.quote-copy{min-height:134px}.quote-card h1{font-size:36px;line-height:1.18}.quote-source{font-size:13px;text-align:right}.guestbook-home-head{display:grid}.guestbook-home-button{justify-self:start}.home-guestbook{padding:22px 18px}.home-guestbook:before{left:22px;right:22px}.guestbook-notes{gap:10px}.quick-action-grid{grid-template-columns:1fr}.today-primary,.today-side-card{border-radius:22px;padding:20px}.today-primary h1{font-size:34px}.deadline-item{grid-template-columns:1fr}.quick-action-card{min-height:132px}}
   </style>
 </head>
 <body>
@@ -65,28 +102,79 @@
       </nav>
     </aside>
     <main>
-      <section class="hero quote-card" aria-label="每日女性文学">
-        <div class="quote-copy">
-          <p class="quote-date" id="dailyQuoteDate">26/06/14</p>
-          <h1 id="dailyQuoteText">夏乃声音的季节</h1>
-          <p class="quote-source" id="dailyQuoteMeta">——简媜《夏之绝句》</p>
+      <section class="hero today-hero quote-card" id="todayPanel" aria-label="今日面板">
+        <div class="today-primary">
+          <p class="eyebrow">今日面板</p>
+          <h1>今天先照顾最重要的一件事。</h1>
+          <p class="today-lead">学习、求职、任务和留言都收在这里。先看近期截止，再进入具体模块处理，不让入口和信息散成一地。</p>
+          <div class="today-focus-card" aria-live="polite">
+            <div>
+              <p>今日重点</p>
+              <strong id="todayFocusTitle">检查近期截止和未完成任务</strong>
+            </div>
+            <span id="todayFocusMeta">载入中...</span>
+          </div>
+        </div>
+        <div class="today-side">
+          <div class="today-side-card today-date">
+            <div>
+              <h2>今天</h2>
+              <p id="dailyQuoteDate">26/06/14</p>
+            </div>
+            <strong id="todayWeekday">Wed</strong>
+          </div>
+          <div class="today-side-card">
+            <h2>同步状态</h2>
+            <p><span class="sync-dot" id="todayCloudStatus">正在检查云端...</span></p>
+            <p id="todayCloudHint">保存成功、失败重试和本地缓存都会在这里给出明确反馈。</p>
+          </div>
+          <div class="today-side-card quote-mini">
+            <h3>今日句子</h3>
+            <span id="dailyQuoteText">夏乃声音的季节</span>
+            <p class="quote-source" id="dailyQuoteMeta">——简媜《夏之绝句》</p>
+          </div>
         </div>
       </section>
 
-      <section class="compact-stats section" aria-label="状态概览">
-        <div class="card soft"><div class="stat" id="openCount">0</div><p>进行中</p><p class="hint">未完成目标</p></div>
-        <div class="card blue"><div class="stat" id="todayCount">0</div><p>近期截止</p><p class="hint">未来 7 天</p></div>
-        <div class="card peach"><div class="stat" id="weekCount">0%</div><p>平均进度</p><p class="hint">所有目标</p></div>
-        <div class="card soft"><div class="stat" id="doneCount">0</div><p>已完成</p><p class="hint">完成记录</p></div>
-      </section>
-
-      <section class="card section dashboard-summary" aria-label="数据总览">
-        <h2 class="home-section-title">数据总览</h2>
-        <p class="section-note">这里汇总求职和作品集的云端数据，新增内容后会自动更新。</p>
-        <div class="overview-grid">
+      <section class="card section dashboard-summary" id="todayOverview" aria-label="今日概览">
+        <div class="overview-head">
+          <div>
+            <h2>今日概览</h2>
+            <p class="section-note">把未完成、近期截止、求职和作品集放在同一屏，先判断今天要推进哪里。</p>
+          </div>
+          <a class="tiny-link" href="#taskBoard">进入详细管理区</a>
+        </div>
+        <div class="compact-stats" aria-label="状态概览">
+          <div class="card soft"><div class="stat" id="openCount">0</div><p>进行中</p><p class="hint">未完成目标</p></div>
+          <div class="card blue"><div class="stat" id="todayCount">0</div><p>近期截止</p><p class="hint">未来 7 天</p></div>
+          <div class="card peach"><div class="stat" id="weekCount">0%</div><p>平均进度</p><p class="hint">所有目标</p></div>
+          <div class="card soft"><div class="stat" id="doneCount">0</div><p>已完成</p><p class="hint">完成记录</p></div>
+        </div>
+        <div class="overview-grid" style="margin-top:16px">
           <div class="overview-card peach"><div class="stat" id="dashCareer">0</div><p>求职进展</p><p class="hint">已申请和面试中的机会</p></div>
           <div class="overview-card soft"><div class="stat" id="dashPortfolio">0</div><p>作品集项目</p><p class="hint">已保存的公开项目</p></div>
         </div>
+        <div class="deadline-panel">
+          <h3>近期截止</h3>
+          <div class="deadline-list" id="todayDeadlineList" aria-live="polite">
+            <div class="deadline-item"><strong>正在读取任务截止日期</strong><span>请稍等</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section quick-action-grid" aria-label="快捷动作">
+        <a class="quick-action-card" href="friends.html">
+          <div><strong>留言板</strong><span>朋友第一次进入时可以看到写什么、谁能看、怎样回来删除自己的留言。</span></div>
+          <em>进入留言板</em>
+        </a>
+        <a class="quick-action-card" href="study.html">
+          <div><strong>学习中心</strong><span>课程、作业和 Moodle 相关任务集中处理，避免主页越堆越重。</span></div>
+          <em>打开学习中心</em>
+        </a>
+        <a class="quick-action-card" href="resume.html">
+          <div><strong>关于 Sage</strong><span>访客看到公开名片；Sage 解锁后再显示编辑和数据管理。</span></div>
+          <em>查看公开资料</em>
+        </a>
       </section>
 
       <section class="card section home-guestbook" id="homeGuestbook" aria-label="朋友留言板入口">
@@ -104,7 +192,7 @@
         </div>
       </section>
 
-      <section class="card section">
+      <section class="card section admin-only">
         <h2>UNSW 快捷入口</h2>
         <p class="sub">学校官网 Moodle 学习中心和 myUNSW</p>
         <div class="links">
@@ -189,6 +277,144 @@
       if(dlabel)dlabel.textContent=yy+'/'+mm+'/'+dd;
     }
     applyQuoteNow();
+
+    /* ── 今日面板 ──────────────────────────────────── */
+    function formatTodayPanelDate(){
+      const now=new Date();
+      const dateLabel=document.getElementById('dailyQuoteDate');
+      const weekday=document.getElementById('todayWeekday');
+      if(dateLabel){
+        dateLabel.textContent=new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
+      }
+      if(weekday){
+        weekday.textContent=new Intl.DateTimeFormat('zh-CN',{weekday:'short'}).format(now);
+      }
+    }
+    function daysUntil(dateText){
+      if(!dateText)return null;
+      const target=new Date(String(dateText)+'T00:00:00');
+      if(Number.isNaN(target.getTime()))return null;
+      const today=new Date();
+      today.setHours(0,0,0,0);
+      return Math.ceil((target-today)/86400000);
+    }
+    function deadlineLabel(days){
+      if(days===null)return '未设置日期';
+      if(days<0)return '已过期';
+      if(days===0)return '今天截止';
+      if(days===1)return '明天截止';
+      return days+' 天后';
+    }
+    function normalizeDeadline(item,module){
+      const due=item?.due||item?.deadline||item?.date||item?.closing_date||item?.closingDate||'';
+      const days=daysUntil(due);
+      return {
+        title:item?.title||item?.company||item?.role||item?.name||'未命名事项',
+        module,
+        due,
+        days
+      };
+    }
+    function renderDeadlineList(items){
+      const list=document.getElementById('todayDeadlineList');
+      if(!list)return;
+      list.textContent='';
+      const upcoming=items
+        .filter(item=>item.days!==null&&item.days<=14)
+        .sort((a,b)=>(a.days??99)-(b.days??99))
+        .slice(0,4);
+      if(!upcoming.length){
+        const empty=document.createElement('div');
+        empty.className='deadline-item';
+        empty.innerHTML='<strong>未来两周没有明确截止日期</strong><span>可以从任务区补充日期</span>';
+        list.appendChild(empty);
+        return;
+      }
+      upcoming.forEach(item=>{
+        const row=document.createElement('div');
+        row.className='deadline-item';
+        const title=document.createElement('strong');
+        title.textContent=item.title;
+        const meta=document.createElement('span');
+        meta.textContent=item.module+' · '+deadlineLabel(item.days);
+        row.append(title,meta);
+        list.appendChild(row);
+      });
+    }
+    function renderTodayFocus(items){
+      const title=document.getElementById('todayFocusTitle');
+      const meta=document.getElementById('todayFocusMeta');
+      if(!title||!meta)return;
+      const urgent=items
+        .filter(item=>item.days!==null&&item.days<=7)
+        .sort((a,b)=>(a.days??99)-(b.days??99))[0];
+      if(urgent){
+        title.textContent=urgent.title;
+        meta.textContent=urgent.module+' · '+deadlineLabel(urgent.days);
+        return;
+      }
+      const openCount=document.getElementById('openCount')?.textContent||'0';
+      title.textContent='整理一个未完成任务';
+      meta.textContent='当前进行中 '+openCount+' 项';
+    }
+    function updateCloudHealth(){
+      const status=document.getElementById('todayCloudStatus');
+      const hint=document.getElementById('todayCloudHint');
+      if(!status)return;
+      const api=window.SageCloudData;
+      status.classList.remove('is-warn','is-error');
+      if(!api?.hasConfig){
+        status.classList.add('is-warn');
+        status.textContent='本地缓存模式';
+        if(hint)hint.textContent='云端变量未配置时不会瘫痪，数据会先留在这台设备。';
+        return;
+      }
+      status.textContent='云端已配置';
+      if(hint)hint.textContent='Supabase 已接入；保存失败时页面会保留本地缓存并提示重试。';
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),2600);
+      fetch('/api/sage-cloud',{
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({action:'health'}),
+        signal:controller.signal
+      }).then(res=>{
+        clearTimeout(timer);
+        if(!res.ok)throw new Error('health '+res.status);
+        status.textContent='云端连接正常';
+      }).catch(()=>{
+        clearTimeout(timer);
+        status.classList.add('is-error');
+        status.textContent='云端暂时不稳定';
+        if(hint)hint.textContent='页面仍会使用本地缓存，不会因为云端短暂失败而清空内容。';
+      });
+    }
+    async function refreshTodayPanel(){
+      formatTodayPanelDate();
+      const SD=window.SageData;
+      if(!SD)return;
+      try{
+        const [tasks,assignments,career]=await Promise.all([
+          SD.loadAsync('tasks').catch(()=>[]),
+          SD.loadAsync('assignments').catch(()=>[]),
+          SD.loadAsync('career').catch(()=>[])
+        ]);
+        const items=[
+          ...tasks.filter(item=>!item.done).map(item=>normalizeDeadline(item,'任务')),
+          ...assignments.filter(item=>!item.done).map(item=>normalizeDeadline(item,'作业')),
+          ...career.filter(item=>!['已拒绝','已结束'].includes(item.status)).map(item=>normalizeDeadline(item,'求职'))
+        ];
+        renderDeadlineList(items);
+        renderTodayFocus(items);
+      }catch(err){
+        console.warn('[today] panel failed',err);
+      }
+      updateCloudHealth();
+    }
+    formatTodayPanelDate();
+    window.addEventListener('sage-cloud-ready',updateCloudHealth);
+    window.addEventListener('sage-data-changed',refreshTodayPanel);
+    window.setTimeout(refreshTodayPanel,120);
 
     /* ── 跨模块 Dashboard ────────────────────────── */
     (async function refreshDash(){

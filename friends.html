@@ -60,6 +60,7 @@
 
         <section class="friend-gate-card" id="friendGate" aria-label="朋友入口">
           <h2>Sage</h2>
+          <p>留言会公开贴在这块校园留言板上；之后用同一组用户名和密码回来，可以删除自己写过的小纸条。</p>
           <form class="friend-form" id="friendGateForm" action="javascript:void(0)" onsubmit="return false">
             <div class="avatar-picker" aria-label="朋友头像">
               <button class="friend-avatar-choice" id="friendAvatarButton" type="button" aria-label="切换头像">
@@ -92,6 +93,10 @@
           </div>
 
           <div class="guestbook-board">
+            <div class="guestbook-context" aria-label="留言说明">
+              <strong>写什么都可以轻一点。</strong>
+              <span>近况、祝福、emoji、中英文都可以；所有进入留言板的朋友可见，只有发布者或 Sage 可以删除对应留言。</span>
+            </div>
             <form class="guestbook-compose" id="guestbookForm" data-guest-write="true" action="javascript:void(0)" onsubmit="return false">
               <label>
                 留一张小纸条

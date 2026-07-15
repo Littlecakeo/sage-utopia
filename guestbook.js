@@ -535,7 +535,7 @@
     if (!messages.length) {
       const empty = document.createElement('div');
       empty.className = 'guest-empty';
-      empty.textContent = '还没有留言，写下第一张小纸条吧。';
+      empty.textContent = '留言板还空着。可以写一句近况、祝福，或只是贴一个今天的心情。';
       list.appendChild(empty);
       return;
     }
@@ -599,12 +599,12 @@
       list.textContent = '';
       const loading = document.createElement('div');
       loading.className = 'guest-empty';
-      loading.textContent = '正在打开校园留言板...';
+      loading.textContent = '正在从云端取回小纸条...';
       list.appendChild(loading);
     }
     if (!cloud().hasConfig) {
       renderMessages([]);
-      setStatus('留言板暂时连不上云端，请稍后再试。', true);
+      setStatus('留言板暂时连不上云端，本地不会清空，请稍后再试。', true);
       return;
     }
     try {
@@ -614,7 +614,7 @@
     } catch (error) {
       console.warn('[guestbook] load failed', error);
       renderMessages([]);
-      setStatus('留言板暂时连不上云端，请稍后再试。', true);
+      setStatus('留言板暂时连不上云端，本地不会清空，请稍后再试。', true);
     }
   }
 
@@ -708,12 +708,12 @@
         return;
       }
       if (!cloud().hasConfig || !cloud().createGuestbookMessage) {
-        setStatus('留言板暂时连不上云端，请稍后再试。', true);
+        setStatus('留言板暂时连不上云端，本地不会清空，请稍后再试。', true);
         return;
       }
       try {
         if (button) button.disabled = true;
-        setStatus('正在把小纸条贴到留言板...');
+        setStatus('正在保存到云端...');
         const deleteToken = await sha256(`sage-delete:${visitor.username}:${randomToken()}`);
         const avatar = normalizeAvatar(visitor);
         const saved = await cloud().createGuestbookMessage({
@@ -730,7 +730,7 @@
         });
         rememberMessageToken(saved?.id, deleteToken);
         if ($('#guestbookMessage')) $('#guestbookMessage').value = '';
-        setStatus('留言已贴上去。');
+        setStatus('留言已贴上去，刷新或换设备也能看到。');
         await loadMessages();
       } catch (error) {
         console.warn('[guestbook] create failed', error);
@@ -753,7 +753,7 @@
         return;
       }
       if (!cloud().hasConfig || !cloud().hideGuestbookMessage) {
-        setStatus('留言板暂时连不上云端，请稍后再试。', true);
+        setStatus('留言板暂时连不上云端，本地不会清空，请稍后再试。', true);
         return;
       }
       try {
