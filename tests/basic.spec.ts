@@ -6,7 +6,8 @@ test('首页可以正常打开并显示主要内容', async ({ page }) => {
   await expect(page).toHaveTitle(/Sage Utopia/i);
   await expect(page.getByRole('link', { name: /Sage Utopia/ }).first()).toBeVisible();
   await expect(page.getByRole('link', { name: '首页' }).first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: '今天先照顾最重要的一件事。' })).toBeVisible();
+  await expect(page.getByText('今日女性句子')).toBeVisible();
+  await expect(page.locator('#dailyQuoteText')).toBeVisible();
   await expect(page.locator('#todayCloudStatus')).toBeVisible();
   await expect(page.locator('#todayDeadlineList')).toBeVisible();
   await expect(page.locator('.quote-card')).not.toContainText('Women Writers');

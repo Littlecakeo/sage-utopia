@@ -8,8 +8,8 @@
   <link rel="icon" href="assets/sage-avatar.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="mobile-fix.css">
-  <link rel="stylesheet" href="theme-refresh.css?v=10">
-  <link rel="stylesheet" href="progress.css">
+  <link rel="stylesheet" href="theme-refresh.css?v=11">
+  <link rel="stylesheet" href="progress.css?v=2">
   <link rel="stylesheet" href="edit-mode.css?v=10">
   <link rel="stylesheet" href="cloud-sync.css">
   <style>
@@ -50,7 +50,7 @@
     .today-hero:after{display:none}
     .today-primary,.today-side-card{position:relative;overflow:hidden;border:1px solid rgba(168,213,186,.46);border-radius:24px;background:linear-gradient(135deg,rgba(255,253,248,.94),rgba(235,247,239,.86));box-shadow:0 18px 46px rgba(47,58,53,.08);padding:28px}
     .today-primary:before{content:"";position:absolute;right:28px;top:26px;width:74px;height:42px;border-radius:70% 30% 65% 35%;background:linear-gradient(135deg,rgba(168,213,186,.40),rgba(127,183,126,.20));transform:rotate(-18deg);pointer-events:none}
-    .today-primary h1{position:relative;z-index:1;margin:0;max-width:720px;font-size:clamp(34px,4.6vw,58px);line-height:1.1}
+    .today-primary h1{position:relative;z-index:1;margin:0;max-width:720px;font-size:clamp(40px,5.2vw,66px);line-height:1.08}
     .today-lead{position:relative;z-index:1;margin:14px 0 0;max-width:680px;color:#5f766d;font-size:16px;font-weight:750;line-height:1.8}
     .today-focus-card{position:relative;z-index:1;margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid rgba(143,190,156,.32);border-radius:18px;background:rgba(255,255,255,.70);padding:16px}
     .today-focus-card p{margin:0;color:#60785d;font-size:13px;font-weight:900}
@@ -62,11 +62,11 @@
     .today-side-card p{margin:0;color:#6d7a73;font-size:13px;font-weight:750;line-height:1.7}
     .today-date{display:flex;justify-content:space-between;gap:12px;align-items:center}
     .today-date strong{font-size:26px;line-height:1;color:#34483e}
-    .sync-dot{display:inline-flex;align-items:center;gap:8px;font-weight:900;color:#496b50}
-    .sync-dot:before{content:"";width:9px;height:9px;border-radius:999px;background:#8fbe9c;box-shadow:0 0 0 5px rgba(143,190,156,.16)}
-    .sync-dot.is-warn:before{background:#d4a94c;box-shadow:0 0 0 5px rgba(245,230,168,.24)}
-    .sync-dot.is-error:before{background:#b86a62;box-shadow:0 0 0 5px rgba(184,106,98,.16)}
-    .quote-mini #dailyQuoteText{display:block;margin:2px 0 4px;font-family:var(--font-serif-cn);font-size:22px;font-weight:800;color:#304139;line-height:1.25}
+    .today-sync-state{display:inline-flex;align-items:center;gap:8px;font-weight:900;color:#496b50}
+    .today-sync-state:before{content:"";width:9px;height:9px;flex:0 0 9px;border-radius:999px;background:#8fbe9c;box-shadow:0 0 0 5px rgba(143,190,156,.16)}
+    .today-sync-state.is-warn:before{background:#d4a94c;box-shadow:0 0 0 5px rgba(245,230,168,.24)}
+    .today-sync-state.is-error:before{background:#b86a62;box-shadow:0 0 0 5px rgba(184,106,98,.16)}
+    .today-primary .quote-source{position:relative;z-index:1;align-self:auto;margin:12px 0 0;text-align:left;font-size:15px;color:#5e8c63}
     .overview-head{display:flex;justify-content:space-between;gap:16px;align-items:end;flex-wrap:wrap;margin-bottom:14px}
     .overview-head h2{margin:0;font-size:24px;color:#506b58}
     .deadline-panel{margin-top:18px;border:1px solid rgba(143,190,156,.28);border-radius:18px;background:rgba(255,253,248,.76);padding:16px}
@@ -82,8 +82,8 @@
     .quick-action-card strong{font-size:20px}
     .quick-action-card span{margin-top:8px;color:#6d7a73;font-size:13px;font-weight:760;line-height:1.7}
     .quick-action-card em{font-style:normal;color:#5e8c63;font-size:13px;font-weight:950}
-    @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}.guestbook-notes{grid-template-columns:1fr}}
-    @media(max-width:900px){.today-hero{grid-template-columns:1fr}.quick-action-grid{grid-template-columns:1fr 1fr}.today-primary,.today-side-card{padding:22px}.today-focus-card{grid-template-columns:1fr}}
+    @media(max-width:1180px){.today-hero{grid-template-columns:1fr}.today-side{grid-template-columns:1fr}.quick-action-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.today-primary h1{font-size:clamp(38px,7vw,58px)}.today-focus-card strong{font-size:19px}.today-sync-state{align-items:flex-start}.today-sync-state:before{margin-top:6px;flex:0 0 9px}}
+    @media(max-width:900px){.compact-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.compact-stats .card{padding:9px 10px;column-gap:8px}.compact-stats .stat{font-size:20px;min-width:28px}.compact-stats .card p{font-size:11px}.compact-stats .hint{font-size:10px}.quote-source{font-size:14px}.guestbook-notes{grid-template-columns:1fr}.today-side{grid-template-columns:1fr}.quick-action-grid{grid-template-columns:1fr 1fr}.today-primary,.today-side-card{padding:22px}.today-focus-card{grid-template-columns:1fr}}
     @media(max-width:620px){.compact-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-stats .card{min-height:52px}.overview-grid{grid-template-columns:1fr}.dashboard-summary{padding:16px}.quote-card{min-height:190px;padding:28px 22px;border-radius:28px}.quote-copy{min-height:134px}.quote-card h1{font-size:36px;line-height:1.18}.quote-source{font-size:13px;text-align:right}.guestbook-home-head{display:grid}.guestbook-home-button{justify-self:start}.home-guestbook{padding:22px 18px}.home-guestbook:before{left:22px;right:22px}.guestbook-notes{gap:10px}.quick-action-grid{grid-template-columns:1fr}.today-primary,.today-side-card{border-radius:22px;padding:20px}.today-primary h1{font-size:34px}.deadline-item{grid-template-columns:1fr}.quick-action-card{min-height:132px}}
   </style>
 </head>
@@ -104,9 +104,10 @@
     <main>
       <section class="hero today-hero quote-card" id="todayPanel" aria-label="今日面板">
         <div class="today-primary">
-          <p class="eyebrow">今日面板</p>
-          <h1>今天先照顾最重要的一件事。</h1>
-          <p class="today-lead">学习、求职、任务和留言都收在这里。先看近期截止，再进入具体模块处理，不让入口和信息散成一地。</p>
+          <p class="eyebrow">今日女性句子</p>
+          <h1 id="dailyQuoteText">夏乃声音的季节</h1>
+          <p class="quote-source" id="dailyQuoteMeta">——简媜《夏之绝句》</p>
+          <p class="today-lead">把学习、求职、任务和留言收在同一处，但首页的第一眼仍然留给一句温柔有力量的话。</p>
           <div class="today-focus-card" aria-live="polite">
             <div>
               <p>今日重点</p>
@@ -125,13 +126,12 @@
           </div>
           <div class="today-side-card">
             <h2>同步状态</h2>
-            <p><span class="sync-dot" id="todayCloudStatus">正在检查云端...</span></p>
+            <p><span class="today-sync-state" id="todayCloudStatus">正在检查云端...</span></p>
             <p id="todayCloudHint">保存成功、失败重试和本地缓存都会在这里给出明确反馈。</p>
           </div>
-          <div class="today-side-card quote-mini">
-            <h3>今日句子</h3>
-            <span id="dailyQuoteText">夏乃声音的季节</span>
-            <p class="quote-source" id="dailyQuoteMeta">——简媜《夏之绝句》</p>
+          <div class="today-side-card">
+            <h3>今日面板</h3>
+            <p>近期截止、同步状态和快捷入口都在下方，不再打断每日句子的首屏位置。</p>
           </div>
         </div>
       </section>

@@ -227,6 +227,10 @@ body.sage-admin-unlocked .admin-only.admin-flex{
   display:flex!important;
 }
 
+.sage-admin-form[hidden]{
+  display:none!important;
+}
+
 .empty,
 .state-note,
 .guest-empty{
