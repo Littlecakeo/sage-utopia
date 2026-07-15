@@ -251,8 +251,10 @@
       '<span></span></label>' +
       '<div class="todo-main"><div class="task-title">' + escapeHTML(item.title) + '</div>' +
       '<div class="task-meta">' + escapeHTML(item.type) + (item.due ? ' · 截止 ' + item.due : '') + '</div></div>' +
+      '<div class="todo-controls">' +
       '<span class="task-badge ' + (overdue ? 'overdue' : '') + '">' + (item.done ? '已完成' : overdue ? '已过期' : '待办') + '</span>' +
       '<button class="mini danger" data-action="delete" data-id="' + item.id + '" type="button">删除</button>' +
+      '</div>' +
       '</div>';
   }
 

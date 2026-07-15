@@ -74,6 +74,39 @@ test('一次性待办任务使用前置勾选框', async ({ page }) => {
   await expect(firstTodo.locator('details.task-collapsible')).toHaveCount(0);
 });
 
+test('移动端任务清单卡片不会把长标题挤成竖排', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+  const todo = page.locator('#taskList .todo-row').first();
+  const title = todo.locator('.task-title');
+  await expect(todo).toBeVisible();
+  await expect(title).toContainText('Moodle');
+
+  const layout = await todo.evaluate((row) => {
+    const titleEl = row.querySelector('.task-title') as HTMLElement;
+    const controls = row.querySelector('.todo-controls') as HTMLElement;
+    const column = row.closest('.zone-col') as HTMLElement;
+    const rowBox = row.getBoundingClientRect();
+    const titleBox = titleEl.getBoundingClientRect();
+    const controlsBox = controls.getBoundingClientRect();
+    const columnBox = column.getBoundingClientRect();
+    return {
+      rowRight: rowBox.right,
+      columnRight: columnBox.right,
+      titleWidth: titleBox.width,
+      titleHeight: titleBox.height,
+      controlsTop: controlsBox.top,
+      titleBottom: titleBox.bottom,
+    };
+  });
+
+  expect(layout.rowRight).toBeLessThanOrEqual(layout.columnRight + 1);
+  expect(layout.titleWidth).toBeGreaterThan(180);
+  expect(layout.titleHeight).toBeLessThan(70);
+  expect(layout.controlsTop).toBeGreaterThanOrEqual(layout.titleBottom - 2);
+});
+
 test('进度追踪记录后可以点开 Timetable 查看历史', async ({ page }) => {
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
 

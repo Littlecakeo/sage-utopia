@@ -258,7 +258,7 @@
 
 .todo-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
 }
@@ -301,6 +301,26 @@
 
 .todo-main {
   min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.todo-main .task-title {
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.todo-row .task-badge,
+.todo-row .danger {
+  justify-self: end;
+}
+
+.todo-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: max-content;
 }
 
 .section-split {
@@ -413,12 +433,56 @@
   }
 
   .todo-row {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px 14px;
+    padding: 14px !important;
   }
 
-  .todo-row .task-badge,
+  .todo-check {
+    align-self: center;
+    grid-row: 1 / 3;
+    min-height: 34px;
+  }
+
+  .todo-check span {
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+  }
+
+  .todo-main {
+    grid-column: 2;
+  }
+
+  .todo-main .task-title {
+    font-size: clamp(17px, 4.4vw, 21px);
+    line-height: 1.25 !important;
+  }
+
+  .todo-main .task-meta {
+    margin-top: 0;
+    font-size: 13px;
+    line-height: 1.45 !important;
+  }
+
+  .todo-row .task-badge {
+    justify-self: auto;
+    align-self: auto;
+  }
+
   .todo-row .danger {
-    justify-self: start;
+    justify-self: auto;
+    align-self: auto;
+    margin-top: 0;
+    min-width: 68px;
+  }
+
+  .todo-controls {
+    grid-column: 2;
+    width: 100%;
+    min-width: 0;
+    justify-content: space-between;
   }
 
   .task-form.progress-form {
@@ -510,6 +574,16 @@
   .work-zone {
     padding: 12px;
     border-radius: 20px;
+  }
+
+  .todo-row {
+    border-radius: 18px !important;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 10px 12px;
+  }
+
+  .todo-main .task-title {
+    font-size: 18px;
   }
 
   .work-zone-head {
