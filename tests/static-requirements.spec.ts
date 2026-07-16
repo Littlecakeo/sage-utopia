@@ -38,6 +38,7 @@ test('Supabase 环境和 schema 文件已准备好', () => {
   expect(schema).toContain('avatar_url text');
   expect(schema).toContain("values ('friend-avatars', 'friend-avatars', true");
   expect(schema).toContain("values ('study-materials', 'study-materials', false");
+  expect(schema).toContain('page_count integer not null default 0');
   expect(schema).toContain("array['application/pdf','text/plain','application/epub+zip']");
   expect(schema).toContain('sage_study_materials_insert');
   expect(schema).toContain('sage_study_materials_delete');
@@ -114,8 +115,12 @@ test('学习中心文献书架接入云端文件库', () => {
   expect(studyHtml).toContain('id="library"');
   expect(studyHtml).toContain('文献书架');
   expect(studyHtml).toContain('accept=".pdf,.txt,.epub');
+  expect(studyHtml).toContain('id="readingAutoMeta"');
+  expect(studyHtml).not.toContain('id="readingTags"');
+  expect(studyHtml).not.toContain('id="readingNotes"');
   expect(studyJs).toContain("loadAsync('readings')");
   expect(studyJs).toContain('打开文件');
+  expect(studyJs).toContain('extractFileMetadata');
   expect(studyJs).toContain('createStudyMaterialUrl');
   expect(cloud).toContain("readings: 'study_readings'");
   expect(cloud).toContain('uploadStudyMaterial');

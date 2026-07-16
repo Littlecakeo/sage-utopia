@@ -67,9 +67,11 @@
     .library-panel{display:grid;gap:14px}
     .library-toolbar{display:grid;grid-template-columns:minmax(180px,1fr) minmax(140px,.7fr) minmax(120px,.55fr);gap:10px;align-items:center;margin:12px 0}
     .library-admin{display:grid;gap:10px;padding:12px;border:1px solid rgba(168,213,186,.52);border-radius:18px;background:rgba(241,248,240,.68)}
-    .library-form{display:grid;grid-template-columns:minmax(180px,1.2fr) minmax(150px,.8fr) minmax(140px,.7fr) minmax(120px,.55fr);gap:8px;align-items:center}
+    .library-form{display:grid;grid-template-columns:minmax(220px,1fr) minmax(220px,1fr) minmax(150px,.6fr) auto;gap:8px;align-items:center}
     .library-form .library-wide{grid-column:span 2}
     .library-form input[type="file"]{min-width:0}
+    .library-meta-preview{grid-column:1 / -1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-height:34px;padding:8px 10px;border:1px dashed rgba(168,213,186,.7);border-radius:14px;background:rgba(255,253,248,.66);color:var(--muted);font-size:12px;font-weight:850;line-height:1.45}
+    .library-meta-preview span{display:inline-flex;align-items:center;max-width:100%;overflow-wrap:anywhere}
     .library-status{margin:0;color:var(--muted);font-size:12px;font-weight:800;line-height:1.5}
     .bookshelf{display:grid;gap:16px}
     .shelf-group{position:relative;border:1px solid rgba(168,213,186,.54);border-radius:22px;background:linear-gradient(180deg,rgba(255,253,248,.92),rgba(239,248,239,.72));padding:14px 14px 18px;overflow:hidden}
@@ -236,7 +238,7 @@
         <p class="sub">把教材、论文和阅读材料按课程收好。文件点击后会从系统打开，不在网页里强行阅读。</p>
         <div class="library-panel">
           <div class="library-toolbar">
-            <input class="field" id="librarySearch" placeholder="搜索标题、作者、课程或标签">
+            <input class="field" id="librarySearch" placeholder="搜索标题、作者或课程">
             <select class="field" id="libraryCourseFilter" aria-label="按课程筛选"></select>
             <select class="field" id="libraryStatusFilter" aria-label="按阅读状态筛选">
               <option value="">全部状态</option>
@@ -252,23 +254,19 @@
               <input type="hidden" id="readingFileName">
               <input type="hidden" id="readingFileSize">
               <input type="hidden" id="readingFormat">
-              <input class="field" id="readingTitle" placeholder="标题（必填）" required>
-              <input class="field" id="readingAuthor" placeholder="作者 / 来源">
-              <select class="field" id="readingCourse"></select>
-              <select class="field" id="readingStatus">
-                <option value="待读">待读</option>
-                <option value="在读">在读</option>
-                <option value="已读">已读</option>
-              </select>
-              <input class="field" id="readingProgress" type="number" min="0" max="100" value="0" placeholder="进度 %">
-              <input class="field library-wide" id="readingSourceUrl" placeholder="学校官网 / Moodle / 图书馆链接">
-              <input class="field library-wide" id="readingTags" placeholder="标签，用空格或逗号分隔">
-              <input class="field library-wide" id="readingNotes" placeholder="备注">
+              <input type="hidden" id="readingTitle">
+              <input type="hidden" id="readingAuthor">
+              <input type="hidden" id="readingPageCount">
+              <input type="hidden" id="readingStatus" value="待读">
+              <input type="hidden" id="readingProgress" value="0">
               <input class="field library-wide" id="readingFile" type="file" accept=".pdf,.txt,.epub,application/pdf,text/plain,application/epub+zip">
+              <input class="field library-wide" id="readingSourceUrl" placeholder="学校官网 / Moodle / 图书馆资源链接">
+              <select class="field" id="readingCourse"></select>
               <button type="submit" class="mini">保存文献</button>
               <button type="button" class="mini ghost" id="libraryCancelEdit">取消编辑</button>
+              <div class="library-meta-preview" id="readingAutoMeta">上传文件或粘贴学校资源链接后，我会自动整理标题、作者和页数。</div>
             </form>
-            <p class="library-status" id="libraryUploadHint">支持 PDF、TXT、EPUB，单个文件最多 50MB。保存后会进入云端书架。</p>
+            <p class="library-status" id="libraryUploadHint">支持 PDF、TXT、EPUB，单个文件最多 50MB。学校链接会作为打开资源的入口。</p>
           </div>
           <p class="library-status" id="librarySyncHint">正在检查文献云端连接...</p>
           <div class="bookshelf" id="libraryList"></div>

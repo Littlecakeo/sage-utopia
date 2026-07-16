@@ -386,9 +386,87 @@
     return plan.find(item => courseValueFor(item) === value || item.code === value) || null;
   }
 
-  function splitTags(raw) {
-    if (Array.isArray(raw)) return raw.map(tag => String(tag || '').trim()).filter(Boolean);
-    return String(raw || '').split(/[,，\s]+/).map(tag => tag.trim()).filter(Boolean);
+  function titleFromName(name) {
+    return String(name || '未命名文献')
+      .replace(/\.[^.]+$/, '')
+      .replace(/[-_]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim() || '未命名文献';
+  }
+
+  function decodePdfHex(hex) {
+    const clean = String(hex || '').replace(/[^0-9a-f]/gi, '');
+    if (!clean) return '';
+    if (clean.startsWith('FEFF') || clean.startsWith('feff')) {
+      const chars = [];
+      for (let i = 4; i + 3 < clean.length; i += 4) {
+        chars.push(String.fromCharCode(parseInt(clean.slice(i, i + 4), 16)));
+      }
+      return chars.join('').trim();
+    }
+    const bytes = [];
+    for (let i = 0; i + 1 < clean.length; i += 2) bytes.push(parseInt(clean.slice(i, i + 2), 16));
+    return String.fromCharCode(...bytes).trim();
+  }
+
+  function decodePdfLiteral(text) {
+    return String(text || '')
+      .replace(/\\([nrtbf()\\])/g, (_match, ch) => ({ n: '\n', r: '\r', t: '\t', b: '\b', f: '\f', '(': '(', ')': ')', '\\': '\\' })[ch] || ch)
+      .trim();
+  }
+
+  function pdfInfoValue(raw, key) {
+    const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const literal = raw.match(new RegExp(`/${escaped}\\s*\\(([^)]{0,500})\\)`));
+    if (literal) return decodePdfLiteral(literal[1]);
+    const hex = raw.match(new RegExp(`/${escaped}\\s*<([0-9A-Fa-f\\s]{2,1000})>`));
+    if (hex) return decodePdfHex(hex[1]);
+    return '';
+  }
+
+  async function extractFileMetadata(file) {
+    if (!file) return {};
+    const format = detectFileFormat(file);
+    const fallback = { title: titleFromName(file.name), author: '', page_count: 0 };
+    if (format === 'pdf') {
+      const buffer = await file.arrayBuffer();
+      const raw = new TextDecoder('latin1').decode(buffer);
+      const pageMatches = raw.match(/\/Type\s*\/Page\b/g) || [];
+      return {
+        title: pdfInfoValue(raw, 'Title') || fallback.title,
+        author: pdfInfoValue(raw, 'Author') || '',
+        page_count: pageMatches.length || 0,
+      };
+    }
+    if (format === 'txt') {
+      const text = await file.text();
+      const firstLine = text.split(/\r?\n/).map(line => line.trim()).find(Boolean);
+      return {
+        title: firstLine?.slice(0, 120) || fallback.title,
+        author: '',
+        page_count: Math.max(1, Math.ceil(text.length / 1800)),
+      };
+    }
+    return fallback;
+  }
+
+  function updateAutoMeta(meta = {}) {
+    const title = meta.title || document.getElementById('readingTitle')?.value || '';
+    const author = meta.author || document.getElementById('readingAuthor')?.value || '';
+    const pages = Number(meta.page_count || document.getElementById('readingPageCount')?.value || 0);
+    const titleEl = document.getElementById('readingTitle');
+    const authorEl = document.getElementById('readingAuthor');
+    const pagesEl = document.getElementById('readingPageCount');
+    if (titleEl && meta.title) titleEl.value = meta.title;
+    if (authorEl) authorEl.value = meta.author || author;
+    if (pagesEl) pagesEl.value = pages ? String(pages) : '';
+    const preview = document.getElementById('readingAutoMeta');
+    if (!preview) return;
+    preview.innerHTML = [
+      `<span>标题：${escapeHTML(title || '待识别')}</span>`,
+      `<span>作者：${escapeHTML(author || '未识别')}</span>`,
+      `<span>页数：${pages ? `${pages} 页` : '未识别'}</span>`,
+    ].join('');
   }
 
   function formatFileSize(size) {
@@ -419,11 +497,11 @@
   }
 
   function readingCard(reading) {
-    const tags = splitTags(reading.tags);
     const format = String(reading.format || '').toUpperCase() || 'LINK';
     const course = reading.course_code || '未关联课程';
     const progress = Math.max(0, Math.min(100, Number(reading.progress || 0)));
     const source = reading.source_url ? '学校链接' : '云端文件';
+    const pageText = Number(reading.page_count || 0) ? `${Number(reading.page_count)} 页` : '页数未识别';
     return `<article class="book-card" data-id="${escapeHTML(reading.id)}">
       <div class="book-spine">${escapeHTML(format)}</div>
       <div class="book-body">
@@ -431,8 +509,8 @@
         <div class="book-meta">${escapeHTML(course)} · ${escapeHTML(reading.author || source)} · ${escapeHTML(formatFileSize(reading.file_size))}</div>
         <div class="book-badges">
           <span class="book-badge">${escapeHTML(reading.status || '待读')}</span>
+          <span class="book-badge">${escapeHTML(pageText)}</span>
           <span class="book-badge">${escapeHTML(relatedDueText(reading))}</span>
-          ${tags.slice(0, 3).map(tag => `<span class="book-badge">${escapeHTML(tag)}</span>`).join('')}
         </div>
         <div class="book-progress" aria-label="阅读进度 ${progress}%"><span style="width:${progress}%"></span></div>
         ${reading.notes ? `<div class="book-note">${escapeHTML(reading.notes)}</div>` : ''}
@@ -460,7 +538,6 @@
         reading.term,
         reading.source_url,
         reading.notes,
-        splitTags(reading.tags).join(' '),
       ].join(' ').toLowerCase();
       if (q && !haystack.includes(q)) return false;
       if (selectedCode && reading.course_code !== selectedCode) return false;
@@ -508,6 +585,7 @@
     if (status) status.value = '待读';
     const progress = document.getElementById('readingProgress');
     if (progress) progress.value = '0';
+    updateAutoMeta({ title: '', author: '', page_count: 0 });
   }
 
   function editReading(id) {
@@ -520,13 +598,13 @@
     document.getElementById('readingFormat').value = reading.format || '';
     document.getElementById('readingTitle').value = reading.title || '';
     document.getElementById('readingAuthor').value = reading.author || '';
+    document.getElementById('readingPageCount').value = reading.page_count || '';
     const course = plan.find(item => item.code === reading.course_code);
     document.getElementById('readingCourse').value = course ? courseValueFor(course) : '';
     document.getElementById('readingStatus').value = reading.status || '待读';
     document.getElementById('readingProgress').value = reading.progress || 0;
     document.getElementById('readingSourceUrl').value = reading.source_url || '';
-    document.getElementById('readingTags').value = splitTags(reading.tags).join(' ');
-    document.getElementById('readingNotes').value = reading.notes || '';
+    updateAutoMeta({ title: reading.title || '', author: reading.author || '', page_count: Number(reading.page_count || 0) });
     document.getElementById('library')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -548,20 +626,27 @@
       if (!format) return toast('仅支持 PDF、TXT、EPUB 文件。');
       if (file.size > 50 * 1024 * 1024) return toast('单个文件不能超过 50MB。');
       if (!window.SageCloudData?.hasConfig) return toast('当前未连接云端，请先保存学校链接或配置 Supabase。');
+      const meta = await extractFileMetadata(file);
+      updateAutoMeta(meta);
       fileMeta = await window.SageCloudData.uploadStudyMaterial(file);
       uploadedPath = fileMeta?.file_path || '';
     }
+    if (!file && !document.getElementById('readingTitle')?.value.trim()) {
+      const sourceUrl = document.getElementById('readingSourceUrl')?.value.trim() || '';
+      if (sourceUrl) updateAutoMeta({ title: titleFromName(sourceUrl.split('/').pop() || sourceUrl), author: '', page_count: 0 });
+    }
     const payload = {
-      title: document.getElementById('readingTitle')?.value.trim(),
+      title: document.getElementById('readingTitle')?.value.trim() || (file ? titleFromName(file.name) : titleFromName(document.getElementById('readingSourceUrl')?.value.trim() || '学校资源')),
       author: document.getElementById('readingAuthor')?.value.trim() || '',
+      page_count: Number(document.getElementById('readingPageCount')?.value || 0),
       course_code: selectedCourse?.code || '',
       term: selectedCourse?.term || '',
       source_url: document.getElementById('readingSourceUrl')?.value.trim() || '',
       source_type: '学校/手动',
       status: document.getElementById('readingStatus')?.value || '待读',
       progress: Number(document.getElementById('readingProgress')?.value || 0),
-      tags: splitTags(document.getElementById('readingTags')?.value || ''),
-      notes: document.getElementById('readingNotes')?.value.trim() || '',
+      tags: [],
+      notes: '',
       is_public: false,
       ...fileMeta,
     };
@@ -631,6 +716,24 @@
   function bindLibraryActions() {
     document.getElementById('libraryForm')?.addEventListener('submit', saveReading);
     document.getElementById('libraryCancelEdit')?.addEventListener('click', resetLibraryForm);
+    document.getElementById('readingFile')?.addEventListener('change', async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return updateAutoMeta({ title: '', author: '', page_count: 0 });
+      const format = detectFileFormat(file);
+      if (!format) return toast('仅支持 PDF、TXT、EPUB 文件。');
+      if (file.size > 50 * 1024 * 1024) return toast('单个文件不能超过 50MB。');
+      try {
+        updateAutoMeta(await extractFileMetadata(file));
+      } catch {
+        updateAutoMeta({ title: titleFromName(file.name), author: '', page_count: 0 });
+      }
+    });
+    document.getElementById('readingSourceUrl')?.addEventListener('input', (event) => {
+      if (document.getElementById('readingFile')?.files?.[0]) return;
+      const value = event.target.value.trim();
+      if (!value) return updateAutoMeta({ title: '', author: '', page_count: 0 });
+      updateAutoMeta({ title: titleFromName(value.split('/').pop() || value), author: '', page_count: 0 });
+    });
     ['librarySearch', 'libraryCourseFilter', 'libraryStatusFilter'].forEach(id => {
       document.getElementById(id)?.addEventListener('input', renderLibrary);
       document.getElementById(id)?.addEventListener('change', renderLibrary);

@@ -430,6 +430,7 @@ function toCloud(module, payload) {
     item.file_path = String(item.file_path || '').trim().slice(0, 500);
     item.file_name = String(item.file_name || '').trim().slice(0, 220);
     item.file_size = Number(item.file_size || 0);
+    item.page_count = Number(item.page_count || 0);
     item.source_url = String(item.source_url || '').trim().slice(0, 700);
     item.source_type = String(item.source_type || '').trim().slice(0, 60);
     item.status = String(item.status || '待读').trim().slice(0, 24);

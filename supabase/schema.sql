@@ -57,6 +57,7 @@ create table if not exists study_readings (
   file_path text,
   file_name text,
   file_size bigint not null default 0,
+  page_count integer not null default 0,
   source_url text,
   source_type text,
   status text not null default '待读',

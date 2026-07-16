@@ -465,17 +465,15 @@ test('学习中心文献书架可以跳转并保持移动端排版', async ({ pa
   await page.getByRole('link', { name: '文献书架', exact: true }).first().click();
   await expect(page).toHaveURL(/study\.html#library$/);
   await expect(page.locator('#library')).toBeInViewport();
-  await page.locator('#readingTitle').fill('Platform Society Weekly Reading');
-  await page.locator('#readingAuthor').fill('UNSW Moodle');
+  await expect(page.locator('#readingTags')).toHaveCount(0);
+  await expect(page.locator('#readingNotes')).toHaveCount(0);
   await page.locator('#readingCourse').selectOption('MDIA5003');
-  await page.locator('#readingStatus').selectOption('在读');
-  await page.locator('#readingProgress').fill('35');
-  await page.locator('#readingSourceUrl').fill('https://www.unsw.edu.au/');
-  await page.locator('#readingTags').fill('社媒 week1');
-  await page.locator('#readingNotes').fill('用来验证书架移动端不会竖排。');
+  await page.locator('#readingSourceUrl').fill('https://www.unsw.edu.au/course-outline.pdf');
+  await expect(page.locator('#readingAutoMeta')).toContainText('course outline');
   await page.getByRole('button', { name: '保存文献' }).click();
-  await expect(page.getByText('Platform Society Weekly Reading')).toBeVisible();
+  await expect(page.locator('.book-title', { hasText: 'course outline' })).toBeVisible();
   await expect(page.getByRole('button', { name: '打开文件' })).toBeVisible();
+  await expect(page.getByText('页数未识别')).toBeVisible();
 
   const layout = await page.locator('.book-card').first().evaluate((card) => {
     const title = card.querySelector('.book-title') as HTMLElement;
