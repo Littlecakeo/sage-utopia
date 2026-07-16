@@ -499,6 +499,36 @@ test('学习中心文献书架可以跳转并保持移动端排版', async ({ pa
   await expect(page.locator('#readingFile')).toHaveAttribute('accept', /pdf.*txt.*epub/);
 });
 
+test('学习中心文献书架在中等桌面宽度不超出画幅', async ({ page }) => {
+  await page.setViewportSize({ width: 904, height: 714 });
+  await page.goto('/study.html#library', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#library')).toBeInViewport();
+
+  const layout = await page.locator('#library').evaluate((section) => {
+    const sectionBox = section.getBoundingClientRect();
+    const form = section.querySelector('.library-form') as HTMLElement;
+    const toolbar = section.querySelector('.library-toolbar') as HTMLElement;
+    const formBox = form.getBoundingClientRect();
+    const toolbarBox = toolbar.getBoundingClientRect();
+    const clipped = [...section.querySelectorAll('input:not([type="hidden"]), select, button, .library-meta-preview')].some((node) => {
+      const box = node.getBoundingClientRect();
+      return box.right > sectionBox.right + 2 || box.left < sectionBox.left - 2;
+    });
+    return {
+      pageOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 2,
+      sectionRight: sectionBox.right,
+      formRight: formBox.right,
+      toolbarRight: toolbarBox.right,
+      clipped,
+    };
+  });
+
+  expect(layout.pageOverflow).toBe(false);
+  expect(layout.formRight).toBeLessThanOrEqual(layout.sectionRight + 2);
+  expect(layout.toolbarRight).toBeLessThanOrEqual(layout.sectionRight + 2);
+  expect(layout.clipped).toBe(false);
+});
+
 test('关于页等待云端资料和编辑文案完成后再显示内容', async ({ page }) => {
   await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('body')).toHaveClass(/resume-ready/);
