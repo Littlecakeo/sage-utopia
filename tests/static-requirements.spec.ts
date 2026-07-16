@@ -18,6 +18,7 @@ test('Supabase 环境和 schema 文件已准备好', () => {
   for (const table of [
     'courses',
     'assignments',
+    'study_readings',
     'job_applications',
     'expenses',
     'portfolio_projects',
@@ -36,6 +37,10 @@ test('Supabase 环境和 schema 文件已准备好', () => {
   expect(schema).toContain('avatar_color text');
   expect(schema).toContain('avatar_url text');
   expect(schema).toContain("values ('friend-avatars', 'friend-avatars', true");
+  expect(schema).toContain("values ('study-materials', 'study-materials', false");
+  expect(schema).toContain("array['application/pdf','text/plain','application/epub+zip']");
+  expect(schema).toContain('sage_study_materials_insert');
+  expect(schema).toContain('sage_study_materials_delete');
   expect(schema).toContain('p_avatar_emoji text default');
   expect(schema).toContain('p_avatar_url text default');
   expect(schema).toContain('create function sage_friend_update_avatar');
@@ -97,4 +102,24 @@ test('朋友入口不在前端读取密码 hash 并支持删除留言', () => {
   expect(friends).not.toContain('data-note-style="heart"');
   expect(friends).not.toContain('data-note-style="scallop"');
   expect(cloud).toContain('autocomplete="off"');
+});
+
+test('学习中心文献书架接入云端文件库', () => {
+  const studyHtml = readFileSync(path.join(root, 'study.html'), 'utf8');
+  const studyJs = readFileSync(path.join(root, 'study.js'), 'utf8');
+  const cloud = readFileSync(path.join(root, 'sage-cloud-data.js'), 'utf8');
+  const data = readFileSync(path.join(root, 'sage-data.js'), 'utf8');
+  const shell = readFileSync(path.join(root, 'site-shell.js'), 'utf8');
+
+  expect(studyHtml).toContain('id="library"');
+  expect(studyHtml).toContain('文献书架');
+  expect(studyHtml).toContain('accept=".pdf,.txt,.epub');
+  expect(studyJs).toContain("loadAsync('readings')");
+  expect(studyJs).toContain('打开文件');
+  expect(studyJs).toContain('createStudyMaterialUrl');
+  expect(cloud).toContain("readings: 'study_readings'");
+  expect(cloud).toContain('uploadStudyMaterial');
+  expect(cloud).toContain('removeStudyMaterial');
+  expect(data).toContain("readings:  'sage.study.readings.v1'");
+  expect(shell).toContain("['#library','文献书架']");
 });

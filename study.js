@@ -106,6 +106,7 @@
     }
   })();
   let assignments = [];
+  let readings = [];
 
   // ── 重构的状态变量 ─────────────────────────────────
   let openSlot = null;
@@ -129,7 +130,12 @@
 
   async function loadCloudStudyData() {
     if (!window.SageData || !window.SageData.loadAsync) return;
-    const cloudCourses = await window.SageData.loadAsync('study');
+    let cloudCourses;
+    try {
+      cloudCourses = await window.SageData.loadAsync('study');
+    } catch {
+      cloudCourses = window.SageData.getAll('study');
+    }
     if (cloudCourses && cloudCourses.length) {
       plan = cloudCourses.map(item => ({
         id: item.id,
@@ -144,7 +150,17 @@
         timetable_url: item.timetable_url,
       }));
     }
-    assignments = await window.SageData.loadAsync('assignments');
+    try {
+      assignments = await window.SageData.loadAsync('assignments');
+    } catch {
+      assignments = window.SageData.getAll('assignments');
+    }
+    try {
+      readings = await window.SageData.loadAsync('readings');
+    } catch {
+      readings = window.SageData.getAll('readings');
+      toast('文献书架暂时连不上云端，已保留本地显示。');
+    }
   }
 
   function grouped() {
@@ -174,11 +190,30 @@
 
   function hydrateCourseSelect() {
     const select = document.getElementById('assignmentCourse');
-    if (!select) return;
-    select.innerHTML = plan.map(item => {
+    if (select) {
+      select.innerHTML = plan.map(item => {
+        const info = c(item.code);
+        return `<option value="${item.id || item.code}">${item.code} ${info.name}</option>`;
+      }).join('') || '<option value="">未关联课程</option>';
+    }
+    hydrateLibraryControls();
+  }
+
+  function hydrateLibraryControls() {
+    const readingCourse = document.getElementById('readingCourse');
+    const courseFilter = document.getElementById('libraryCourseFilter');
+    const courseOptions = plan.map(item => {
       const info = c(item.code);
       return `<option value="${item.id || item.code}">${item.code} ${info.name}</option>`;
-    }).join('') || '<option value="">未关联课程</option>';
+    }).join('');
+    if (readingCourse) {
+      readingCourse.innerHTML = '<option value="">未关联课程</option>' + courseOptions;
+    }
+    if (courseFilter) {
+      const current = courseFilter.value;
+      courseFilter.innerHTML = '<option value="">全部课程</option>' + courseOptions;
+      courseFilter.value = current;
+    }
   }
 
   // ── 主渲染函数（重构版）───────────────────────────
@@ -340,6 +375,274 @@
     toast('课程已保存');
     render();
     renderAssignments();
+    renderLibrary();
+  }
+
+  function courseValueFor(item) {
+    return item?.id || item?.code || '';
+  }
+
+  function courseFromValue(value) {
+    return plan.find(item => courseValueFor(item) === value || item.code === value) || null;
+  }
+
+  function splitTags(raw) {
+    if (Array.isArray(raw)) return raw.map(tag => String(tag || '').trim()).filter(Boolean);
+    return String(raw || '').split(/[,，\s]+/).map(tag => tag.trim()).filter(Boolean);
+  }
+
+  function formatFileSize(size) {
+    const n = Number(size || 0);
+    if (!n) return '未记录大小';
+    if (n < 1024 * 1024) return `${Math.max(1, Math.round(n / 1024))} KB`;
+    return `${(n / 1024 / 1024).toFixed(n > 10 * 1024 * 1024 ? 0 : 1)} MB`;
+  }
+
+  function detectFileFormat(file) {
+    if (!file) return '';
+    const ext = String(file.name || '').split('.').pop()?.toLowerCase() || '';
+    if (file.type === 'application/pdf' || ext === 'pdf') return 'pdf';
+    if (file.type === 'text/plain' || ext === 'txt') return 'txt';
+    if (file.type === 'application/epub+zip' || ext === 'epub') return 'epub';
+    return '';
+  }
+
+  function relatedDueText(reading) {
+    const code = reading.course_code || '';
+    const related = assignments
+      .filter(a => {
+        const course = courseFromValue(a.course_id);
+        return course && course.code === code && a.due_date;
+      })
+      .sort((a, b) => String(a.due_date).localeCompare(String(b.due_date)))[0];
+    return related ? `相关截止 ${related.due_date}` : '未关联截止';
+  }
+
+  function readingCard(reading) {
+    const tags = splitTags(reading.tags);
+    const format = String(reading.format || '').toUpperCase() || 'LINK';
+    const course = reading.course_code || '未关联课程';
+    const progress = Math.max(0, Math.min(100, Number(reading.progress || 0)));
+    const source = reading.source_url ? '学校链接' : '云端文件';
+    return `<article class="book-card" data-id="${escapeHTML(reading.id)}">
+      <div class="book-spine">${escapeHTML(format)}</div>
+      <div class="book-body">
+        <div class="book-title">${escapeHTML(reading.title || '未命名文献')}</div>
+        <div class="book-meta">${escapeHTML(course)} · ${escapeHTML(reading.author || source)} · ${escapeHTML(formatFileSize(reading.file_size))}</div>
+        <div class="book-badges">
+          <span class="book-badge">${escapeHTML(reading.status || '待读')}</span>
+          <span class="book-badge">${escapeHTML(relatedDueText(reading))}</span>
+          ${tags.slice(0, 3).map(tag => `<span class="book-badge">${escapeHTML(tag)}</span>`).join('')}
+        </div>
+        <div class="book-progress" aria-label="阅读进度 ${progress}%"><span style="width:${progress}%"></span></div>
+        ${reading.notes ? `<div class="book-note">${escapeHTML(reading.notes)}</div>` : ''}
+        <div class="book-actions">
+          <button class="mini" type="button" data-action="reading-open" data-id="${escapeHTML(reading.id)}">打开文件</button>
+          ${reading.source_url ? `<a class="mini ghost" href="${escapeHTML(reading.source_url)}" target="_blank" rel="noreferrer">学校链接</a>` : ''}
+          <button class="mini ghost admin-only" type="button" data-action="reading-edit" data-id="${escapeHTML(reading.id)}">编辑</button>
+          <button class="mini danger admin-only" type="button" data-action="reading-delete" data-id="${escapeHTML(reading.id)}">删除</button>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function filteredReadings() {
+    const q = document.getElementById('librarySearch')?.value.trim().toLowerCase() || '';
+    const courseValue = document.getElementById('libraryCourseFilter')?.value || '';
+    const status = document.getElementById('libraryStatusFilter')?.value || '';
+    const selectedCourse = courseFromValue(courseValue);
+    const selectedCode = selectedCourse?.code || courseValue;
+    return readings.filter(reading => {
+      const haystack = [
+        reading.title,
+        reading.author,
+        reading.course_code,
+        reading.term,
+        reading.source_url,
+        reading.notes,
+        splitTags(reading.tags).join(' '),
+      ].join(' ').toLowerCase();
+      if (q && !haystack.includes(q)) return false;
+      if (selectedCode && reading.course_code !== selectedCode) return false;
+      if (status && reading.status !== status) return false;
+      return true;
+    });
+  }
+
+  function renderLibrary() {
+    hydrateLibraryControls();
+    const list = document.getElementById('libraryList');
+    if (!list) return;
+    const visible = filteredReadings();
+    if (!visible.length) {
+      list.innerHTML = '<div class="library-empty">书架还空着。进入管理模式后，可以上传 PDF、TXT、EPUB，或者先保存学校资源链接。</div>';
+    } else {
+      const groups = visible.reduce((acc, reading) => {
+        const key = `${reading.course_code || '未关联课程'}｜${reading.term || '未分配学期'}`;
+        (acc[key] ||= []).push(reading);
+        return acc;
+      }, {});
+      list.innerHTML = Object.entries(groups).map(([key, items]) => {
+        const [course, term] = key.split('｜');
+        return `<section class="shelf-group">
+          <div class="shelf-head"><strong>${escapeHTML(course)}</strong><span>${escapeHTML(term)} · ${items.length} 份材料</span></div>
+          <div class="book-grid">${items.map(readingCard).join('')}</div>
+        </section>`;
+      }).join('');
+    }
+    const hint = document.getElementById('librarySyncHint');
+    if (hint) {
+      hint.textContent = window.SageCloudData?.hasConfig
+        ? '文献书架已连接 Supabase。学校同步会关联课程、截止日期和官方链接，不自动抓取受限文件。'
+        : '未配置 Supabase：当前只保留本地文献信息，文件不会跨设备同步。';
+    }
+  }
+
+  function resetLibraryForm() {
+    document.getElementById('libraryForm')?.reset();
+    ['readingId', 'readingFilePath', 'readingFileName', 'readingFileSize', 'readingFormat'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const status = document.getElementById('readingStatus');
+    if (status) status.value = '待读';
+    const progress = document.getElementById('readingProgress');
+    if (progress) progress.value = '0';
+  }
+
+  function editReading(id) {
+    const reading = readings.find(item => item.id === id);
+    if (!reading) return;
+    document.getElementById('readingId').value = reading.id || '';
+    document.getElementById('readingFilePath').value = reading.file_path || '';
+    document.getElementById('readingFileName').value = reading.file_name || '';
+    document.getElementById('readingFileSize').value = reading.file_size || '';
+    document.getElementById('readingFormat').value = reading.format || '';
+    document.getElementById('readingTitle').value = reading.title || '';
+    document.getElementById('readingAuthor').value = reading.author || '';
+    const course = plan.find(item => item.code === reading.course_code);
+    document.getElementById('readingCourse').value = course ? courseValueFor(course) : '';
+    document.getElementById('readingStatus').value = reading.status || '待读';
+    document.getElementById('readingProgress').value = reading.progress || 0;
+    document.getElementById('readingSourceUrl').value = reading.source_url || '';
+    document.getElementById('readingTags').value = splitTags(reading.tags).join(' ');
+    document.getElementById('readingNotes').value = reading.notes || '';
+    document.getElementById('library')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function saveReading(e) {
+    e.preventDefault();
+    const id = document.getElementById('readingId')?.value;
+    const fileInput = document.getElementById('readingFile');
+    const file = fileInput?.files?.[0] || null;
+    const selectedCourse = courseFromValue(document.getElementById('readingCourse')?.value || '');
+    let fileMeta = {
+      file_path: document.getElementById('readingFilePath')?.value || '',
+      file_name: document.getElementById('readingFileName')?.value || '',
+      file_size: Number(document.getElementById('readingFileSize')?.value || 0),
+      format: document.getElementById('readingFormat')?.value || '',
+    };
+    let uploadedPath = '';
+    if (file) {
+      const format = detectFileFormat(file);
+      if (!format) return toast('仅支持 PDF、TXT、EPUB 文件。');
+      if (file.size > 50 * 1024 * 1024) return toast('单个文件不能超过 50MB。');
+      if (!window.SageCloudData?.hasConfig) return toast('当前未连接云端，请先保存学校链接或配置 Supabase。');
+      fileMeta = await window.SageCloudData.uploadStudyMaterial(file);
+      uploadedPath = fileMeta?.file_path || '';
+    }
+    const payload = {
+      title: document.getElementById('readingTitle')?.value.trim(),
+      author: document.getElementById('readingAuthor')?.value.trim() || '',
+      course_code: selectedCourse?.code || '',
+      term: selectedCourse?.term || '',
+      source_url: document.getElementById('readingSourceUrl')?.value.trim() || '',
+      source_type: '学校/手动',
+      status: document.getElementById('readingStatus')?.value || '待读',
+      progress: Number(document.getElementById('readingProgress')?.value || 0),
+      tags: splitTags(document.getElementById('readingTags')?.value || ''),
+      notes: document.getElementById('readingNotes')?.value.trim() || '',
+      is_public: false,
+      ...fileMeta,
+    };
+    if (!payload.title) return;
+    if (!payload.file_path && !payload.source_url) return toast('请上传文件，或填写学校资源链接。');
+    if (!payload.format && payload.source_url) payload.format = 'link';
+    try {
+      if (id) {
+        const previous = readings.find(item => item.id === id);
+        const updated = await window.SageData.cloudUpdate('readings', id, payload);
+        readings = readings.map(item => item.id === id ? Object.assign({}, item, updated || payload) : item);
+        if (file && previous?.file_path && previous.file_path !== payload.file_path) {
+          await window.SageCloudData?.removeStudyMaterial?.(previous.file_path).catch(() => toast('旧文件删除失败，可稍后重试。'));
+        }
+        toast('文献已更新');
+      } else {
+        const created = await window.SageData.cloudAdd('readings', Object.assign({ id: window.SageData.uid('reading') }, payload));
+        readings.unshift(created || payload);
+        toast('文献已保存');
+      }
+    } catch (error) {
+      if (uploadedPath) {
+        await window.SageCloudData?.removeStudyMaterial?.(uploadedPath).catch(() => {});
+      }
+      throw error;
+    }
+    window.SageData.saveLocalOnly('readings', readings);
+    resetLibraryForm();
+    renderLibrary();
+  }
+
+  async function openReading(id) {
+    const reading = readings.find(item => item.id === id);
+    if (!reading) return;
+    let openUrl = reading.source_url || '';
+    if (reading.file_path) {
+      try {
+        openUrl = await window.SageCloudData?.createStudyMaterialUrl?.(reading.file_path);
+      } catch {
+        toast('文件链接生成失败，请检查云端连接。');
+        return;
+      }
+    }
+    if (!openUrl) return toast('这条文献还没有文件或学校链接。');
+    window.open(openUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  async function deleteReading(id) {
+    const reading = readings.find(item => item.id === id);
+    if (!reading) return;
+    if (!confirm('确定删除这份文献吗？文件也会从云端移除。')) return;
+    let storageError = false;
+    if (reading.file_path && window.SageCloudData?.hasConfig) {
+      try {
+        await window.SageCloudData.removeStudyMaterial(reading.file_path);
+      } catch {
+        storageError = true;
+      }
+    }
+    await window.SageData.cloudRemove('readings', id);
+    readings = readings.filter(item => item.id !== id);
+    window.SageData.saveLocalOnly('readings', readings);
+    renderLibrary();
+    toast(storageError ? '记录已删除，但文件移除失败，请稍后检查云端。' : '文献已删除');
+  }
+
+  function bindLibraryActions() {
+    document.getElementById('libraryForm')?.addEventListener('submit', saveReading);
+    document.getElementById('libraryCancelEdit')?.addEventListener('click', resetLibraryForm);
+    ['librarySearch', 'libraryCourseFilter', 'libraryStatusFilter'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', renderLibrary);
+      document.getElementById(id)?.addEventListener('change', renderLibrary);
+    });
+    document.getElementById('libraryList')?.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-id');
+      if (btn.getAttribute('data-action') === 'reading-open') openReading(id);
+      if (btn.getAttribute('data-action') === 'reading-edit') editReading(id);
+      if (btn.getAttribute('data-action') === 'reading-delete') deleteReading(id);
+    });
   }
 
   function assignmentCard(a) {
@@ -478,13 +781,16 @@
    *  初始化
    * ═══════════════════════════════════════════════════ */
   async function init() {
-    if (window.__studyInited) return;
+    if (window.__sageStudyInitDone) return;
+    window.__sageStudyInitDone = true;
     window.__studyInited = true;
 
     // 先显示本地默认课程，避免云端请求慢时页面短暂空白。
     render();
     renderAssignments();
+    renderLibrary();
     bindAssignmentActions();
+    bindLibraryActions();
     initSagePanel();
 
     await loadCloudStudyData();
@@ -492,17 +798,19 @@
     // 云端数据回来后再覆盖刷新。
     render();
     renderAssignments();
+    renderLibrary();
 
     // 初始化同步功能（委托给 sage-sync.js 独立模块）
     if (window.SageSync) { window.SageSync.init(); }
     requestAnimationFrame(() => {
       render();
       renderAssignments();
+      renderLibrary();
     });
   }
 
   // 暴露刷新接口供 SPA 切换时调用
-  window.__sageStudyRefresh = function () { render(); renderAssignments(); };
+  window.__sageStudyRefresh = function () { render(); renderAssignments(); renderLibrary(); };
   setTimeout(window.__sageStudyRefresh, 0);
   setTimeout(window.__sageStudyRefresh, 450);
 

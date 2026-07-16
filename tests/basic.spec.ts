@@ -458,6 +458,49 @@ test('学习中心小按钮不会被撑成过大的圆形', async ({ page }) => 
   expect(measurements.termWidth).toBeLessThanOrEqual(38);
 });
 
+test('学习中心文献书架可以跳转并保持移动端排版', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/study.html', { waitUntil: 'domcontentloaded' });
+
+  await page.getByRole('link', { name: '文献书架', exact: true }).first().click();
+  await expect(page).toHaveURL(/study\.html#library$/);
+  await expect(page.locator('#library')).toBeInViewport();
+  await page.locator('#readingTitle').fill('Platform Society Weekly Reading');
+  await page.locator('#readingAuthor').fill('UNSW Moodle');
+  await page.locator('#readingCourse').selectOption('MDIA5003');
+  await page.locator('#readingStatus').selectOption('在读');
+  await page.locator('#readingProgress').fill('35');
+  await page.locator('#readingSourceUrl').fill('https://www.unsw.edu.au/');
+  await page.locator('#readingTags').fill('社媒 week1');
+  await page.locator('#readingNotes').fill('用来验证书架移动端不会竖排。');
+  await page.getByRole('button', { name: '保存文献' }).click();
+  await expect(page.getByText('Platform Society Weekly Reading')).toBeVisible();
+  await expect(page.getByRole('button', { name: '打开文件' })).toBeVisible();
+
+  const layout = await page.locator('.book-card').first().evaluate((card) => {
+    const title = card.querySelector('.book-title') as HTMLElement;
+    const actions = card.querySelector('.book-actions') as HTMLElement;
+    const cardBox = card.getBoundingClientRect();
+    const titleBox = title.getBoundingClientRect();
+    const actionsBox = actions.getBoundingClientRect();
+    return {
+      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 2,
+      cardWidth: cardBox.width,
+      titleWidth: titleBox.width,
+      titleHeight: titleBox.height,
+      actionsTop: actionsBox.top,
+      titleBottom: titleBox.bottom,
+    };
+  });
+
+  expect(layout.overflow).toBe(false);
+  expect(layout.cardWidth).toBeGreaterThan(280);
+  expect(layout.titleWidth).toBeGreaterThan(180);
+  expect(layout.titleHeight).toBeLessThan(70);
+  expect(layout.actionsTop).toBeGreaterThan(layout.titleBottom);
+  await expect(page.locator('#readingFile')).toHaveAttribute('accept', /pdf.*txt.*epub/);
+});
+
 test('关于页等待云端资料和编辑文案完成后再显示内容', async ({ page }) => {
   await page.goto('/resume.html', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('body')).toHaveClass(/resume-ready/);

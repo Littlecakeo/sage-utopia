@@ -14,6 +14,7 @@ const ADMIN_PASSCODE =
 const MODULE_TABLES = {
   study: 'courses',
   assignments: 'assignments',
+  readings: 'study_readings',
   career: 'job_applications',
   expenses: 'expenses',
   portfolio: 'portfolio_projects',
@@ -417,6 +418,28 @@ function toCloud(module, payload) {
     item.delete_token = String(item.delete_token || '').trim().slice(0, 160);
     item.is_visible = item.is_visible !== false;
   }
+  if (module === 'readings') {
+    if (item.id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(item.id))) {
+      delete item.id;
+    }
+    item.title = String(item.title || '').trim().slice(0, 180);
+    item.author = String(item.author || '').trim().slice(0, 140);
+    item.course_code = String(item.course_code || '').trim().slice(0, 24);
+    item.term = String(item.term || '').trim().slice(0, 60);
+    item.format = String(item.format || '').trim().toLowerCase().slice(0, 12);
+    item.file_path = String(item.file_path || '').trim().slice(0, 500);
+    item.file_name = String(item.file_name || '').trim().slice(0, 220);
+    item.file_size = Number(item.file_size || 0);
+    item.source_url = String(item.source_url || '').trim().slice(0, 700);
+    item.source_type = String(item.source_type || '').trim().slice(0, 60);
+    item.status = String(item.status || '待读').trim().slice(0, 24);
+    item.progress = Math.max(0, Math.min(100, Number(item.progress || 0)));
+    item.notes = String(item.notes || '').trim().slice(0, 600);
+    item.tags = Array.isArray(item.tags)
+      ? item.tags.map((tag) => String(tag || '').trim()).filter(Boolean).slice(0, 12)
+      : String(item.tags || '').split(/[,，\s]+/).map((tag) => tag.trim()).filter(Boolean).slice(0, 12);
+    item.is_public = item.is_public === true;
+  }
   return cleanPayload(item);
 }
 
@@ -556,6 +579,58 @@ async function uploadFriendAvatar(file, username) {
   return data?.publicUrl || '';
 }
 
+async function uploadStudyMaterial(file) {
+  if (!client || !file) return null;
+  requireAdminWrite();
+  const allowed = new Map([
+    ['application/pdf', 'pdf'],
+    ['text/plain', 'txt'],
+    ['application/epub+zip', 'epub'],
+  ]);
+  const rawName = String(file.name || 'material').trim();
+  const extension = rawName.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || '';
+  const format = allowed.get(file.type) || (['pdf', 'txt', 'epub'].includes(extension) ? extension : '');
+  if (!format) throw new Error('仅支持 PDF、TXT、EPUB 文件。');
+  if (file.size > 50 * 1024 * 1024) throw new Error('单个文件不能超过 50MB。');
+  const safeName = rawName
+    .replace(/\.[^.]+$/, '')
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80) || 'material';
+  const path = `materials/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}.${format}`;
+  const { error } = await client.storage
+    .from('study-materials')
+    .upload(path, file, {
+      cacheControl: '3600',
+      contentType: file.type || (format === 'epub' ? 'application/epub+zip' : format === 'pdf' ? 'application/pdf' : 'text/plain'),
+      upsert: false,
+    });
+  if (error) throw error;
+  return {
+    file_path: path,
+    file_name: rawName,
+    file_size: file.size,
+    format,
+  };
+}
+
+async function createStudyMaterialUrl(path) {
+  if (!client || !path) return '';
+  const { data, error } = await client.storage
+    .from('study-materials')
+    .createSignedUrl(path, 60 * 10, { download: false });
+  if (error) throw error;
+  return data?.signedUrl || '';
+}
+
+async function removeStudyMaterial(path) {
+  if (!client || !path) return false;
+  requireAdminWrite();
+  const { error } = await client.storage.from('study-materials').remove([path]);
+  if (error) throw error;
+  return true;
+}
+
 async function updateFriendAvatar(username, passwordHash, avatarUrl) {
   try {
     return await proxyCloud('updateFriendAvatar', { username, passwordHash, avatarUrl });
@@ -655,6 +730,9 @@ const cloudApi = {
   createGuestbookMessage,
   enterFriendProfile,
   uploadFriendAvatar,
+  uploadStudyMaterial,
+  createStudyMaterialUrl,
+  removeStudyMaterial,
   updateFriendAvatar,
   getFriendProfile,
   createFriendProfile,

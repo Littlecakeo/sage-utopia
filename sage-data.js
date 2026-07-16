@@ -18,6 +18,7 @@
     profile:   'sage.profile.v1',
     sync:      'sage.sync.ical.v1',
     study:     'sage.study.planV3',
+    readings:  'sage.study.readings.v1',
     siteContent: 'sage.site.content.v1',
     settings: 'sage.settings.v1',
   };
@@ -32,6 +33,7 @@
     profile:   { type: 'array', desc: '个人资料' },
     sync:      { type: 'array', desc: '同步事件' },
     study:     { type: 'array', desc: '学习计划' },
+    readings:  { type: 'array', desc: '文献书架' },
     siteContent: { type: 'array', desc: '页面文案' },
     settings: { type: 'array', desc: '站点设置' },
   };

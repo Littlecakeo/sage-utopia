@@ -46,6 +46,28 @@ create table if not exists assignments (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists study_readings (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid null,
+  title text not null,
+  author text,
+  course_code text,
+  term text,
+  format text not null default 'link',
+  file_path text,
+  file_name text,
+  file_size bigint not null default 0,
+  source_url text,
+  source_type text,
+  status text not null default '待读',
+  progress integer not null default 0 check (progress between 0 and 100),
+  notes text,
+  tags text[] not null default '{}',
+  is_public boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists job_applications (
   id uuid primary key default gen_random_uuid(),
   user_id uuid null,
@@ -193,6 +215,9 @@ create trigger courses_set_updated_at before update on courses for each row exec
 drop trigger if exists assignments_set_updated_at on assignments;
 create trigger assignments_set_updated_at before update on assignments for each row execute function set_updated_at();
 
+drop trigger if exists study_readings_set_updated_at on study_readings;
+create trigger study_readings_set_updated_at before update on study_readings for each row execute function set_updated_at();
+
 drop trigger if exists job_applications_set_updated_at on job_applications;
 create trigger job_applications_set_updated_at before update on job_applications for each row execute function set_updated_at();
 
@@ -223,6 +248,7 @@ create trigger friend_profiles_set_updated_at before update on friend_profiles f
 alter table profile enable row level security;
 alter table courses enable row level security;
 alter table assignments enable row level security;
+alter table study_readings enable row level security;
 alter table job_applications enable row level security;
 alter table expenses enable row level security;
 alter table portfolio_projects enable row level security;
@@ -247,6 +273,11 @@ drop policy if exists "sage_public_read_assignments" on assignments;
 create policy "sage_public_read_assignments" on assignments for select using (true);
 drop policy if exists "sage_public_write_assignments" on assignments;
 create policy "sage_public_write_assignments" on assignments for all using (true) with check (true);
+
+drop policy if exists "sage_public_read_study_readings" on study_readings;
+create policy "sage_public_read_study_readings" on study_readings for select using (true);
+drop policy if exists "sage_public_write_study_readings" on study_readings;
+create policy "sage_public_write_study_readings" on study_readings for all using (true) with check (true);
 
 drop policy if exists "sage_public_read_job_applications" on job_applications;
 create policy "sage_public_read_job_applications" on job_applications for select using (true);
@@ -301,6 +332,13 @@ set public = excluded.public,
     file_size_limit = excluded.file_size_limit,
     allowed_mime_types = excluded.allowed_mime_types;
 
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('study-materials', 'study-materials', false, 52428800, array['application/pdf','text/plain','application/epub+zip'])
+on conflict (id) do update
+set public = excluded.public,
+    file_size_limit = excluded.file_size_limit,
+    allowed_mime_types = excluded.allowed_mime_types;
+
 drop policy if exists "sage_friend_avatars_read" on storage.objects;
 create policy "sage_friend_avatars_read"
 on storage.objects for select
@@ -315,6 +353,37 @@ with check (
   bucket_id = 'friend-avatars'
   and (storage.foldername(name))[1] ~ '^[A-Za-z0-9._-]{3,32}$'
 );
+
+drop policy if exists "sage_study_materials_read" on storage.objects;
+create policy "sage_study_materials_read"
+on storage.objects for select
+to anon, authenticated
+using (bucket_id = 'study-materials');
+
+drop policy if exists "sage_study_materials_insert" on storage.objects;
+create policy "sage_study_materials_insert"
+on storage.objects for insert
+to anon, authenticated
+with check (
+  bucket_id = 'study-materials'
+  and (storage.foldername(name))[1] = 'materials'
+);
+
+drop policy if exists "sage_study_materials_update" on storage.objects;
+create policy "sage_study_materials_update"
+on storage.objects for update
+to anon, authenticated
+using (bucket_id = 'study-materials')
+with check (
+  bucket_id = 'study-materials'
+  and (storage.foldername(name))[1] = 'materials'
+);
+
+drop policy if exists "sage_study_materials_delete" on storage.objects;
+create policy "sage_study_materials_delete"
+on storage.objects for delete
+to anon, authenticated
+using (bucket_id = 'study-materials');
 
 drop policy if exists "sage_friend_profiles_read_public" on friend_profiles;
 drop policy if exists "sage_friend_profiles_insert_public" on friend_profiles;

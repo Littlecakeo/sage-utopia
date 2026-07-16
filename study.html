@@ -64,6 +64,32 @@
     .assignment-form{grid-template-columns:minmax(190px,1.3fr) minmax(180px,1fr) 150px auto auto;align-items:center}
     .assignment-form .assignment-date-field{max-width:150px}
     .assignment-form .assignment-note-field{grid-column:1 / 4}
+    .library-panel{display:grid;gap:14px}
+    .library-toolbar{display:grid;grid-template-columns:minmax(180px,1fr) minmax(140px,.7fr) minmax(120px,.55fr);gap:10px;align-items:center;margin:12px 0}
+    .library-admin{display:grid;gap:10px;padding:12px;border:1px solid rgba(168,213,186,.52);border-radius:18px;background:rgba(241,248,240,.68)}
+    .library-form{display:grid;grid-template-columns:minmax(180px,1.2fr) minmax(150px,.8fr) minmax(140px,.7fr) minmax(120px,.55fr);gap:8px;align-items:center}
+    .library-form .library-wide{grid-column:span 2}
+    .library-form input[type="file"]{min-width:0}
+    .library-status{margin:0;color:var(--muted);font-size:12px;font-weight:800;line-height:1.5}
+    .bookshelf{display:grid;gap:16px}
+    .shelf-group{position:relative;border:1px solid rgba(168,213,186,.54);border-radius:22px;background:linear-gradient(180deg,rgba(255,253,248,.92),rgba(239,248,239,.72));padding:14px 14px 18px;overflow:hidden}
+    .shelf-group:after{content:"";position:absolute;left:14px;right:14px;bottom:12px;height:8px;border-radius:999px;background:linear-gradient(90deg,rgba(111,139,104,.16),rgba(199,168,90,.22),rgba(111,139,104,.12));pointer-events:none}
+    .shelf-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+    .shelf-head strong{font-size:16px}
+    .shelf-head span{color:var(--muted);font-size:12px;font-weight:800}
+    .book-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;padding-bottom:8px}
+    .book-card{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;min-height:168px;padding:13px;border:1px solid rgba(222,216,201,.82);border-radius:18px;background:#fffdf8;box-shadow:var(--shadow-soft);overflow:hidden}
+    .book-spine{display:flex;align-items:center;justify-content:center;border-radius:13px;background:linear-gradient(180deg,#789372,#c7d8bd);color:#fff;font-weight:950;font-size:12px;letter-spacing:0;writing-mode:vertical-rl;text-orientation:mixed;text-transform:uppercase;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
+    .book-body{min-width:0;display:grid;gap:8px;align-content:start}
+    .book-title{font-size:16px;font-weight:950;line-height:1.35;color:#2f3a35;overflow-wrap:anywhere}
+    .book-meta,.book-note{color:var(--muted);font-size:12px;font-weight:750;line-height:1.5;overflow-wrap:anywhere}
+    .book-badges{display:flex;gap:6px;flex-wrap:wrap}
+    .book-badge{display:inline-flex;align-items:center;border-radius:999px;border:1px solid rgba(168,213,186,.62);background:#f1f8f0;color:#4f765b;padding:4px 8px;font-size:11px;font-weight:900;line-height:1}
+    .book-progress{height:7px;border-radius:999px;background:#edf2e9;overflow:hidden}
+    .book-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#789372,#c3a15a)}
+    .book-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .book-actions .mini{padding:8px 10px;font-size:12px}
+    .library-empty{padding:18px;border:1px dashed rgba(168,213,186,.72);border-radius:18px;background:rgba(255,253,248,.68);color:var(--muted);font-size:13px;font-weight:800;line-height:1.7}
     @media(max-width:900px){
       .compact-links,.note-strip{grid-template-columns:1fr}
       .study-top-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
@@ -76,6 +102,9 @@
       .assignment-form .assignment-course-field{grid-column:1 / 2}
       .assignment-form .assignment-date-field{grid-column:2 / 3;max-width:none}
       .assignment-form .assignment-note-field{grid-column:1 / 3}
+      .library-toolbar{grid-template-columns:1fr}
+      .library-form{grid-template-columns:1fr 1fr}
+      .library-form .library-wide{grid-column:1 / -1}
       .mobile-branches{display:flex;gap:8px;overflow:auto;margin-top:10px}
       .mobile-branches a{flex:0 0 auto;border-radius:999px;background:#fff;padding:8px 11px;font-size:12px;font-weight:800;color:#60785d;border:1px solid #D9E4D5}
       .study-hero{padding:14px 16px}
@@ -91,6 +120,9 @@
       .assignment-form .assignment-note-field{grid-column:1 / -1}
       .assignment-form .assignment-date-field{grid-column:1 / 2}
       .assignment-form button{grid-column:auto}
+      .library-form{grid-template-columns:1fr}
+      .book-grid{grid-template-columns:1fr}
+      .book-card{grid-template-columns:38px minmax(0,1fr);padding:12px}
     }
   </style>
 </head>
@@ -110,6 +142,7 @@
     <div class="mobile-branches">
       <a href="#planner">换课</a>
       <a href="#assignments">作业</a>
+      <a href="#library">文献书架</a>
       <a href="#links">链接</a>
       <a href="#visa">485</a>
       <a href="#sync">同步</a>
@@ -129,6 +162,7 @@
           <p>本页分支</p>
           <a href="#planner">换课</a>
           <a href="#assignments">作业</a>
+          <a href="#library">文献书架</a>
           <a href="#links">链接</a>
           <a href="#visa">485</a>
           <a href="#sync">同步</a>
@@ -195,6 +229,50 @@
         </form>
         <p class="unit-hint" id="studySyncHint">正在检查云端连接...</p>
         <div id="assignmentList"></div>
+      </section>
+
+      <section class="card section" id="library">
+        <h2>文献书架</h2>
+        <p class="sub">把教材、论文和阅读材料按课程收好。文件点击后会从系统打开，不在网页里强行阅读。</p>
+        <div class="library-panel">
+          <div class="library-toolbar">
+            <input class="field" id="librarySearch" placeholder="搜索标题、作者、课程或标签">
+            <select class="field" id="libraryCourseFilter" aria-label="按课程筛选"></select>
+            <select class="field" id="libraryStatusFilter" aria-label="按阅读状态筛选">
+              <option value="">全部状态</option>
+              <option value="待读">待读</option>
+              <option value="在读">在读</option>
+              <option value="已读">已读</option>
+            </select>
+          </div>
+          <div class="library-admin admin-only">
+            <form id="libraryForm" class="library-form">
+              <input type="hidden" id="readingId">
+              <input type="hidden" id="readingFilePath">
+              <input type="hidden" id="readingFileName">
+              <input type="hidden" id="readingFileSize">
+              <input type="hidden" id="readingFormat">
+              <input class="field" id="readingTitle" placeholder="标题（必填）" required>
+              <input class="field" id="readingAuthor" placeholder="作者 / 来源">
+              <select class="field" id="readingCourse"></select>
+              <select class="field" id="readingStatus">
+                <option value="待读">待读</option>
+                <option value="在读">在读</option>
+                <option value="已读">已读</option>
+              </select>
+              <input class="field" id="readingProgress" type="number" min="0" max="100" value="0" placeholder="进度 %">
+              <input class="field library-wide" id="readingSourceUrl" placeholder="学校官网 / Moodle / 图书馆链接">
+              <input class="field library-wide" id="readingTags" placeholder="标签，用空格或逗号分隔">
+              <input class="field library-wide" id="readingNotes" placeholder="备注">
+              <input class="field library-wide" id="readingFile" type="file" accept=".pdf,.txt,.epub,application/pdf,text/plain,application/epub+zip">
+              <button type="submit" class="mini">保存文献</button>
+              <button type="button" class="mini ghost" id="libraryCancelEdit">取消编辑</button>
+            </form>
+            <p class="library-status" id="libraryUploadHint">支持 PDF、TXT、EPUB，单个文件最多 50MB。保存后会进入云端书架。</p>
+          </div>
+          <p class="library-status" id="librarySyncHint">正在检查文献云端连接...</p>
+          <div class="bookshelf" id="libraryList"></div>
+        </div>
       </section>
 
       <!-- 官方链接 -->
